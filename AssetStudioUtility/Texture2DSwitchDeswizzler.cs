@@ -112,6 +112,7 @@ namespace AssetStudio
                 case TextureFormat.ASTC_RGBA_12x12: return new Size(12, 12); // 16 bytes per 12x12=144 pixels
                 case TextureFormat.RG16: return new Size(8, 1); // 2 bytes per pixel
                 case TextureFormat.R8: return new Size(16, 1); // 1 byte per pixel
+                case TextureFormat.RGBA64: return new Size(2, 1); // 8 bytes per pixel
                 default: throw new NotImplementedException();
             };
         }

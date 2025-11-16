@@ -351,6 +351,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.BackColor = System.Drawing.SystemColors.Window;
             this.tabPage2.Controls.Add(this.licenseRichTextBox);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";

@@ -108,8 +108,9 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.sceneExactSearchCheckBox = new System.Windows.Forms.CheckBox();
             this.sceneTreeView = new AssetStudioGUI.GOHierarchy();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.sceneExactSearchCheckBox = new System.Windows.Forms.CheckBox();
             this.treeSearch = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.assetListView = new System.Windows.Forms.ListView();
@@ -186,6 +187,7 @@
             this.splitContainer1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tabPage3.SuspendLayout();
@@ -897,30 +899,14 @@
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.sceneExactSearchCheckBox);
             this.tabPage1.Controls.Add(this.sceneTreeView);
-            this.tabPage1.Controls.Add(this.treeSearch);
+            this.tabPage1.Controls.Add(this.panel2);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Size = new System.Drawing.Size(472, 607);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Scene Hierarchy";
             this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // sceneExactSearchCheckBox
-            // 
-            this.sceneExactSearchCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.sceneExactSearchCheckBox.AutoSize = true;
-            this.sceneExactSearchCheckBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.sceneExactSearchCheckBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.sceneExactSearchCheckBox.Location = new System.Drawing.Point(384, 2);
-            this.sceneExactSearchCheckBox.Name = "sceneExactSearchCheckBox";
-            this.sceneExactSearchCheckBox.Size = new System.Drawing.Size(85, 17);
-            this.sceneExactSearchCheckBox.TabIndex = 2;
-            this.sceneExactSearchCheckBox.Text = "Exact search";
-            this.sceneExactSearchCheckBox.UseVisualStyleBackColor = true;
-            this.sceneExactSearchCheckBox.CheckedChanged += new System.EventHandler(this.sceneExactSearchCheckBox_CheckedChanged);
             // 
             // sceneTreeView
             // 
@@ -929,16 +915,40 @@
             this.sceneTreeView.CheckBoxes = true;
             this.sceneTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sceneTreeView.HideSelection = false;
-            this.sceneTreeView.Location = new System.Drawing.Point(0, 20);
+            this.sceneTreeView.Location = new System.Drawing.Point(0, 22);
             this.sceneTreeView.Name = "sceneTreeView";
-            this.sceneTreeView.Size = new System.Drawing.Size(472, 587);
+            this.sceneTreeView.Size = new System.Drawing.Size(472, 585);
             this.sceneTreeView.TabIndex = 0;
             this.sceneTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.sceneTreeView_AfterCheck);
             this.sceneTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.sceneTreeView_NodeMouseClick);
             // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.SystemColors.Window;
+            this.panel2.Controls.Add(this.sceneExactSearchCheckBox);
+            this.panel2.Controls.Add(this.treeSearch);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(0, 0);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(472, 22);
+            this.panel2.TabIndex = 11;
+            // 
+            // sceneExactSearchCheckBox
+            // 
+            this.sceneExactSearchCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.sceneExactSearchCheckBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.sceneExactSearchCheckBox.Location = new System.Drawing.Point(377, 3);
+            this.sceneExactSearchCheckBox.Name = "sceneExactSearchCheckBox";
+            this.sceneExactSearchCheckBox.Size = new System.Drawing.Size(92, 16);
+            this.sceneExactSearchCheckBox.TabIndex = 2;
+            this.sceneExactSearchCheckBox.Text = "Exact search";
+            this.sceneExactSearchCheckBox.UseVisualStyleBackColor = true;
+            this.sceneExactSearchCheckBox.CheckedChanged += new System.EventHandler(this.sceneExactSearchCheckBox_CheckedChanged);
+            // 
             // treeSearch
             // 
-            this.treeSearch.Dock = System.Windows.Forms.DockStyle.Top;
+            this.treeSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.treeSearch.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeSearch.ForeColor = System.Drawing.SystemColors.GrayText;
             this.treeSearch.Location = new System.Drawing.Point(0, 0);
             this.treeSearch.Name = "treeSearch";
@@ -1132,6 +1142,7 @@
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(478, 18);
             this.progressBar1.Step = 1;
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar1.TabIndex = 1;
             // 
             // tabControl2
@@ -1304,6 +1315,7 @@
             this.FMODloopButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.FMODloopButton.Appearance = System.Windows.Forms.Appearance.Button;
             this.FMODloopButton.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.FMODloopButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.FMODloopButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODloopButton.Location = new System.Drawing.Point(414, 303);
             this.FMODloopButton.Name = "FMODloopButton";
@@ -1694,7 +1706,8 @@
             this.splitContainer1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
@@ -1871,6 +1884,7 @@
         private System.Windows.Forms.ToolStripMenuItem saveOptionsToDiskToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator importOptionsToolStripSeparator;
         private System.Windows.Forms.ToolStripMenuItem meshLazyLoadToolStripMenuItem;
+        private System.Windows.Forms.Panel panel2;
     }
 }
 

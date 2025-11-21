@@ -810,7 +810,7 @@ namespace AssetStudio
                 AnimationList.Add(iAnim);
                 if (animationClip.m_Legacy)
                 {
-                    foreach (var m_CompressedRotationCurve in animationClip?.m_CompressedRotationCurves)
+                    foreach (var m_CompressedRotationCurve in animationClip.m_CompressedRotationCurves ?? Enumerable.Empty<CompressedAnimationCurve>())
                     {
                         var track = iAnim.FindTrack(FixBonePath(animationClip, m_CompressedRotationCurve.m_Path));
 
@@ -823,8 +823,8 @@ namespace AssetStudio
                             t += data[i];
                             times[i] = t * 0.01f;
                         }
-                        var quats = m_CompressedRotationCurve.m_Values.UnpackQuats();
 
+                        var quats = m_CompressedRotationCurve.m_Values.UnpackQuats();
                         for (int i = 0; i < numKeys; i++)
                         {
                             var quat = quats[i];
@@ -857,7 +857,7 @@ namespace AssetStudio
                             track.Scalings.Add(new ImportedKeyframe<Vector3>(m_Curve.time, new Vector3(m_Curve.value.X, m_Curve.value.Y, m_Curve.value.Z)));
                         }
                     }
-                    foreach (var m_EulerCurve in animationClip?.m_EulerCurves)
+                    foreach (var m_EulerCurve in animationClip.m_EulerCurves ?? Enumerable.Empty<Vector3Curve>())
                     {
                         var track = iAnim.FindTrack(FixBonePath(animationClip, m_EulerCurve.path));
                         foreach (var m_Curve in m_EulerCurve.curve.m_Curve)

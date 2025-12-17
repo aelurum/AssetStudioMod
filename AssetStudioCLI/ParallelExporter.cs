@@ -45,8 +45,7 @@ namespace AssetStudioCLI
                     debugLog += sb.ToString();
                 }
 
-                var image = m_Texture2D.ConvertToImage(flip: true);
-                if (image == null)
+                if (!m_Texture2D.TryConvertToImage(flip: true, out var image))
                 {
                     Logger.Error($"{debugLog}Export error. Failed to convert texture \"{m_Texture2D.m_Name}\" into image");
                     return false;

@@ -8,23 +8,24 @@ namespace AssetStudio
 {
     public static class Texture2DExtensions
     {
-        public static Image<Bgra32> ConvertToImage(this Texture2D m_Texture2D, bool flip)
+        public static bool TryConvertToImage(this Texture2D m_Texture2D, bool flip, out Image<Bgra32> image)
         {
+            image = null;
             var converter = new Texture2DConverter(m_Texture2D);
             var buff = BigArrayPool<byte>.Shared.Rent(converter.OutputDataSize);
             var spanBuff = buff.AsSpan(0, converter.OutputDataSize);
             try
             {
                 if (!converter.DecodeTexture2D(buff)) 
-                    return null;
+                    return false;
 
-                var image = Image.LoadPixelData<Bgra32>(spanBuff, m_Texture2D.m_Width, m_Texture2D.m_Height);
+                image = Image.LoadPixelData<Bgra32>(spanBuff, m_Texture2D.m_Width, m_Texture2D.m_Height);
 
                 if (flip)
                 {
                     image.Mutate(x => x.Flip(FlipMode.Vertical));
                 }
-                return image;
+                return true;
             }
             finally
             {
@@ -34,15 +35,13 @@ namespace AssetStudio
 
         public static MemoryStream ConvertToStream(this Texture2D m_Texture2D, ImageFormat imageFormat, bool flip)
         {
-            var image = ConvertToImage(m_Texture2D, flip);
-            if (image != null)
+            if (!TryConvertToImage(m_Texture2D, flip, out var image)) 
+                return null;
+
+            using (image)
             {
-                using (image)
-                {
-                    return image.ConvertToStream(imageFormat);
-                }
+                return image.ConvertToStream(imageFormat);
             }
-            return null;
         }
     }
 }

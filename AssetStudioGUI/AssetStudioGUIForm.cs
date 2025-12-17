@@ -964,68 +964,66 @@ namespace AssetStudioGUI
 
         private void PreviewTexture2D(AssetItem assetItem, Texture2D m_Texture2D)
         {
-            var image = m_Texture2D.ConvertToImage(true);
-            if (image != null)
-            {
-                var bitmap = new DirectBitmap(image);
-                image.Dispose();
-
-                assetItem.InfoText = 
-                    $"Width: {m_Texture2D.m_Width}" +
-                    $"\nHeight: {m_Texture2D.m_Height}" +
-                    $"\nFormat: {m_Texture2D.m_TextureFormat}";
-                switch (m_Texture2D.m_TextureSettings.m_FilterMode)
-                {
-                    case 0: assetItem.InfoText += "\nFilter mode: Point "; break;
-                    case 1: assetItem.InfoText += "\nFilter mode: Bilinear "; break;
-                    case 2: assetItem.InfoText += "\nFilter mode: Trilinear "; break;
-                }
-                assetItem.InfoText += $"\nAnisotropic level: {m_Texture2D.m_TextureSettings.m_Aniso}\nMip map bias: {m_Texture2D.m_TextureSettings.m_MipBias}";
-                switch (m_Texture2D.m_TextureSettings.m_WrapMode)
-                {
-                    case 0: assetItem.InfoText += "\nWrap mode: Repeat"; break;
-                    case 1: assetItem.InfoText += "\nWrap mode: Clamp"; break;
-                }
-                assetItem.InfoText += "\nChannels: ";
-                var validChannel = 0;
-                for (var i = 0; i < 4; i++)
-                {
-                    if (textureChannels[i])
-                    {
-                        assetItem.InfoText += textureChannelNames[i];
-                        validChannel++;
-                    }
-                }
-                if (validChannel == 0)
-                    assetItem.InfoText += "None";
-                if (validChannel != 4)
-                {
-                    var bytes = bitmap.Bits;
-                    for (var i = 0; i < bitmap.Height; i++)
-                    {
-                        var offset = Math.Abs(bitmap.Stride) * i;
-                        for (var j = 0; j < bitmap.Width; j++)
-                        {
-                            bytes[offset] = textureChannels[0] ? bytes[offset] : validChannel == 1 && textureChannels[3] ? byte.MaxValue : byte.MinValue;
-                            bytes[offset + 1] = textureChannels[1] ? bytes[offset + 1] : validChannel == 1 && textureChannels[3] ? byte.MaxValue : byte.MinValue;
-                            bytes[offset + 2] = textureChannels[2] ? bytes[offset + 2] : validChannel == 1 && textureChannels[3] ? byte.MaxValue : byte.MinValue;
-                            bytes[offset + 3] = textureChannels[3] ? bytes[offset + 3] : byte.MaxValue;
-                            offset += 4;
-                        }
-                    }
-                }
-                var switchSwizzled = m_Texture2D.m_PlatformBlob.Length != 0;
-                assetItem.InfoText += assetItem.Asset.platform == BuildTarget.Switch
-                    ? $"\nUses texture swizzling: {switchSwizzled}"
-                    : "";
-                PreviewTexture(bitmap);
-
-                StatusStripUpdate("'Ctrl'+'R'/'G'/'B'/'A' for Channel Toggle");
-            }
-            else
+            if (!m_Texture2D.TryConvertToImage(true, out var image))
             {
                 StatusStripUpdate("Unsupported image for preview");
+                return;
             }
+
+            var bitmap = new DirectBitmap(image);
+            image.Dispose();
+
+            assetItem.InfoText =
+                $"Width: {m_Texture2D.m_Width}" +
+                $"\nHeight: {m_Texture2D.m_Height}" +
+                $"\nFormat: {m_Texture2D.m_TextureFormat}";
+            switch (m_Texture2D.m_TextureSettings.m_FilterMode)
+            {
+                case 0: assetItem.InfoText += "\nFilter mode: Point "; break;
+                case 1: assetItem.InfoText += "\nFilter mode: Bilinear "; break;
+                case 2: assetItem.InfoText += "\nFilter mode: Trilinear "; break;
+            }
+            assetItem.InfoText += $"\nAnisotropic level: {m_Texture2D.m_TextureSettings.m_Aniso}\nMip map bias: {m_Texture2D.m_TextureSettings.m_MipBias}";
+            switch (m_Texture2D.m_TextureSettings.m_WrapMode)
+            {
+                case 0: assetItem.InfoText += "\nWrap mode: Repeat"; break;
+                case 1: assetItem.InfoText += "\nWrap mode: Clamp"; break;
+            }
+            assetItem.InfoText += "\nChannels: ";
+            var validChannel = 0;
+            for (var i = 0; i < 4; i++)
+            {
+                if (textureChannels[i])
+                {
+                    assetItem.InfoText += textureChannelNames[i];
+                    validChannel++;
+                }
+            }
+            if (validChannel == 0)
+                assetItem.InfoText += "None";
+            if (validChannel != 4)
+            {
+                var bytes = bitmap.Bits;
+                for (var i = 0; i < bitmap.Height; i++)
+                {
+                    var offset = Math.Abs(bitmap.Stride) * i;
+                    for (var j = 0; j < bitmap.Width; j++)
+                    {
+                        bytes[offset] = textureChannels[0] ? bytes[offset] : validChannel == 1 && textureChannels[3] ? byte.MaxValue : byte.MinValue;
+                        bytes[offset + 1] = textureChannels[1] ? bytes[offset + 1] : validChannel == 1 && textureChannels[3] ? byte.MaxValue : byte.MinValue;
+                        bytes[offset + 2] = textureChannels[2] ? bytes[offset + 2] : validChannel == 1 && textureChannels[3] ? byte.MaxValue : byte.MinValue;
+                        bytes[offset + 3] = textureChannels[3] ? bytes[offset + 3] : byte.MaxValue;
+                        offset += 4;
+                    }
+                }
+            }
+            var switchSwizzled = m_Texture2D.m_PlatformBlob.Length != 0;
+            assetItem.InfoText += assetItem.Asset.platform == BuildTarget.Switch
+                ? $"\nUses texture swizzling: {switchSwizzled}"
+                : "";
+            PreviewTexture(bitmap);
+
+            StatusStripUpdate("'Ctrl'+'R'/'G'/'B'/'A' for Channel Toggle");
         }
 
         private void PreviewAudioClip(AssetItem assetItem, AudioClip m_AudioClip)

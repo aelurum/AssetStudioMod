@@ -275,11 +275,14 @@ namespace CubismLive2DExtractor
                         return;
                 }
 
-                using (var image = texture2D.ConvertToImage(flip: true))
+                if (texture2D.TryConvertToImage(flip: true, out var image))
                 {
                     using (var file = File.OpenWrite(savePath))
                     {
-                        image.WriteToStream(file, ImageFormat.Png);
+                        using (image)
+                        {
+                            image.WriteToStream(file, ImageFormat.Png);
+                        }
                     }
                     textureBag.Add($"textures/{texture2D.m_Name}.png");
                 }

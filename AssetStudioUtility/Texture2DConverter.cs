@@ -10,8 +10,6 @@ namespace AssetStudio
         private ResourceReader reader;
         private int m_Width;
         private int m_Height;
-        private int m_WidthCrop;
-        private int m_HeightCrop;
         private TextureFormat m_TextureFormat;
         private byte[] m_PlatformBlob;
         private UnityVersion version;
@@ -23,13 +21,12 @@ namespace AssetStudio
         private SixLabors.ImageSharp.Size blockSize;
 
         public int OutputDataSize => outPutDataSize;
-        public bool UsesSwitchSwizzle => switchSwizzled;
 
         public Texture2DConverter(Texture2D m_Texture2D)
         {
             reader = m_Texture2D.image_data;
-            m_WidthCrop = m_Texture2D.m_Width;
-            m_HeightCrop = m_Texture2D.m_Height;
+            m_Width = m_Texture2D.m_Width;
+            m_Height = m_Texture2D.m_Height;
             m_TextureFormat = m_Texture2D.m_TextureFormat;
             m_PlatformBlob = m_Texture2D.m_PlatformBlob;
             version = m_Texture2D.version;
@@ -42,11 +39,6 @@ namespace AssetStudio
             {
                 SetupSwitchSwizzle();
             }
-            else
-            {
-                m_Width = m_WidthCrop;
-                m_Height = m_HeightCrop;
-            }
             outPutDataSize = m_Width * m_Height * 4;
         }
 
@@ -57,27 +49,20 @@ namespace AssetStudio
             //work fine for now
             gobsPerBlock = 1 << BitConverter.ToInt32(m_PlatformBlob, 8);
 
-            //in older versions of unity, rgb24 has a platformBlob which shouldn't
-            //be possible. it turns out in this case, the image is just rgba32.
-            //probably shouldn't be modifying the texture2d here, but eh, who cares
-            if (m_TextureFormat == TextureFormat.RGB24)
+            switch (m_TextureFormat)
             {
-                m_TextureFormat = TextureFormat.RGBA32;
-            }
-            else if (m_TextureFormat == TextureFormat.BGR24)
-            {
-                m_TextureFormat = TextureFormat.BGRA32;
+                //in older versions of unity, rgb24 has a platformBlob which shouldn't
+                //be possible. it turns out in this case, the image is just rgba32.
+                //probably shouldn't be modifying the texture2d here, but eh, who cares
+                case TextureFormat.RGB24:
+                    m_TextureFormat = TextureFormat.RGBA32;
+                    break;
+                case TextureFormat.BGR24:
+                    m_TextureFormat = TextureFormat.BGRA32;
+                    break;
             }
 
             blockSize = Texture2DSwitchDeswizzler.GetTextureFormatBlockSize(m_TextureFormat);
-            var realSize = Texture2DSwitchDeswizzler.GetPaddedTextureSize(m_WidthCrop, m_HeightCrop, blockSize.Width, blockSize.Height, gobsPerBlock);
-            m_Width = realSize.Width;
-            m_Height = realSize.Height;
-        }
-
-        public SixLabors.ImageSharp.Size GetUncroppedSize()
-        {
-            return new SixLabors.ImageSharp.Size(m_Width, m_Height);
         }
 
         public bool DecodeTexture2D(byte[] bytes)
@@ -93,18 +78,9 @@ namespace AssetStudio
                 _ = reader.GetData(buff);
                 if (switchSwizzled)
                 {
-                    var unswizzledData = BigArrayPool<byte>.Shared.Rent(reader.Size);
-                    try
-                    {
-                        Texture2DSwitchDeswizzler.Unswizzle(buff, GetUncroppedSize(), blockSize, gobsPerBlock, unswizzledData);
-                        BigArrayPool<byte>.Shared.Return(buff, clearArray: true);
-                        buff = unswizzledData;
-                    }
-                    catch (Exception e)
-                    {
-                        BigArrayPool<byte>.Shared.Return(unswizzledData, clearArray: true);
-                        Logger.Error(e.Message, e);
-                    }
+                    var spanBuff = buff.AsSpan(0, reader.Size);
+                    var textureSize = new SixLabors.ImageSharp.Size(m_Width, m_Height);
+                    Texture2DSwitchDeswizzler.Unswizzle(ref spanBuff, textureSize, blockSize, gobsPerBlock);
                 }
 
                 switch (m_TextureFormat)

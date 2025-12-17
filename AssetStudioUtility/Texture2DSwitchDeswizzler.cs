@@ -1,4 +1,4 @@
-﻿// https://github.com/nesrak1/AssetStudio/tree/switch-tex-deswizzle
+﻿//src: https://github.com/nesrak1/AssetStudio/tree/switch-tex-deswizzle
 
 using SixLabors.ImageSharp;
 using System;
@@ -38,43 +38,66 @@ namespace AssetStudio
         NPRTVX...
         */
 
-        private static int CeilDivide(int a, int b)
+        internal static void Unswizzle(ref Span<byte> data, Size textureSize, Size blockSize, int gobsPerBlock)
         {
-            return (a + b - 1) / b;
-        }
+            var paddedSize = GetPaddedTextureSize(textureSize, blockSize, gobsPerBlock);
 
-        internal static void Unswizzle(ReadOnlySpan<byte> data, Size imageSize, Size blockSize, int gobsPerBlock, Span<byte> newData)
-        {
-            int width = imageSize.Width;
-            int height = imageSize.Height;
-
-            int blockCountX = CeilDivide(width, blockSize.Width);
-            int blockCountY = CeilDivide(height, blockSize.Height);
+            int blockCountX = CeilDivide(paddedSize.Width, blockSize.Width);
+            int blockCountY = CeilDivide(paddedSize.Height, blockSize.Height);
 
             int gobCountX = blockCountX / GOB_X_TEXEL_COUNT;
             int gobCountY = blockCountY / GOB_Y_TEXEL_COUNT;
 
-            int srcPos = 0;
-            for (int i = 0; i < gobCountY / gobsPerBlock; i++)
+            var unswizzledData = BigArrayPool<byte>.Shared.Rent(data.Length);
+            var unswizzledDataSpan = unswizzledData.AsSpan(0, data.Length);
+            try
             {
-                for (int j = 0; j < gobCountX; j++)
+                int srcPos = 0;
+                for (int i = 0; i < gobCountY / gobsPerBlock; i++)
                 {
-                    for (int k = 0; k < gobsPerBlock; k++)
+                    for (int j = 0; j < gobCountX; j++)
                     {
-                        for (int l = 0; l < BLOCKS_IN_GOB; l++)
+                        for (int k = 0; k < gobsPerBlock; k++)
                         {
-                            int gobX = GOB_X_POSES[l];
-                            int gobY = GOB_Y_POSES[l];
-                            int gobDstX = j * GOB_X_TEXEL_COUNT + gobX;
-                            int gobDstY = (i * gobsPerBlock + k) * GOB_Y_TEXEL_COUNT + gobY;
-                            int gobDstLinPos = gobDstY * blockCountX * TEXEL_BYTE_SIZE + gobDstX * TEXEL_BYTE_SIZE;
+                            for (int l = 0; l < BLOCKS_IN_GOB; l++)
+                            {
+                                int gobX = GOB_X_POSES[l];
+                                int gobY = GOB_Y_POSES[l];
+                                int gobDstX = j * GOB_X_TEXEL_COUNT + gobX;
+                                int gobDstY = (i * gobsPerBlock + k) * GOB_Y_TEXEL_COUNT + gobY;
+                                int gobDstLinPos = gobDstY * blockCountX * TEXEL_BYTE_SIZE + gobDstX * TEXEL_BYTE_SIZE;
 
-                            data.Slice(srcPos, TEXEL_BYTE_SIZE).CopyTo(newData.Slice(gobDstLinPos));
+                                data.Slice(srcPos, TEXEL_BYTE_SIZE).CopyTo(unswizzledDataSpan.Slice(gobDstLinPos));
 
-                            srcPos += TEXEL_BYTE_SIZE;
+                                srcPos += TEXEL_BYTE_SIZE;
+                            }
                         }
                     }
                 }
+
+                //Crop unswizzled image if needed
+                var blockByteSize = TEXEL_BYTE_SIZE / (blockSize.Width / blockSize.Height);
+                var blocksPerTexel = TEXEL_BYTE_SIZE / blockByteSize;
+                var paddedTexBlockCountX = CeilDivide(paddedSize.Width * blocksPerTexel, blockSize.Width);
+                var texBlockCountX = CeilDivide(textureSize.Width * blocksPerTexel, blockSize.Width);
+                if (paddedTexBlockCountX - texBlockCountX > 0)
+                {
+                    var texBlockCountY = CeilDivide(textureSize.Height, blockSize.Height);
+                    for (var y = 0; y < texBlockCountY; y++)
+                    {
+                        unswizzledDataSpan.Slice(y * paddedTexBlockCountX * blockByteSize, texBlockCountX * blockByteSize).CopyTo(unswizzledDataSpan.Slice(y * texBlockCountX * blockByteSize));
+                    }
+                    unswizzledDataSpan.Slice(texBlockCountY * texBlockCountX * blockByteSize).Clear();
+                }
+                unswizzledDataSpan.CopyTo(data);
+            }
+            catch (Exception e)
+            {
+                Logger.Warning($"Failed to deswizzle the image.\n{e}");
+            }
+            finally
+            {
+                BigArrayPool<byte>.Shared.Return(unswizzledData, clearArray: true);
             }
         }
 
@@ -117,11 +140,16 @@ namespace AssetStudio
             };
         }
 
-        internal static Size GetPaddedTextureSize(int width, int height, int blockWidth, int blockHeight, int gobsPerBlock)
+        private static Size GetPaddedTextureSize(Size textureSize, Size blockSize, int gobsPerBlock)
         {
-            width = CeilDivide(width, blockWidth * GOB_X_TEXEL_COUNT) * blockWidth * GOB_X_TEXEL_COUNT;
-            height = CeilDivide(height, blockHeight * GOB_Y_TEXEL_COUNT * gobsPerBlock) * blockHeight * GOB_Y_TEXEL_COUNT * gobsPerBlock;
+            var width = CeilDivide(textureSize.Width, blockSize.Width * GOB_X_TEXEL_COUNT) * blockSize.Width * GOB_X_TEXEL_COUNT;
+            var height = CeilDivide(textureSize.Height, blockSize.Height * GOB_Y_TEXEL_COUNT * gobsPerBlock) * blockSize.Height * GOB_Y_TEXEL_COUNT * gobsPerBlock;
             return new Size(width, height);
+        }
+
+        private static int CeilDivide(int a, int b)
+        {
+            return (a + b - 1) / b;
         }
     }
 }

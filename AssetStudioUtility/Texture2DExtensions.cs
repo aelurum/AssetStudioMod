@@ -18,17 +18,7 @@ namespace AssetStudio
                 if (!converter.DecodeTexture2D(buff)) 
                     return null;
 
-                Image<Bgra32> image;
-                if (converter.UsesSwitchSwizzle)
-                {
-                    var uncroppedSize = converter.GetUncroppedSize();
-                    image = Image.LoadPixelData<Bgra32>(spanBuff, uncroppedSize.Width, uncroppedSize.Height);
-                    image.Mutate(x => x.Crop(m_Texture2D.m_Width, m_Texture2D.m_Height));
-                }
-                else
-                {
-                    image = Image.LoadPixelData<Bgra32>(spanBuff, m_Texture2D.m_Width, m_Texture2D.m_Height);
-                }
+                var image = Image.LoadPixelData<Bgra32>(spanBuff, m_Texture2D.m_Width, m_Texture2D.m_Height);
 
                 if (flip)
                 {

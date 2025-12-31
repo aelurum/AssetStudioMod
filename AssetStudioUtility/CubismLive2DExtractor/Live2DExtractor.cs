@@ -3,6 +3,11 @@
 // https://github.com/Perfare/UnityLive2DExtractor
 ////
 
+using AssetStudio;
+using AssetStudio.Addons.CubismLive2D;
+using CubismLive2DExtractor.CubismUnityClasses;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,10 +16,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AssetStudio;
-using CubismLive2DExtractor.CubismUnityClasses;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using static CubismLive2DExtractor.CubismParsers;
 using Object = AssetStudio.Object;
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AssetStudio
+namespace AssetStudio.Addons.CubismLive2D
 {
     public class CubismModel
     {

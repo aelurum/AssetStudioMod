@@ -1243,7 +1243,7 @@ namespace AssetStudioGUI
 
         private void PreviewMoc(AssetItem assetItem, MonoBehaviour m_MonoBehaviour)
         {
-            using (var cubismMoc = new CubismMoc(m_MonoBehaviour))
+            using (var cubismMoc = new AssetStudio.Addons.CubismLive2D.CubismMoc(m_MonoBehaviour))
             {
                 var sb = new StringBuilder();
                 if (Studio.l2dModelDict.TryGetValue(m_MonoBehaviour, out var model) && model != null)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using AssetStudio.Addons.CubismLive2D;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace AssetStudio

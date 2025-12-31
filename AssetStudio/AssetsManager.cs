@@ -1,3 +1,6 @@
+﻿using AssetStudio.Addons.CubismLive2D;
+using AssetStudio.CustomOptions;
+using AssetStudio.CustomOptions.Asmo;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -5,10 +8,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Text.Json;
-using AssetStudio.CustomOptions;
-using AssetStudio.CustomOptions.Asmo;
+using System.Text.Json.Serialization;
 using static AssetStudio.ImportHelper;
 
 namespace AssetStudio

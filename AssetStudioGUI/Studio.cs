@@ -1,4 +1,5 @@
 ﻿using AssetStudio;
+using AssetStudio.Addons.CubismLive2D;
 using CubismLive2DExtractor;
 using System;
 using System.Collections.Concurrent;

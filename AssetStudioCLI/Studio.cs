@@ -1,4 +1,5 @@
 ﻿using AssetStudio;
+using AssetStudio.Addons.CubismLive2D;
 using AssetStudioCLI.Options;
 using CubismLive2DExtractor;
 using System;

@@ -10,7 +10,8 @@ namespace AssetStudio.Addons.CubismLive2D
         V33,
         V40,
         V42,
-        V50
+        V50,
+        V53,
     }
 
     public sealed class CubismMoc : IDisposable
@@ -98,6 +99,7 @@ namespace AssetStudio.Addons.CubismLive2D
                 case CubismSDKVersion.V40: return "SDK4.0/Cubism4.0";
                 case CubismSDKVersion.V42: return "SDK4.2/Cubism4.2";
                 case CubismSDKVersion.V50: return "SDK5.0/Cubism5.0";
+                case CubismSDKVersion.V53: return "SDK5.3/Cubism5.3";
                 default: return "";
             }
         }

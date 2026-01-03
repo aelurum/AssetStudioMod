@@ -2642,16 +2642,25 @@ namespace AssetStudioGUI
             if (e.Button == MouseButtons.Right)
             {
                 dumpTreeView.SelectedNode = e.Node;
-                tempClipboard = string.IsNullOrEmpty((string)e.Node.Tag)
-                    ? e.Node.Text
-                    : $"{e.Node.Name}: {e.Node.Tag}";
+                tvCopyValToolStripMenuItem.Visible = !string.IsNullOrEmpty((string)e.Node.Tag);
                 dumpTreeViewContextMenuStrip.Show(dumpTreeView, e.Location.X, e.Location.Y);
             }
         }
 
-        private void copyToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void tvCopyNameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Clipboard.SetDataObject(tempClipboard);
+            var name = dumpTreeView.SelectedNode.Name;
+            if (string.IsNullOrEmpty(name))
+                name = dumpTreeView.SelectedNode.Text;
+
+            Clipboard.SetDataObject(name);
+        }
+
+        private void tvCopyValToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var val = (string)dumpTreeView.SelectedNode.Tag ?? "";
+
+            Clipboard.SetDataObject(val);
         }
 
         private void expandAllToolStripMenuItem1_Click(object sender, EventArgs e)

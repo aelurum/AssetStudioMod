@@ -321,17 +321,42 @@ namespace AssetStudio
                         {
                             if ((m_Nodes[i + 1].m_MetaFlag & 0x4000) != 0)
                                 align = true;
+                            var arrayTypeStr = m_Nodes.Count > i + 3
+                                ? m_Nodes[i + 3].m_Type
+                                : "";
                             var vector = GetNodes(m_Nodes, i);
                             i += vector.Count - 1;
-                            var size = reader.ReadInt32();
-                            var array = new object[size];
-                            for (int j = 0; j < size; j++)
+                            switch (arrayTypeStr)
                             {
-                                int tmp = 3;
-                                array[j] = ReadValue(vector, reader, ref tmp);
+                                case "UInt8":
+                                    value = reader.ReadUInt8Array();
+                                    break;
+                                case "UInt16":
+                                case "unsigned short":
+                                    value = reader.ReadUInt16Array();
+                                    break;
+                                case "UInt32":
+                                case "unsigned int":
+                                    value = reader.ReadUInt32Array();
+                                    break;
+                                case "int":
+                                case "SInt32":
+                                    value = reader.ReadInt32Array();
+                                    break;
+                                case "float":
+                                    value = reader.ReadSingleArray();
+                                    break;
+                                default:
+                                    var size = reader.ReadInt32();
+                                    var array = new object[size];
+                                    for (int j = 0; j < size; j++)
+                                    {
+                                        int tmp = 3;
+                                        array[j] = ReadValue(vector, reader, ref tmp);
+                                    }
+                                    value = array;
+                                    break;
                             }
-                            value = array;
-                            break;
                         }
                         else //Class
                         {
@@ -345,8 +370,8 @@ namespace AssetStudio
                                 obj[name] = ReadValue(@class, reader, ref j);
                             }
                             value = obj;
-                            break;
                         }
+                        break;
                     }
             }
             if (align)

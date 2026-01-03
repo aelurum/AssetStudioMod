@@ -176,7 +176,8 @@
             this.goToSceneHierarchyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showOriginalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dumpTreeViewContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tvCopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tvCopyNameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tvCopyValToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tvToolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.tvExpandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tvCollapseAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1440,6 +1441,7 @@
             this.dumpTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dumpTreeView.Location = new System.Drawing.Point(0, 0);
             this.dumpTreeView.Name = "dumpTreeView";
+            this.dumpTreeView.PathSeparator = "/";
             this.dumpTreeView.Size = new System.Drawing.Size(768, 607);
             this.dumpTreeView.TabIndex = 1;
             this.dumpTreeView.Visible = false;
@@ -1647,36 +1649,44 @@
             // dumpTreeViewContextMenuStrip
             // 
             this.dumpTreeViewContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tvCopyToolStripMenuItem,
+            this.tvCopyNameToolStripMenuItem,
+            this.tvCopyValToolStripMenuItem,
             this.tvToolStripSeparator1,
             this.tvExpandAllToolStripMenuItem,
             this.tvCollapseAllToolStripMenuItem});
             this.dumpTreeViewContextMenuStrip.Name = "contextMenuStrip3";
-            this.dumpTreeViewContextMenuStrip.Size = new System.Drawing.Size(135, 76);
+            this.dumpTreeViewContextMenuStrip.Size = new System.Drawing.Size(136, 98);
             // 
-            // tvCopyToolStripMenuItem
+            // tvCopyNameToolStripMenuItem
             // 
-            this.tvCopyToolStripMenuItem.Name = "tvCopyToolStripMenuItem";
-            this.tvCopyToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
-            this.tvCopyToolStripMenuItem.Text = "Copy";
-            this.tvCopyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem1_Click);
+            this.tvCopyNameToolStripMenuItem.Name = "tvCopyNameToolStripMenuItem";
+            this.tvCopyNameToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.tvCopyNameToolStripMenuItem.Text = "Copy name";
+            this.tvCopyNameToolStripMenuItem.Click += new System.EventHandler(this.tvCopyNameToolStripMenuItem_Click);
+            // 
+            // tvCopyValToolStripMenuItem
+            // 
+            this.tvCopyValToolStripMenuItem.Name = "tvCopyValToolStripMenuItem";
+            this.tvCopyValToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.tvCopyValToolStripMenuItem.Text = "Copy value";
+            this.tvCopyValToolStripMenuItem.Click += new System.EventHandler(this.tvCopyValToolStripMenuItem_Click);
             // 
             // tvToolStripSeparator1
             // 
             this.tvToolStripSeparator1.Name = "tvToolStripSeparator1";
-            this.tvToolStripSeparator1.Size = new System.Drawing.Size(131, 6);
+            this.tvToolStripSeparator1.Size = new System.Drawing.Size(132, 6);
             // 
             // tvExpandAllToolStripMenuItem
             // 
             this.tvExpandAllToolStripMenuItem.Name = "tvExpandAllToolStripMenuItem";
-            this.tvExpandAllToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.tvExpandAllToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.tvExpandAllToolStripMenuItem.Text = "Expand all";
             this.tvExpandAllToolStripMenuItem.Click += new System.EventHandler(this.expandAllToolStripMenuItem1_Click);
             // 
             // tvCollapseAllToolStripMenuItem
             // 
             this.tvCollapseAllToolStripMenuItem.Name = "tvCollapseAllToolStripMenuItem";
-            this.tvCollapseAllToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.tvCollapseAllToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.tvCollapseAllToolStripMenuItem.Text = "Collapse all";
             this.tvCollapseAllToolStripMenuItem.Click += new System.EventHandler(this.collapseAllToolStripMenuItem1_Click);
             // 
@@ -1860,7 +1870,7 @@
         private System.Windows.Forms.ToolStripSeparator assetLoadingToolStripSeparator;
         private System.Windows.Forms.TreeView dumpTreeView;
         private System.Windows.Forms.ContextMenuStrip dumpTreeViewContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem tvCopyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tvCopyValToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator tvToolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem tvExpandAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tvCollapseAllToolStripMenuItem;
@@ -1885,6 +1895,7 @@
         private System.Windows.Forms.ToolStripSeparator importOptionsToolStripSeparator;
         private System.Windows.Forms.ToolStripMenuItem meshLazyLoadToolStripMenuItem;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.ToolStripMenuItem tvCopyNameToolStripMenuItem;
     }
 }
 

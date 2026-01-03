@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
+﻿using AssetStudio;
+using System.Text.Json;
 using System.Windows.Forms;
-using AssetStudio;
 
 namespace AssetStudioGUI
 {

@@ -349,23 +349,19 @@ namespace AssetStudio
             }
             m_Type.m_StringBuffer = reader.ReadBytes(stringBufferSize);
 
-            using (var stringBufferReader = new BinaryReader(new MemoryStream(m_Type.m_StringBuffer)))
+            var stringBufferSpan = new ReadOnlySpan<byte>(m_Type.m_StringBuffer);
+            foreach (var m_Node in m_Type.m_Nodes)
             {
-                for (var i = 0; i < numberOfNodes; i++)
-                {
-                    var m_Node = m_Type.m_Nodes[i];
-                    m_Node.m_Type = ReadString(stringBufferReader, m_Node.m_TypeStrOffset);
-                    m_Node.m_Name = ReadString(stringBufferReader, m_Node.m_NameStrOffset);
-                }
+                m_Node.m_Type = ReadString(stringBufferSpan, m_Node.m_TypeStrOffset);
+                m_Node.m_Name = ReadString(stringBufferSpan, m_Node.m_NameStrOffset);
             }
 
-            string ReadString(BinaryReader stringBufferReader, uint value)
+            string ReadString(ReadOnlySpan<byte> stringBuff, uint value)
             {
                 var isOffset = (value & 0x80000000) == 0;
                 if (isOffset)
                 {
-                    stringBufferReader.BaseStream.Position = value;
-                    return stringBufferReader.ReadStringToNull();
+                    return stringBuff.Slice((int)value).ReadStringToNull();
                 }
                 var offset = value & 0x7FFFFFFF;
                 if (CommonString.StringBuffer.TryGetValue(offset, out var str))

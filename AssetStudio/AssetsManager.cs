@@ -317,12 +317,11 @@ namespace AssetStudio
 
                 while (bundleFile.IsDataAfterBundle && isLoaded)
                 {
-                    isLoaded = false;
                     bundleStream.Offset = reader.Position;
                     bundleReader = new FileReader($"{reader.FullPath}_0x{bundleStream.Offset:X}", bundleStream);
                     if (bundleReader.FileType != FileType.BundleFile)
                     {
-                        Logger.Debug("Unknown data was detected after the end of the bundle.");
+                        Logger.Warning("Unknown data was detected after the end of the bundle.");
                         break;
                     }
                     if (bundleReader.Position > 0)

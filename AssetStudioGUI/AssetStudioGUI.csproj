@@ -17,6 +17,10 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>
 
+    <ItemGroup Condition=" '$(TargetFramework)' != 'net472' ">
+        <RuntimeHostConfigurationOption Include="System.Windows.Forms.AnchorLayoutV2" Value="false" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\AssetStudioUtility\AssetStudioUtility.csproj" />
         <ProjectReference Include="..\AssetStudio\AssetStudio.csproj" />

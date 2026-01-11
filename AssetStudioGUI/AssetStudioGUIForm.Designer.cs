@@ -894,7 +894,6 @@
             this.tabControl1.Padding = new System.Drawing.Point(17, 3);
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(480, 633);
-            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControl1.TabIndex = 0;
             this.tabControl1.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabPageSelected);
             // 
@@ -902,9 +901,9 @@
             // 
             this.tabPage1.Controls.Add(this.sceneTreeView);
             this.tabPage1.Controls.Add(this.panel2);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Location = new System.Drawing.Point(4, 24);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Size = new System.Drawing.Size(472, 607);
+            this.tabPage1.Size = new System.Drawing.Size(472, 605);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Scene Hierarchy";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -918,7 +917,7 @@
             this.sceneTreeView.HideSelection = false;
             this.sceneTreeView.Location = new System.Drawing.Point(0, 22);
             this.sceneTreeView.Name = "sceneTreeView";
-            this.sceneTreeView.Size = new System.Drawing.Size(472, 585);
+            this.sceneTreeView.Size = new System.Drawing.Size(472, 583);
             this.sceneTreeView.TabIndex = 0;
             this.sceneTreeView.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.sceneTreeView_AfterCheck);
             this.sceneTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.sceneTreeView_NodeMouseClick);
@@ -938,9 +937,9 @@
             // 
             this.sceneExactSearchCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.sceneExactSearchCheckBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.sceneExactSearchCheckBox.Location = new System.Drawing.Point(377, 3);
+            this.sceneExactSearchCheckBox.Location = new System.Drawing.Point(369, 3);
             this.sceneExactSearchCheckBox.Name = "sceneExactSearchCheckBox";
-            this.sceneExactSearchCheckBox.Size = new System.Drawing.Size(92, 16);
+            this.sceneExactSearchCheckBox.Size = new System.Drawing.Size(100, 16);
             this.sceneExactSearchCheckBox.TabIndex = 2;
             this.sceneExactSearchCheckBox.Text = "Exact search";
             this.sceneExactSearchCheckBox.UseVisualStyleBackColor = true;
@@ -953,7 +952,7 @@
             this.treeSearch.ForeColor = System.Drawing.SystemColors.GrayText;
             this.treeSearch.Location = new System.Drawing.Point(0, 0);
             this.treeSearch.Name = "treeSearch";
-            this.treeSearch.Size = new System.Drawing.Size(472, 20);
+            this.treeSearch.Size = new System.Drawing.Size(472, 23);
             this.treeSearch.TabIndex = 1;
             this.treeSearch.Text = " Search ";
             this.treeSearch.TextChanged += new System.EventHandler(this.treeSearch_TextChanged);
@@ -965,9 +964,9 @@
             // 
             this.tabPage2.Controls.Add(this.assetListView);
             this.tabPage2.Controls.Add(this.panel1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Location = new System.Drawing.Point(4, 24);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(472, 607);
+            this.tabPage2.Size = new System.Drawing.Size(472, 605);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Asset List";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -987,7 +986,7 @@
             this.assetListView.HideSelection = false;
             this.assetListView.Location = new System.Drawing.Point(0, 23);
             this.assetListView.Name = "assetListView";
-            this.assetListView.Size = new System.Drawing.Size(472, 584);
+            this.assetListView.Size = new System.Drawing.Size(472, 582);
             this.assetListView.TabIndex = 0;
             this.assetListView.UseCompatibleStateImageBehavior = false;
             this.assetListView.View = System.Windows.Forms.View.Details;
@@ -1062,7 +1061,7 @@
             this.listSearchHistory.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listSearchHistory.Location = new System.Drawing.Point(0, 0);
             this.listSearchHistory.Name = "listSearchHistory";
-            this.listSearchHistory.Size = new System.Drawing.Size(351, 21);
+            this.listSearchHistory.Size = new System.Drawing.Size(351, 23);
             this.listSearchHistory.TabIndex = 2;
             this.listSearchHistory.TabStop = false;
             this.listSearchHistory.SelectedIndexChanged += new System.EventHandler(this.listSearchHistory_SelectedIndexChanged);
@@ -1081,16 +1080,16 @@
             "Regex (Container)"});
             this.listSearchFilterMode.Location = new System.Drawing.Point(351, 0);
             this.listSearchFilterMode.Name = "listSearchFilterMode";
-            this.listSearchFilterMode.Size = new System.Drawing.Size(121, 21);
+            this.listSearchFilterMode.Size = new System.Drawing.Size(121, 23);
             this.listSearchFilterMode.TabIndex = 2;
             this.listSearchFilterMode.SelectedIndexChanged += new System.EventHandler(this.listSearchFilterMode_SelectedIndexChanged);
             // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.classesListView);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Location = new System.Drawing.Point(4, 24);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(472, 607);
+            this.tabPage3.Size = new System.Drawing.Size(472, 605);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Asset Classes";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -1106,7 +1105,7 @@
             this.classesListView.Location = new System.Drawing.Point(0, 0);
             this.classesListView.MultiSelect = false;
             this.classesListView.Name = "classesListView";
-            this.classesListView.Size = new System.Drawing.Size(472, 607);
+            this.classesListView.Size = new System.Drawing.Size(472, 605);
             this.classesListView.TabIndex = 0;
             this.classesListView.UseCompatibleStateImageBehavior = false;
             this.classesListView.View = System.Windows.Forms.View.Details;
@@ -1161,9 +1160,9 @@
             // tabPage4
             // 
             this.tabPage4.Controls.Add(this.previewPanel);
-            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Location = new System.Drawing.Point(4, 24);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(768, 607);
+            this.tabPage4.Size = new System.Drawing.Size(768, 605);
             this.tabPage4.TabIndex = 0;
             this.tabPage4.Text = "Preview";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -1181,7 +1180,7 @@
             this.previewPanel.Image = global::AssetStudioGUI.Properties.Resources.preview;
             this.previewPanel.Location = new System.Drawing.Point(0, 0);
             this.previewPanel.Name = "previewPanel";
-            this.previewPanel.Size = new System.Drawing.Size(768, 607);
+            this.previewPanel.Size = new System.Drawing.Size(768, 605);
             this.previewPanel.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.previewPanel.TabIndex = 1;
             this.previewPanel.TabStop = false;
@@ -1195,7 +1194,7 @@
             this.assetInfoLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.assetInfoLabel.Location = new System.Drawing.Point(4, 8);
             this.assetInfoLabel.Name = "assetInfoLabel";
-            this.assetInfoLabel.Size = new System.Drawing.Size(0, 13);
+            this.assetInfoLabel.Size = new System.Drawing.Size(0, 15);
             this.assetInfoLabel.TabIndex = 0;
             // 
             // FMODpanel
@@ -1215,7 +1214,7 @@
             this.FMODpanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FMODpanel.Location = new System.Drawing.Point(0, 0);
             this.FMODpanel.Name = "FMODpanel";
-            this.FMODpanel.Size = new System.Drawing.Size(768, 607);
+            this.FMODpanel.Size = new System.Drawing.Size(768, 605);
             this.FMODpanel.TabIndex = 2;
             this.FMODpanel.Visible = false;
             // 
@@ -1228,7 +1227,7 @@
             this.FMODaudioChannelsLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODaudioChannelsLabel.Location = new System.Drawing.Point(384, 255);
             this.FMODaudioChannelsLabel.Name = "FMODaudioChannelsLabel";
-            this.FMODaudioChannelsLabel.Size = new System.Drawing.Size(38, 13);
+            this.FMODaudioChannelsLabel.Size = new System.Drawing.Size(40, 15);
             this.FMODaudioChannelsLabel.TabIndex = 10;
             this.FMODaudioChannelsLabel.Text = "Stereo";
             // 
@@ -1241,7 +1240,7 @@
             this.FMODcopyrightLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODcopyrightLabel.Location = new System.Drawing.Point(214, 365);
             this.FMODcopyrightLabel.Name = "FMODcopyrightLabel";
-            this.FMODcopyrightLabel.Size = new System.Drawing.Size(283, 13);
+            this.FMODcopyrightLabel.Size = new System.Drawing.Size(316, 15);
             this.FMODcopyrightLabel.TabIndex = 9;
             this.FMODcopyrightLabel.Text = "Audio Engine supplied by FMOD by Firelight Technologies.";
             // 
@@ -1254,7 +1253,7 @@
             this.FMODinfoLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODinfoLabel.Location = new System.Drawing.Point(285, 255);
             this.FMODinfoLabel.Name = "FMODinfoLabel";
-            this.FMODinfoLabel.Size = new System.Drawing.Size(0, 13);
+            this.FMODinfoLabel.Size = new System.Drawing.Size(0, 15);
             this.FMODinfoLabel.TabIndex = 8;
             // 
             // FMODtimerLabel
@@ -1266,7 +1265,7 @@
             this.FMODtimerLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODtimerLabel.Location = new System.Drawing.Point(477, 255);
             this.FMODtimerLabel.Name = "FMODtimerLabel";
-            this.FMODtimerLabel.Size = new System.Drawing.Size(102, 13);
+            this.FMODtimerLabel.Size = new System.Drawing.Size(102, 15);
             this.FMODtimerLabel.TabIndex = 7;
             this.FMODtimerLabel.Text = "00:00.00 / 00:00.00";
             // 
@@ -1279,7 +1278,7 @@
             this.FMODstatusLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODstatusLabel.Location = new System.Drawing.Point(214, 255);
             this.FMODstatusLabel.Name = "FMODstatusLabel";
-            this.FMODstatusLabel.Size = new System.Drawing.Size(47, 13);
+            this.FMODstatusLabel.Size = new System.Drawing.Size(51, 15);
             this.FMODstatusLabel.TabIndex = 6;
             this.FMODstatusLabel.Text = "Stopped";
             // 
@@ -1373,7 +1372,7 @@
             this.fontPreviewBox.Location = new System.Drawing.Point(0, 0);
             this.fontPreviewBox.Name = "fontPreviewBox";
             this.fontPreviewBox.ReadOnly = true;
-            this.fontPreviewBox.Size = new System.Drawing.Size(768, 607);
+            this.fontPreviewBox.Size = new System.Drawing.Size(768, 605);
             this.fontPreviewBox.TabIndex = 0;
             this.fontPreviewBox.Text = resources.GetString("fontPreviewBox.Text");
             this.fontPreviewBox.Visible = false;
@@ -1385,7 +1384,7 @@
             this.glControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.glControl1.Location = new System.Drawing.Point(0, 0);
             this.glControl1.Name = "glControl1";
-            this.glControl1.Size = new System.Drawing.Size(768, 607);
+            this.glControl1.Size = new System.Drawing.Size(768, 605);
             this.glControl1.TabIndex = 4;
             this.glControl1.Visible = false;
             this.glControl1.VSync = false;
@@ -1406,7 +1405,7 @@
             this.textPreviewBox.Name = "textPreviewBox";
             this.textPreviewBox.ReadOnly = true;
             this.textPreviewBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textPreviewBox.Size = new System.Drawing.Size(768, 607);
+            this.textPreviewBox.Size = new System.Drawing.Size(768, 605);
             this.textPreviewBox.TabIndex = 2;
             this.textPreviewBox.Visible = false;
             this.textPreviewBox.WordWrap = false;
@@ -1420,7 +1419,7 @@
             this.classTextBox.Name = "classTextBox";
             this.classTextBox.ReadOnly = true;
             this.classTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.classTextBox.Size = new System.Drawing.Size(768, 607);
+            this.classTextBox.Size = new System.Drawing.Size(768, 605);
             this.classTextBox.TabIndex = 3;
             this.classTextBox.Visible = false;
             this.classTextBox.WordWrap = false;
@@ -1429,9 +1428,9 @@
             // 
             this.tabPage5.Controls.Add(this.dumpTreeView);
             this.tabPage5.Controls.Add(this.dumpTextBox);
-            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Location = new System.Drawing.Point(4, 24);
             this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Size = new System.Drawing.Size(768, 607);
+            this.tabPage5.Size = new System.Drawing.Size(768, 605);
             this.tabPage5.TabIndex = 1;
             this.tabPage5.Text = "Dump";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -1442,7 +1441,7 @@
             this.dumpTreeView.Location = new System.Drawing.Point(0, 0);
             this.dumpTreeView.Name = "dumpTreeView";
             this.dumpTreeView.PathSeparator = "/";
-            this.dumpTreeView.Size = new System.Drawing.Size(768, 607);
+            this.dumpTreeView.Size = new System.Drawing.Size(768, 605);
             this.dumpTreeView.TabIndex = 1;
             this.dumpTreeView.Visible = false;
             this.dumpTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.DumpTreeView_NodeMouseClick);
@@ -1456,7 +1455,7 @@
             this.dumpTextBox.Name = "dumpTextBox";
             this.dumpTextBox.ReadOnly = true;
             this.dumpTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.dumpTextBox.Size = new System.Drawing.Size(768, 607);
+            this.dumpTextBox.Size = new System.Drawing.Size(768, 605);
             this.dumpTextBox.TabIndex = 0;
             this.dumpTextBox.WordWrap = false;
             // 
@@ -1693,9 +1692,13 @@
             // AssetStudioGUIForm
             // 
             this.AllowDrop = true;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1264, 681);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
+            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = global::AssetStudioGUI.Properties.Resources._as;
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
@@ -1704,6 +1707,8 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "AssetStudioModGUI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AssetStudioGUIForm_FormClosing);
+            this.Load += new System.EventHandler(this.ReScale);
+            this.FontChanged += new System.EventHandler(this.ReScale);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.AssetStudioGUIForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.AssetStudioGUIForm_DragEnter);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.AssetStudioForm_KeyDown);

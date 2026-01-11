@@ -126,6 +126,7 @@ namespace AssetStudioGUI
         private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, [In] ref uint pcFonts);
 
         private string guiTitle;
+        private float guiFontHeight = 16.0f;
 
         public AssetStudioGUIForm()
         {
@@ -2477,6 +2478,12 @@ namespace AssetStudioGUI
             alwaysDecompressToDiskToolStripMenuItem.Checked = assetsManager.Options.BundleOptions.DecompressToDisk;
             customBlockInfoCompressionComboBox.SelectedIndex = SetComboBoxIndex(assetsManager.Options.BundleOptions.CustomBlockInfoCompression);
             customBlockCompressionComboBox.SelectedIndex = SetComboBoxIndex(assetsManager.Options.BundleOptions.CustomBlockCompression);
+            
+            //highDpi workaround
+            var font = customUnityVersionToolStripMenuItem.Font;
+            specifyUnityVersionTextBox.Font = font;
+            customBlockInfoCompressionComboBox.Font = font;
+            customBlockCompressionComboBox.Font = font;
         }
 
         private static int SetComboBoxIndex(CompressionType compressionType)
@@ -2635,6 +2642,22 @@ namespace AssetStudioGUI
                       "Dark theme support for WinForms is not yet fully implemented and is for evaluation purposes only.\n" +
                       "Better Dark theme support should be added in future .NET versions.";
             MessageBox.Show(msg, "Info", MessageBoxButtons.OK);
+        }
+
+        //highDpi workaround
+        private void ReScale(object sender, EventArgs e)
+        {
+            float k = Font.Height / guiFontHeight;
+            if (k == 1.0f)
+                return;
+
+            //asset list fix
+            foreach (ColumnHeader column in assetListView.Columns)
+            {
+                column.Width = (int)(column.Width * k);
+            }
+
+            guiFontHeight = Font.Height;
         }
 
         private void DumpTreeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)

@@ -152,5 +152,16 @@ namespace AssetStudioGUI
             SetFromFbxSettings(new Fbx.Settings());
             uvIndicesCheckedListBox_SelectedIndexChanged(sender, e);
         }
+
+        //highDpi workaround (net472/.net-win7)
+        private void ExportOptions_Load(object sender, EventArgs e)
+        {
+            if (Font.Height == 16)
+                return;
+
+            var k = Font.Height / 16.0f;
+            var listHeight = (int)(uvTypesListBox.ItemHeight * 6 * k);
+            uvTypesListBox.Height = uvIndicesCheckedListBox.Height = listHeight;
+        }
     }
 }

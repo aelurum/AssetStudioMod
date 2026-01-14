@@ -1,5 +1,6 @@
 ﻿// Based on code by tomzorz (https://gist.github.com/tomzorz/6142d69852f831fb5393654c90a1f22e)
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace AssetStudio
@@ -20,15 +21,19 @@ namespace AssetStudio
         private static extern IntPtr GetStdHandle(int nStdHandle);
 
         static ColorConsoleHelper()
-        { 
+        {
             var isWin = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             if (isWin)
             {
                 isAnsiCodesSupported = TryEnableVTMode();
-                if (!isAnsiCodesSupported)
+
+                if (!isAnsiCodesSupported && IsTerminal)
                 {
-                    //Check for bash terminal emulator. E.g., Git Bash, Cmder
-                    isAnsiCodesSupported = Environment.GetEnvironmentVariable("TERM") != null;
+                    isAnsiCodesSupported = true;
+                }
+                else if (IsWine)
+                {
+                    isAnsiCodesSupported = false;
                 }
             }
             else
@@ -53,5 +58,10 @@ namespace AssetStudio
 
             return SetConsoleMode(iStdOut, outConsoleMode);
         }
+
+        //Check for bash terminal emulator. E.g., Git Bash, Cmder
+        private static bool IsTerminal => Environment.GetEnvironmentVariable("TERM") != null;
+
+        private static bool IsWine => Process.GetProcessesByName("winlogon").Length == 0;
     }
 }

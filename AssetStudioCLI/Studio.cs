@@ -5,7 +5,6 @@ using CubismLive2DExtractor;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using static AssetStudioCLI.Exporter;
-using static CubismLive2DExtractor.CubismParsers;
 using Ansi = AssetStudio.ColorConsole;
 
 namespace AssetStudioCLI
@@ -24,7 +22,7 @@ namespace AssetStudioCLI
         public static List<AssetItem> parsedAssetsList = new List<AssetItem>();
         public static List<BaseNode> gameObjectTree = new List<BaseNode>();
         public static AssemblyLoader assemblyLoader = new AssemblyLoader();
-        public static Dictionary<MonoBehaviour, CubismModel> l2dModelDict = new Dictionary<MonoBehaviour, CubismModel>();
+        public static L2DAssetManager l2dAssetManager = new L2DAssetManager();
         private static Dictionary<AssetStudio.Object, string> containers = new Dictionary<AssetStudio.Object, string>();
 
         static Studio()
@@ -286,22 +284,11 @@ namespace AssetStudioCLI
                                 switch (m_Script.m_ClassName)
                                 {
                                     case "CubismMoc":
-                                        if (!l2dModelDict.ContainsKey(m_MonoBehaviour))
-                                        {
-                                            l2dModelDict.Add(m_MonoBehaviour, null);
-                                        }
-                                        break;
                                     case "CubismRenderer":
-                                        BindCubismAsset(m_MonoBehaviour, CubismMonoBehaviourType.RenderTexture);
-                                        break;
                                     case "CubismDisplayInfoParameterName":
-                                        BindCubismAsset(m_MonoBehaviour, CubismMonoBehaviourType.DisplayInfo, isParamInfo: true);
-                                        break;
                                     case "CubismDisplayInfoPartName":
-                                        BindCubismAsset(m_MonoBehaviour, CubismMonoBehaviourType.DisplayInfo);
-                                        break;
                                     case "CubismPosePart":
-                                        BindCubismAsset(m_MonoBehaviour, CubismMonoBehaviourType.PosePart);
+                                        l2dAssetManager.BindCubismAssetsByMono(m_MonoBehaviour, m_Script.m_ClassName);
                                         break;
                                 }
                             }
@@ -309,10 +296,9 @@ namespace AssetStudioCLI
                             break;
                         case GameObject m_GameObject:
                             assetItem.Text = m_GameObject.m_Name;
-                            if (m_GameObject.CubismModel != null && TryGetCubismMoc(m_GameObject.CubismModel.CubismModelMono, out var mocMono))
+                            if (m_GameObject.CubismModel != null)
                             {
-                                l2dModelDict[mocMono] = m_GameObject.CubismModel;
-                                BindAnimationClips(m_GameObject);
+                                l2dAssetManager.BindCubismAssetsByGO(m_GameObject, assemblyLoader);
                             }
                             break;
                         case Animator m_Animator:
@@ -521,7 +507,7 @@ namespace AssetStudioCLI
                     info += $"\n#\n# Total: {parsedAssetsList.Count} assets";
                 }
 
-                info += $"\n\n[Cubism Live2D]\n# Exportable Models: {l2dModelDict.Count}";
+                info += $"\n\n[Cubism Live2D]\n# Exportable Models: {l2dAssetManager.ModelDict.Count}";
             }
             else
             {
@@ -999,97 +985,11 @@ namespace AssetStudioCLI
             Logger.Default.Log(LoggerEvent.Info, status, ignoreLevel: true);
         }
 
-        private static bool TryGetCubismMoc(MonoBehaviour m_MonoBehaviour, out MonoBehaviour mocMono)
-        {
-            mocMono = null;
-            var pptrDict = (OrderedDictionary)CubismParsers.ParseMonoBehaviour(m_MonoBehaviour, CubismMonoBehaviourType.Model, assemblyLoader)?["_moc"];
-            if (pptrDict == null)
-                return false;
-
-            var mocPPtr = new PPtr<MonoBehaviour>
-            {
-                m_FileID = (int)pptrDict["m_FileID"],
-                m_PathID = (long)pptrDict["m_PathID"],
-                AssetsFile = m_MonoBehaviour.assetsFile
-            };
-            return mocPPtr.TryGet(out mocMono);
-        }
-
-        private static void BindCubismAsset(MonoBehaviour m_MonoBehaviour, CubismMonoBehaviourType type, bool isParamInfo = false)
-        {
-            if (!m_MonoBehaviour.m_GameObject.TryGet(out var m_GameObject))
-                return;
-
-            if (!TryGetModelGameObject(m_GameObject.m_Transform, out var modelGameObject)) 
-                return;
-            
-            switch (type)
-            {
-                case CubismMonoBehaviourType.PosePart:
-                    modelGameObject.CubismModel.PosePartList.Add(m_MonoBehaviour);
-                    break;
-                case CubismMonoBehaviourType.DisplayInfo when isParamInfo:
-                    modelGameObject.CubismModel.ParamDisplayInfoList.Add(m_MonoBehaviour);
-                    break;
-                case CubismMonoBehaviourType.DisplayInfo:
-                    modelGameObject.CubismModel.PartDisplayInfoList.Add(m_MonoBehaviour);
-                    break;
-                case CubismMonoBehaviourType.RenderTexture:
-                    modelGameObject.CubismModel.RenderTextureList.Add(m_MonoBehaviour);
-                    break;
-            }
-        }
-
-        private static void BindAnimationClips(GameObject gameObject)
-        {
-            if (gameObject.m_Animator == null || gameObject.m_Animator.m_Controller.IsNull)
-                return;
-
-            if (!gameObject.m_Animator.m_Controller.TryGet(out var controller))
-                return;
-
-            AnimatorController animatorController;
-            if (controller is AnimatorOverrideController overrideController)
-            {
-                if (!overrideController.m_Controller.TryGet(out animatorController))
-                    return;
-            }
-            else
-            {
-                animatorController = (AnimatorController)controller;
-            }
-
-            foreach (var clipPptr in animatorController.m_AnimationClips)
-            {
-                if (clipPptr.TryGet(out var m_AnimationClip))
-                {
-                    gameObject.CubismModel.ClipMotionList.Add(m_AnimationClip);
-                }
-            }
-        }
-
-        private static bool TryGetModelGameObject(Transform m_Transform, out GameObject m_GameObject)
-        {
-            m_GameObject = null;
-            if (m_Transform == null)
-                return false;
-
-            while (m_Transform.m_Father.TryGet(out var m_Father))
-            {
-                m_Transform = m_Father;
-                if (m_Transform.m_GameObject.TryGet(out m_GameObject) && m_GameObject.CubismModel != null)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         private static Dictionary<MonoBehaviour, string> GenerateMocPathDict(Dictionary<MonoBehaviour, CubismModel> mocDict, bool searchByFilename)
         {
             var tempMocPathDict = new Dictionary<MonoBehaviour, (string, string)>();
             var mocPathDict = new Dictionary<MonoBehaviour, string>();
-            foreach (var mocMono in l2dModelDict.Keys)
+            foreach (var mocMono in l2dAssetManager.ModelDict.Keys)
             {
                 if (containers.TryGetValue(mocMono, out var fullContainerPath))
                 {
@@ -1130,61 +1030,18 @@ namespace AssetStudioCLI
             return mocPathDict;
         }
 
-        public static void ExportLive2D()
+        private static Dictionary<MonoBehaviour, List<AssetStudio.Object>> GenerateMocAssetDict(Dictionary<MonoBehaviour, CubismModel> mocDict)
         {
-            var baseDestPath = Path.Combine(CLIOptions.o_outputFolder.Value, "Live2DOutput");
-            var motionMode = CLIOptions.o_l2dMotionMode.Value;
-            var forceBezier = CLIOptions.f_l2dForceBezier.Value;
-            var modelGroupOption = CLIOptions.o_l2dGroupOption.Value;
             var searchByFilename = CLIOptions.f_l2dAssetSearchByFilename.Value;
-            var mocDict = l2dModelDict;
             var l2dContainers = searchByFilename
                 ? new Dictionary<AssetStudio.Object, string>()
                 : containers;
 
-            if (l2dModelDict.Count == 0)
-            {
-                Logger.Default.Log(LoggerEvent.Info, "Live2D Cubism models were not found.", ignoreLevel: true);
-                return;
-            }
-
-            if (CLIOptions.filterBy == FilterBy.NameOrContainer)
-            {
-                var regexMode = CLIOptions.f_filterWithRegex.Value;
-                var filterList = CLIOptions.o_filterByText.Value;
-                var filteredDict = new Dictionary<MonoBehaviour, CubismModel>();
-                var regex = regexMode ? new Regex(filterList[0]) : null;
-                foreach (var kvp in l2dModelDict)
-                {
-                    var mocName = kvp.Key.m_Name;
-                    var mocContainer = containers.TryGetValue(kvp.Key, out var container)
-                        ? container
-                        : "";
-                    if (regexMode)
-                    {
-                        if (regex.IsMatch(mocContainer) || regex.IsMatch(mocName))
-                            filteredDict[kvp.Key] = kvp.Value;
-                        continue;
-                    }
-                    if (filterList.Any(str => mocContainer.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0 || mocName.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0))
-                    {
-                        filteredDict[kvp.Key] = kvp.Value;
-                    }
-                }
-                mocDict = filteredDict;
-                var log = regexMode
-                    ? $"Found {filteredDict.Count} Live2D model(s) which names or containers match {regex.ToString().Color(Ansi.BrightYellow)} regexp"
-                    : $"Found {filteredDict.Count} Live2D model(s) that contain {$"\"{string.Join("\", \"", filterList)}\"".Color(Ansi.BrightYellow)} in their names or containers";
-                Logger.Info(log);
-            }
-            if (mocDict.Count == 0)
-                return;
-
-            Progress.Reset();
-            Logger.Info("Searching for Live2D files...");
+            var mode = searchByFilename ? "file names" : "containers";
+            Logger.Info($"Searching for Live2D assets using {mode}...");
 
             var mocPathDict = GenerateMocPathDict(mocDict, searchByFilename);
-            if (!searchByFilename && mocPathDict.Count != l2dModelDict.Count)
+            if (!searchByFilename && mocPathDict.Count != mocDict.Count)
             {
                 Logger.Warning($"Some Live2D models cannot be exported using containers\nTry to specify \"{"--l2d-search-by-filename".Color(Ansi.BrightCyan)}\" flag");
             }
@@ -1237,19 +1094,70 @@ namespace AssetStudioCLI
                     assetDict[mocKvp.Key] = result;
                 }
             }
-
             if (searchByFilename)
                 l2dContainers.Clear();
-            if (mocDict.Keys.First().serializedType?.m_Type == null && CLIOptions.o_assemblyPath.Value == "")
+
+            return assetDict;
+        }
+
+        private static void FilterMocDict()
+        {
+            var regexMode = CLIOptions.f_filterWithRegex.Value;
+            var filterList = CLIOptions.o_filterByText.Value;
+            var filteredDict = new Dictionary<MonoBehaviour, CubismModel>();
+            var regex = regexMode ? new Regex(filterList[0]) : null;
+            foreach (var kvp in l2dAssetManager.ModelDict)
+            {
+                var mocName = kvp.Key.m_Name;
+                var mocContainer = containers.TryGetValue(kvp.Key, out var container)
+                    ? container
+                    : "";
+                if (regexMode)
+                {
+                    if (regex.IsMatch(mocContainer) || regex.IsMatch(mocName))
+                        filteredDict[kvp.Key] = kvp.Value;
+                    continue;
+                }
+                if (filterList.Any(str => mocContainer.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0 || mocName.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0))
+                {
+                    filteredDict[kvp.Key] = kvp.Value;
+                }
+            }
+            var log = regexMode
+                ? $"Found {filteredDict.Count} Live2D model(s) which names or containers match {regex.ToString().Color(Ansi.BrightYellow)} regexp"
+                : $"Found {filteredDict.Count} Live2D model(s) that contain {$"\"{string.Join("\", \"", filterList)}\"".Color(Ansi.BrightYellow)} in their names or containers";
+            Logger.Info(log);
+
+            l2dAssetManager.ModelDict = filteredDict;
+        }
+
+        public static void ExportLive2D()
+        {
+            var baseDestPath = Path.Combine(CLIOptions.o_outputFolder.Value, "Live2DOutput");
+            var motionMode = CLIOptions.o_l2dMotionMode.Value;
+            var forceBezier = CLIOptions.f_l2dForceBezier.Value;
+            var modelGroupOption = CLIOptions.o_l2dGroupOption.Value;
+            var searchByFilename = CLIOptions.f_l2dAssetSearchByFilename.Value;
+            if (CLIOptions.filterBy == FilterBy.NameOrContainer)
+                FilterMocDict();
+            if (l2dAssetManager.ModelDict.Count == 0)
+            {
+                Logger.Default.Log(LoggerEvent.Info, "Live2D Cubism models were not found.", ignoreLevel: true);
+                return;
+            }
+            if (l2dAssetManager.ModelDict.Keys.First().serializedType?.m_Type == null && CLIOptions.o_assemblyPath.Value == "")
             {
                 Logger.Warning("Specifying the assembly folder may be needed for proper extraction\n" +
                                $"Use \"{"--assembly-folder <path>".Color(Ansi.BrightCyan)}\" to specify it");
             }
+
+            Progress.Reset();
+            var assetDict = GenerateMocAssetDict(l2dAssetManager.ModelDict);
             var totalModelCount = assetDict.Count;
             Logger.Info($"Found {totalModelCount} model(s).");
             var parallelTaskCount = CLIOptions.o_maxParallelExportTasks.Value;
             var modelCounter = 0;
-            Live2DExtractor.MocDict = mocDict;
+            Live2DExtractor.MocDict = l2dAssetManager.ModelDict;
             Live2DExtractor.Assembly = assemblyLoader;
             foreach (var assetGroupKvp in assetDict)
             {

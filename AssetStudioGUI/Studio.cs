@@ -4,7 +4,6 @@ using CubismLive2DExtractor;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -15,7 +14,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using static AssetStudioGUI.Exporter;
-using static CubismLive2DExtractor.CubismParsers;
 using Object = AssetStudio.Object;
 
 namespace AssetStudioGUI
@@ -88,8 +86,7 @@ namespace AssetStudioGUI
         public static AssemblyLoader assemblyLoader = new AssemblyLoader();
         public static List<AssetItem> exportableAssets = new List<AssetItem>();
         public static List<AssetItem> visibleAssets = new List<AssetItem>();
-        public static Dictionary<MonoBehaviour, CubismModel> l2dModelDict = new Dictionary<MonoBehaviour, CubismModel>();
-        private static Dictionary<Object, string> l2dAssetContainers = new Dictionary<Object, string>();
+        public static L2DAssetManager l2dAssetManager = new L2DAssetManager();
         internal static Action<string> StatusStripUpdate = x => { };
         internal static Fbx.Settings FbxSettings;
 
@@ -225,7 +222,6 @@ namespace AssetStudioGUI
             var objectAssetItemDic = new Dictionary<Object, AssetItem>(objectCount);
             var containers = new List<(PPtr<Object>, string)>();
             var tex2dArrayAssetList = new List<AssetItem>();
-            l2dAssetContainers.Clear();
             var i = 0;
             Progress.Reset();
             foreach (var assetsFile in assetsManager.AssetsFileList)
@@ -245,10 +241,9 @@ namespace AssetStudioGUI
                             break;
                         case GameObject m_GameObject:
                             assetItem.Text = m_GameObject.m_Name;
-                            if (m_GameObject.CubismModel != null && TryGetCubismMoc(m_GameObject.CubismModel.CubismModelMono, out var mocMono))
+                            if (m_GameObject.CubismModel != null)
                             {
-                                l2dModelDict[mocMono] = m_GameObject.CubismModel;
-                                BindAnimationClips(m_GameObject);
+                                l2dAssetManager.BindCubismAssetsByGO(m_GameObject, assemblyLoader);
                             }
                             break;
                         case Texture2D m_Texture2D:
@@ -304,22 +299,11 @@ namespace AssetStudioGUI
                                 switch (m_Script.m_ClassName)
                                 {
                                     case "CubismMoc":
-                                        if (!l2dModelDict.ContainsKey(m_MonoBehaviour))
-                                        {
-                                            l2dModelDict.Add(m_MonoBehaviour, null);
-                                        }
-                                        break;
                                     case "CubismRenderer":
-                                        BindCubismAsset(m_MonoBehaviour, CubismMonoBehaviourType.RenderTexture);
-                                        break;
                                     case "CubismDisplayInfoParameterName":
-                                        BindCubismAsset(m_MonoBehaviour, CubismMonoBehaviourType.DisplayInfo, isParamInfo: true);
-                                        break;
                                     case "CubismDisplayInfoPartName":
-                                        BindCubismAsset(m_MonoBehaviour, CubismMonoBehaviourType.DisplayInfo);
-                                        break;
                                     case "CubismPosePart":
-                                        BindCubismAsset(m_MonoBehaviour, CubismMonoBehaviourType.PosePart);
+                                        l2dAssetManager.BindCubismAssetsByMono(m_MonoBehaviour, m_Script.m_ClassName);
                                         break;
                                 }
                             }
@@ -389,7 +373,7 @@ namespace AssetStudioGUI
                         case AnimationClip _:
                         case Texture2D _:
                         case MonoBehaviour _:
-                            l2dAssetContainers[obj] = container;
+                            l2dAssetManager.AssetContainers[obj] = container;
                             break;
                     }
                 }
@@ -545,13 +529,10 @@ namespace AssetStudioGUI
                 Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
                 var groupOption = (AssetGroupOption)Properties.Settings.Default.assetGroupOption;
-                var parallelExportCount = Properties.Settings.Default.parallelExportCount <= 0
-                    ? Environment.ProcessorCount - 1
-                    : Math.Min(Properties.Settings.Default.parallelExportCount, Environment.ProcessorCount - 1);
-                parallelExportCount = Properties.Settings.Default.parallelExport ? parallelExportCount : 1;
                 var toExportAssetDict = new ConcurrentDictionary<AssetItem, string>();
                 var toParallelExportAssetDict = new ConcurrentDictionary<AssetItem, string>();
                 var exceptionMsgs = new ConcurrentDictionary<Exception, string>();
+                var parallelExportCount = GetParallelExportCount();
                 var mode = exportType == ExportType.Dump ? "Dump" : "Export";
                 var toExportCount = toExportAssets.Count;
                 var exportedCount = 0;
@@ -1025,99 +1006,13 @@ namespace AssetStudioGUI
             Process.Start(info);
         }
 
-        private static bool TryGetCubismMoc(MonoBehaviour m_MonoBehaviour, out MonoBehaviour mocMono)
-        {
-            mocMono = null;
-            var pptrDict = (OrderedDictionary)CubismParsers.ParseMonoBehaviour(m_MonoBehaviour, CubismParsers.CubismMonoBehaviourType.Model, assemblyLoader)?["_moc"];
-            if (pptrDict == null)
-                return false;
-
-            var mocPPtr = new PPtr<MonoBehaviour>
-            {
-                m_FileID = (int)pptrDict["m_FileID"],
-                m_PathID = (long)pptrDict["m_PathID"],
-                AssetsFile = m_MonoBehaviour.assetsFile
-            };
-            return mocPPtr.TryGet(out mocMono);
-        }
-
-        private static void BindCubismAsset(MonoBehaviour m_MonoBehaviour, CubismMonoBehaviourType type, bool isParamInfo = false)
-        {
-            if (!m_MonoBehaviour.m_GameObject.TryGet(out var m_GameObject))
-                return;
-
-            if (!TryGetModelGameObject(m_GameObject.m_Transform, out var modelGameObject))
-                return;
-
-            switch (type)
-            {
-                case CubismMonoBehaviourType.PosePart:
-                    modelGameObject.CubismModel.PosePartList.Add(m_MonoBehaviour);
-                    break;
-                case CubismMonoBehaviourType.DisplayInfo when isParamInfo:
-                    modelGameObject.CubismModel.ParamDisplayInfoList.Add(m_MonoBehaviour);
-                    break;
-                case CubismMonoBehaviourType.DisplayInfo:
-                    modelGameObject.CubismModel.PartDisplayInfoList.Add(m_MonoBehaviour);
-                    break;
-                case CubismMonoBehaviourType.RenderTexture:
-                    modelGameObject.CubismModel.RenderTextureList.Add(m_MonoBehaviour);
-                    break;
-            }
-        }
-
-        private static void BindAnimationClips(GameObject gameObject)
-        {
-            if (gameObject.m_Animator == null || gameObject.m_Animator.m_Controller.IsNull)
-                return;
-
-            if (!gameObject.m_Animator.m_Controller.TryGet(out var controller)) 
-                return;
-
-            AnimatorController animatorController;
-            if (controller is AnimatorOverrideController overrideController)
-            {
-                if (!overrideController.m_Controller.TryGet(out animatorController))
-                    return;
-            }
-            else
-            {
-                animatorController = (AnimatorController)controller;
-            }
-
-            foreach (var clipPptr in animatorController.m_AnimationClips)
-            {
-                if (clipPptr.TryGet(out var m_AnimationClip))
-                {
-                    gameObject.CubismModel.ClipMotionList.Add(m_AnimationClip);
-                }
-            }
-        }
-
-        private static bool TryGetModelGameObject(Transform m_Transform, out GameObject m_GameObject)
-        {
-            m_GameObject = null;
-            if (m_Transform == null)
-                return false;
-
-            while (m_Transform.m_Father.TryGet(out var m_Father))
-            {
-                m_Transform = m_Father;
-                if (m_Transform.m_GameObject.TryGet(out m_GameObject) && m_GameObject.CubismModel != null)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         private static Dictionary<MonoBehaviour, string> GenerateMocPathDict(Dictionary<MonoBehaviour, CubismModel> mocDict, bool searchByFilename)
         {
             var tempMocPathDict = new Dictionary<MonoBehaviour, (string, string)>();
             var mocPathDict = new Dictionary<MonoBehaviour, string>();
-            foreach (var mocMono in l2dModelDict.Keys)
+            foreach (var mocMono in l2dAssetManager.ModelDict.Keys)
             {
-                if (l2dAssetContainers.TryGetValue(mocMono, out var fullContainerPath))
+                if (l2dAssetManager.AssetContainers.TryGetValue(mocMono, out var fullContainerPath))
                 {
                     var pathSepIndex = fullContainerPath.LastIndexOf('/');
                     var basePath = pathSepIndex > 0
@@ -1156,6 +1051,76 @@ namespace AssetStudioGUI
             return mocPathDict;
         }
 
+        private static Dictionary<MonoBehaviour, List<Object>> GenerateMocAssetDict(Dictionary<MonoBehaviour, CubismModel> mocDict)
+        {
+            var searchByFilename = Properties.Settings.Default.l2dAssetSearchByFilename;
+            var l2dContainers = searchByFilename
+                ? new Dictionary<Object, string>()
+                : l2dAssetManager.AssetContainers;
+
+            var mode = searchByFilename ? "file names" : "containers";
+            Logger.Info($"Searching for Live2D assets using {mode}...");
+
+            var mocPathDict = GenerateMocPathDict(mocDict, searchByFilename);
+            if (!searchByFilename && mocPathDict.Count != mocDict.Count)
+            {
+                Logger.Warning("Some Live2D models cannot be exported using containers\nTry to enable search by file name in the options");
+            }
+
+            if (searchByFilename)
+            {
+                foreach (var asset in exportableAssets)
+                {
+                    switch (asset.Type)
+                    {
+                        case ClassIDType.AnimationClip:
+                        case ClassIDType.Texture2D:
+                        case ClassIDType.MonoBehaviour:
+                            l2dContainers[asset.Asset] = asset.Asset.assetsFile.fullName;
+                            break;
+                    }
+                }
+            }
+
+            var assetDict = new Dictionary<MonoBehaviour, List<Object>>();
+            foreach (var mocKvp in mocPathDict)
+            {
+                var mocPath = searchByFilename
+                    ? mocKvp.Key.assetsFile.fullName
+                    : mocKvp.Value;
+                var result = l2dContainers.Select(assetKvp =>
+                {
+                    if (!assetKvp.Value.Contains(mocPath))
+                        return null;
+                    var mocPathSpan = mocPath.AsSpan();
+                    var modelNameFromPath = mocPathSpan.Slice(mocPathSpan.LastIndexOf('/') + 1);
+#if NET9_0_OR_GREATER
+                        foreach (var range in assetKvp.Value.AsSpan().Split('/'))
+                        {
+                            if (modelNameFromPath.SequenceEqual(assetKvp.Value.AsSpan()[range]))
+                                return assetKvp.Key;
+                        }
+#else
+                    foreach (var str in assetKvp.Value.Split('/'))
+                    {
+                        if (modelNameFromPath.SequenceEqual(str.AsSpan()))
+                            return assetKvp.Key;
+                    }
+#endif
+                    return null;
+                }).Where(x => x != null).ToList();
+
+                if (result.Count > 0)
+                {
+                    assetDict[mocKvp.Key] = result;
+                }
+            }
+            if (searchByFilename)
+                l2dContainers.Clear();
+            
+            return assetDict;
+        }
+
         public static void ExportLive2D(string exportPath, List<MonoBehaviour> selMocs = null, List<AnimationClip> selClipMotions = null, List<MonoBehaviour> selFadeMotions = null, MonoBehaviour selFadeLst = null)
         {
             var baseDestPath = Path.Combine(exportPath, "Live2DOutput");
@@ -1168,74 +1133,12 @@ namespace AssetStudioGUI
             else if (selFadeMotions != null || selFadeLst != null)
                 motionMode = Live2DMotionMode.MonoBehaviour;
             var mocDict = selMocs != null
-                ? selMocs.ToDictionary(moc => moc, moc => l2dModelDict[moc])
-                : l2dModelDict;
-            var l2dContainers = searchByFilename
-                ? new Dictionary<Object, string>()
-                : l2dAssetContainers;
+                ? selMocs.ToDictionary(moc => moc, moc => l2dAssetManager.ModelDict[moc])
+                : l2dAssetManager.ModelDict;
 
             ThreadPool.QueueUserWorkItem(state =>
             {
-                var mode = searchByFilename ? "file names" : "containers";
-                Logger.Info($"Searching for Live2D assets using {mode}...");
-
-                var mocPathDict = GenerateMocPathDict(mocDict, searchByFilename);
-                if (!searchByFilename && mocPathDict.Count != l2dModelDict.Count)
-                {
-                    Logger.Warning("Some Live2D models cannot be exported using containers\nTry to enable search by file name in the options");
-                }
-
-                if (searchByFilename)
-                {
-                    foreach (var asset in exportableAssets)
-                    {
-                        switch (asset.Type)
-                        {
-                            case ClassIDType.AnimationClip:
-                            case ClassIDType.Texture2D:
-                            case ClassIDType.MonoBehaviour:
-                                l2dContainers[asset.Asset] = asset.Asset.assetsFile.fullName;
-                                break;
-                        }
-                    }
-                }
-
-                var assetDict = new Dictionary<MonoBehaviour, List<Object>>();
-                foreach (var mocKvp in mocPathDict)
-                {
-                    var mocPath = searchByFilename
-                        ? mocKvp.Key.assetsFile.fullName
-                        : mocKvp.Value;
-                    var result = l2dContainers.Select(assetKvp =>
-                    {
-                        if (!assetKvp.Value.Contains(mocPath))
-                            return null;
-                        var mocPathSpan = mocPath.AsSpan();
-                        var modelNameFromPath = mocPathSpan.Slice(mocPathSpan.LastIndexOf('/') + 1);
-#if NET9_0_OR_GREATER
-                        foreach (var range in assetKvp.Value.AsSpan().Split('/'))
-                        {
-                            if (modelNameFromPath.SequenceEqual(assetKvp.Value.AsSpan()[range]))
-                                return assetKvp.Key;
-                        }
-#else
-                        foreach (var str in assetKvp.Value.Split('/'))
-                        {
-                            if (modelNameFromPath.SequenceEqual(str.AsSpan()))
-                                return assetKvp.Key;
-                        }
-#endif
-                        return null;
-                    }).Where(x => x != null).ToList();
-
-                    if (result.Count > 0)
-                    {
-                        assetDict[mocKvp.Key] = result;
-                    }
-                }
-
-                if (searchByFilename)
-                    l2dContainers.Clear();
+                var assetDict = GenerateMocAssetDict(mocDict);
                 if (mocDict.Keys.First().serializedType?.m_Type == null && !assemblyLoader.Loaded)
                 {
                     Logger.Warning("Specifying the assembly folder may be needed for proper extraction");
@@ -1243,15 +1146,11 @@ namespace AssetStudioGUI
                 }
                 var totalModelCount = assetDict.Count;
                 var modelCounter = 0;
-                var parallelExportCount = Properties.Settings.Default.parallelExportCount <= 0
-                    ? Environment.ProcessorCount - 1
-                    : Math.Min(Properties.Settings.Default.parallelExportCount, Environment.ProcessorCount - 1);
-                parallelExportCount = Properties.Settings.Default.parallelExport ? parallelExportCount : 1;
                 Live2DExtractor.MocDict = mocDict;
                 Live2DExtractor.Assembly = assemblyLoader;
                 foreach (var assetGroupKvp in assetDict)
                 {
-                    var srcContainer = l2dAssetContainers.TryGetValue(assetGroupKvp.Key, out var result)
+                    var srcContainer = l2dAssetManager.AssetContainers.TryGetValue(assetGroupKvp.Key, out var result)
                         ? result
                         : assetGroupKvp.Key.assetsFile.fullName;
 
@@ -1289,7 +1188,7 @@ namespace AssetStudioGUI
                                 break;
                         }
                         var destPath = Path.Combine(baseDestPath, modelPath);
-                        cubismExtractor.ExtractCubismModel(destPath, motionMode, forceBezier, parallelExportCount);
+                        cubismExtractor.ExtractCubismModel(destPath, motionMode, forceBezier, GetParallelExportCount());
                         modelCounter++;
                     }
                     catch (Exception ex)
@@ -1307,6 +1206,15 @@ namespace AssetStudioGUI
                     OpenFolderInExplorer(exportPath);
                 }
             });
+        }
+
+        private static int GetParallelExportCount()
+        {
+            var parallelExportCount = Properties.Settings.Default.parallelExportCount <= 0
+                ? Environment.ProcessorCount - 1
+                : Math.Min(Properties.Settings.Default.parallelExportCount, Environment.ProcessorCount - 1);
+
+            return Properties.Settings.Default.parallelExport ? parallelExportCount : 1;
         }
     }
 }

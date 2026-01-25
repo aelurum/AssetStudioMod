@@ -312,7 +312,7 @@ namespace AssetStudioGUI
 
             var types = new SortedSet<string>();
             types.UnionWith(exportableAssets.Select(x => x.TypeString));
-            if (Studio.l2dModelDict.Count > 0)
+            if (Studio.l2dAssetManager.ModelDict.Count > 0)
             {
                 types.Add("MonoBehaviour (Live2D Model)");
             }
@@ -1247,7 +1247,7 @@ namespace AssetStudioGUI
             using (var cubismMoc = new AssetStudio.Addons.CubismLive2D.CubismMoc(m_MonoBehaviour))
             {
                 var sb = new StringBuilder();
-                if (Studio.l2dModelDict.TryGetValue(m_MonoBehaviour, out var model) && model != null)
+                if (Studio.l2dAssetManager.ModelDict.TryGetValue(m_MonoBehaviour, out var model) && model != null)
                 {
                     sb.AppendLine($"Model Name: {model.Name}");
                 }
@@ -1590,7 +1590,7 @@ namespace AssetStudioGUI
             Studio.assemblyLoader.Clear();
             Studio.exportableAssets.Clear();
             Studio.visibleAssets.Clear();
-            Studio.l2dModelDict.Clear();
+            Studio.l2dAssetManager.Clear();
             sceneTreeView.Nodes.Clear();
             assetListView.VirtualListSize = 0;
             assetListView.Items.Clear();
@@ -1675,7 +1675,7 @@ namespace AssetStudioGUI
                         switch (asset.Asset)
                         {
                             case MonoBehaviour m_MonoBehaviour:
-                                if (Studio.l2dModelDict.Count > 0 && m_MonoBehaviour.m_Script.TryGet(out var m_Script))
+                                if (Studio.l2dAssetManager.ModelDict.Count > 0 && m_MonoBehaviour.m_Script.TryGet(out var m_Script))
                                 {
                                     if (m_Script.m_ClassName == "CubismMoc")
                                     {
@@ -1995,7 +1995,7 @@ namespace AssetStudioGUI
                     }
                 }
                 visibleAssets = filterMoc
-                    ? exportableAssets.FindAll(x => (x.Asset is MonoBehaviour monoBehaviour && l2dModelDict.ContainsKey(monoBehaviour)) || show.Contains(x.Type))
+                    ? exportableAssets.FindAll(x => (x.Asset is MonoBehaviour monoBehaviour && Studio.l2dAssetManager.ModelDict.ContainsKey(monoBehaviour)) || show.Contains(x.Type))
                     : exportableAssets.FindAll(x => show.Contains(x.Type));
             }
             else
@@ -2322,7 +2322,7 @@ namespace AssetStudioGUI
         {
             if (exportableAssets.Count > 0)
             {
-                if (Studio.l2dModelDict.Count == 0)
+                if (Studio.l2dAssetManager.ModelDict.Count == 0)
                 {
                     Logger.Info("Live2D Cubism models were not found.");
                     return;
@@ -2362,7 +2362,7 @@ namespace AssetStudioGUI
                 Logger.Info("No exportable assets loaded");
                 return;
             }
-            if (Studio.l2dModelDict.Count == 0)
+            if (Studio.l2dAssetManager.ModelDict.Count == 0)
             {
                 Logger.Info("Live2D Cubism models were not found.");
                 return;

@@ -310,7 +310,7 @@ namespace AssetStudio
             
             try
             {
-                var bundleFile = new BundleFile(bundleReader, Options.BundleOptions);
+                var bundleFile = new BundleFile(bundleReader, Options);
                 isLoaded = LoadBundleFiles(bundleReader, bundleFile, originalPath);
                 if (!isLoaded)
                     return false;
@@ -331,7 +331,7 @@ namespace AssetStudio
                         bundleReader.FileName = $"{reader.FileName}_0x{bundleStream.Offset:X}";
                     }
                     Logger.Info($"[MultiBundle] Loading \"{reader.FileName}\" from offset: 0x{bundleStream.Offset:X}");
-                    bundleFile = new BundleFile(bundleReader, Options.BundleOptions, isMultiBundle: true);
+                    bundleFile = new BundleFile(bundleReader, Options, isMultiBundle: true);
                     isLoaded = LoadBundleFiles(bundleReader, bundleFile, originalPath ?? reader.FullPath);
                 }
                 return isLoaded;

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AssetStudio.CustomOptions;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using AssetStudio.CustomOptions;
 
 namespace AssetStudio
 {
@@ -45,7 +45,7 @@ namespace AssetStudio
     public class BundleFile
     {
         public readonly bool IsDataAfterBundle;
-        private readonly CustomBundleOptions _bundleOptions;
+        private readonly ImportOptions.CustomBundleOptions _bundleOptions;
 
         public class Header
         {
@@ -80,9 +80,9 @@ namespace AssetStudio
 
         public List<StreamFile> fileList;
 
-        public BundleFile(FileReader reader, CustomBundleOptions bundleOptions, bool isMultiBundle = false)
+        public BundleFile(FileReader reader, ImportOptions importOptions, bool isMultiBundle = false)
         {
-            _bundleOptions = bundleOptions;
+            _bundleOptions = importOptions.BundleOptions;
             m_Header = new Header();
             m_Header.signature = reader.ReadStringToNull();
             m_Header.version = reader.ReadUInt32();
@@ -115,7 +115,7 @@ namespace AssetStudio
                     IsDataAfterBundle = streamSize - bundleSize > 200;
                     
                     var unityVer = m_Header.unityRevision;
-                    var customUnityVer = _bundleOptions.Options.CustomUnityVersion;
+                    var customUnityVer = importOptions.CustomUnityVersion;
                     if (customUnityVer != null)
                     {
                         if (!unityVer.IsStripped && customUnityVer != unityVer)

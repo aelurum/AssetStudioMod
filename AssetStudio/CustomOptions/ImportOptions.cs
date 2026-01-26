@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace AssetStudio.CustomOptions
 {
-    public class ImportOptions
+    public partial class ImportOptions
     {
         private static JsonSerializerOptions jsonOptions;
         private static string fileName = "ImportOptions";
@@ -28,7 +28,7 @@ namespace AssetStudio.CustomOptions
 
         public ImportOptions()
         {
-            BundleOptions = new CustomBundleOptions(this);
+            BundleOptions = new CustomBundleOptions();
             CustomUnityVersion = null;
         }
 

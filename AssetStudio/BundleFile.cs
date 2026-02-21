@@ -45,6 +45,7 @@ namespace AssetStudio
     public class BundleFile
     {
         public readonly bool IsDataAfterBundle;
+        private static TempFileStream _sharedTempFileStream;
         private readonly ImportOptions.CustomBundleOptions _bundleOptions;
 
         public class Header
@@ -180,26 +181,29 @@ namespace AssetStudio
             reader.Position = m_Header.size;
         }
 
-        private Stream CreateBlocksStream(string path)
+        private Stream CreateBlocksStream()
         {
             var uncompressedSizeSum = m_BlocksInfo.Sum(x => x.uncompressedSize);
-            if (uncompressedSizeSum < int.MaxValue && !_bundleOptions.DecompressToDisk) 
+            if (uncompressedSizeSum < int.MaxValue && !_bundleOptions.DecompressToDisk)
                 return new MemoryStream((int)uncompressedSizeSum);
 
-            if (!Directory.Exists(Path.GetDirectoryName(path)))
+            if (_sharedTempFileStream == null || !_sharedTempFileStream.CanRead)
             {
-                var tempDir = Path.Combine(Directory.GetCurrentDirectory(), "Studio_temp");
-                Directory.CreateDirectory(tempDir);
-                var filename = Path.GetFileName(path);
-                var hash = path.GetHashCode();
-                path = Path.Combine(tempDir, $"{filename}_{hash:X}");
+                var cachePath = _bundleOptions.CustomCachePath;
+                if (string.IsNullOrEmpty(cachePath) || !Directory.Exists(cachePath))
+                {
+                    throw new NotSupportedException("Cache directory wasn't found. Make sure that the specified path is correct.");
+                }
+                var filename = $"studio_{DateTimeOffset.UtcNow.ToUnixTimeSeconds():X}.temp";
+                _sharedTempFileStream = new TempFileStream(Path.Combine(cachePath, filename), FileMode.Create);
             }
-            return new TempFileStream(path + ".temp", FileMode.Create);
+
+            return new OffsetStream(_sharedTempFileStream, _sharedTempFileStream.Length, uncompressedSizeSum);
         }
 
         private Stream ReadBlocksAndDirectory(FileReader reader)
         {
-            var blocksStream = CreateBlocksStream(reader.FullPath);
+            var blocksStream = CreateBlocksStream();
             var isCompressed = m_Header.signature == "UnityWeb";
             foreach (var blockInfo in m_BlocksInfo)
             {
@@ -408,7 +412,7 @@ namespace AssetStudio
         private Stream ReadBlocks(FileReader reader)
         {
             var customBlockCompression = _bundleOptions.CustomBlockCompression;
-            var blocksStream = CreateBlocksStream(reader.FullPath);
+            var blocksStream = CreateBlocksStream();
             var blocksCompression = m_BlocksInfo.Max(x => (CompressionType)(x.flags & StorageBlockFlags.CompressionTypeMask));
             var blockSize = (int)m_BlocksInfo.Max(x => x.uncompressedSize);
             Logger.Debug($"BlockData compression: {blocksCompression}\n" +

@@ -34,6 +34,7 @@ namespace AssetStudioCLI
             assetsManager.Options.CustomUnityVersion = CLIOptions.o_unityVersion.Value;
             assetsManager.Options.BundleOptions.CustomBlockInfoCompression = CLIOptions.o_bundleBlockInfoCompression.Value;
             assetsManager.Options.BundleOptions.CustomBlockCompression = CLIOptions.o_bundleBlockCompression.Value;
+            assetsManager.Options.BundleOptions.CustomCachePath = CLIOptions.o_cachePath.Value;
             assetsManager.Options.BundleOptions.DecompressToDisk = CLIOptions.f_decompressToDisk.Value;
             assetsManager.OptionLoaders.Clear();
         }

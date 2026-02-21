@@ -52,12 +52,10 @@
             this.specifyUnityVersionTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.bundleDecompressionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.alwaysDecompressToDiskToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.blockInfoCompressionTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.customBlockInfoCompressionComboBox = new System.Windows.Forms.ToolStripComboBox();
-            this.blockCompressionTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.customBlockCompressionComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.importOptionsToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.saveOptionsToDiskToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importOptionsToolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.moreOptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showExpOpt = new System.Windows.Forms.ToolStripMenuItem();
             this.modelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportAllObjectssplitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -384,12 +382,10 @@
             this.specifyUnityVersionTextBox,
             this.bundleDecompressionToolStripMenuItem,
             this.alwaysDecompressToDiskToolStripMenuItem,
-            this.blockInfoCompressionTypeToolStripMenuItem,
-            this.customBlockInfoCompressionComboBox,
-            this.blockCompressionTypeToolStripMenuItem,
-            this.customBlockCompressionComboBox,
             this.importOptionsToolStripSeparator,
-            this.saveOptionsToDiskToolStripMenuItem});
+            this.saveOptionsToDiskToolStripMenuItem,
+            this.importOptionsToolStripSeparator2,
+            this.moreOptionsToolStripMenuItem});
             this.importOptionsToolStripMenuItem.Name = "importOptionsToolStripMenuItem";
             this.importOptionsToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
             this.importOptionsToolStripMenuItem.Text = "Import options";
@@ -401,7 +397,7 @@
             this.customUnityVersionToolStripMenuItem.Enabled = false;
             this.customUnityVersionToolStripMenuItem.Name = "customUnityVersionToolStripMenuItem";
             this.customUnityVersionToolStripMenuItem.ShowShortcutKeys = false;
-            this.customUnityVersionToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.customUnityVersionToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.customUnityVersionToolStripMenuItem.Text = "Custom Unity version";
             // 
             // specifyUnityVersionTextBox
@@ -417,7 +413,7 @@
             this.bundleDecompressionToolStripMenuItem.Enabled = false;
             this.bundleDecompressionToolStripMenuItem.Name = "bundleDecompressionToolStripMenuItem";
             this.bundleDecompressionToolStripMenuItem.ShowShortcutKeys = false;
-            this.bundleDecompressionToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.bundleDecompressionToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.bundleDecompressionToolStripMenuItem.Text = "Bundle Decompression";
             // 
             // alwaysDecompressToDiskToolStripMenuItem
@@ -425,71 +421,35 @@
             this.alwaysDecompressToDiskToolStripMenuItem.CheckOnClick = true;
             this.alwaysDecompressToDiskToolStripMenuItem.Name = "alwaysDecompressToDiskToolStripMenuItem";
             this.alwaysDecompressToDiskToolStripMenuItem.ShowShortcutKeys = false;
-            this.alwaysDecompressToDiskToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.alwaysDecompressToDiskToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
             this.alwaysDecompressToDiskToolStripMenuItem.Text = "Always decompress to disk";
             this.alwaysDecompressToDiskToolStripMenuItem.ToolTipText = "If not selected, any bundles less than 2GB will be decompressed to RAM";
             this.alwaysDecompressToDiskToolStripMenuItem.Click += new System.EventHandler(this.alwaysDecompressToDiskToolStripMenuItem_Click);
             // 
-            // blockInfoCompressionTypeToolStripMenuItem
-            // 
-            this.blockInfoCompressionTypeToolStripMenuItem.Enabled = false;
-            this.blockInfoCompressionTypeToolStripMenuItem.Name = "blockInfoCompressionTypeToolStripMenuItem";
-            this.blockInfoCompressionTypeToolStripMenuItem.ShowShortcutKeys = false;
-            this.blockInfoCompressionTypeToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.blockInfoCompressionTypeToolStripMenuItem.Text = "BlockInfo Compression Type";
-            // 
-            // customBlockInfoCompressionComboBox
-            // 
-            this.customBlockInfoCompressionComboBox.DropDownHeight = 80;
-            this.customBlockInfoCompressionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.customBlockInfoCompressionComboBox.IntegralHeight = false;
-            this.customBlockInfoCompressionComboBox.Items.AddRange(new object[] {
-            "Auto",
-            "Zstd",
-            "Oodle",
-            "Lz4/Lz4HC",
-            "Lzma"});
-            this.customBlockInfoCompressionComboBox.Name = "customBlockInfoCompressionComboBox";
-            this.customBlockInfoCompressionComboBox.Size = new System.Drawing.Size(121, 23);
-            this.customBlockInfoCompressionComboBox.ToolTipText = "Selected compression type will override detected type from asset bundle";
-            this.customBlockInfoCompressionComboBox.SelectedIndexChanged += new System.EventHandler(this.customBlockInfoCompressionComboBox_SelectedIndexChanged);
-            // 
-            // blockCompressionTypeToolStripMenuItem
-            // 
-            this.blockCompressionTypeToolStripMenuItem.Enabled = false;
-            this.blockCompressionTypeToolStripMenuItem.Name = "blockCompressionTypeToolStripMenuItem";
-            this.blockCompressionTypeToolStripMenuItem.ShowShortcutKeys = false;
-            this.blockCompressionTypeToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.blockCompressionTypeToolStripMenuItem.Text = "Block Compression Type";
-            // 
-            // customBlockCompressionComboBox
-            // 
-            this.customBlockCompressionComboBox.DropDownHeight = 80;
-            this.customBlockCompressionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.customBlockCompressionComboBox.IntegralHeight = false;
-            this.customBlockCompressionComboBox.Items.AddRange(new object[] {
-            "Auto",
-            "Zstd",
-            "Oodle",
-            "Lz4/Lz4HC",
-            "Lzma"});
-            this.customBlockCompressionComboBox.Name = "customBlockCompressionComboBox";
-            this.customBlockCompressionComboBox.Size = new System.Drawing.Size(121, 23);
-            this.customBlockCompressionComboBox.ToolTipText = "Selected compression type will override detected type from asset bundle";
-            this.customBlockCompressionComboBox.SelectedIndexChanged += new System.EventHandler(this.customBlockCompressionComboBox_SelectedIndexChanged);
-            // 
             // importOptionsToolStripSeparator
             // 
             this.importOptionsToolStripSeparator.Name = "importOptionsToolStripSeparator";
-            this.importOptionsToolStripSeparator.Size = new System.Drawing.Size(214, 6);
+            this.importOptionsToolStripSeparator.Size = new System.Drawing.Size(210, 6);
             // 
             // saveOptionsToDiskToolStripMenuItem
             // 
             this.saveOptionsToDiskToolStripMenuItem.Name = "saveOptionsToDiskToolStripMenuItem";
             this.saveOptionsToDiskToolStripMenuItem.ShowShortcutKeys = false;
-            this.saveOptionsToDiskToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.saveOptionsToDiskToolStripMenuItem.Text = "Save options to disk";
+            this.saveOptionsToDiskToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.saveOptionsToDiskToolStripMenuItem.Text = "Save current options to disk";
             this.saveOptionsToDiskToolStripMenuItem.Click += new System.EventHandler(this.saveOptionsToDiskToolStripMenuItem_Click);
+            // 
+            // importOptionsToolStripSeparator2
+            // 
+            this.importOptionsToolStripSeparator2.Name = "importOptionsToolStripSeparator2";
+            this.importOptionsToolStripSeparator2.Size = new System.Drawing.Size(210, 6);
+            // 
+            // moreOptionsToolStripMenuItem
+            // 
+            this.moreOptionsToolStripMenuItem.Name = "moreOptionsToolStripMenuItem";
+            this.moreOptionsToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.moreOptionsToolStripMenuItem.Text = "More options...";
+            this.moreOptionsToolStripMenuItem.Click += new System.EventHandler(this.moreOptionsToolStripMenuItem_Click);
             // 
             // showExpOpt
             // 
@@ -1892,15 +1852,13 @@
         private System.Windows.Forms.ToolStripTextBox specifyUnityVersionTextBox;
         private System.Windows.Forms.ToolStripMenuItem bundleDecompressionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem alwaysDecompressToDiskToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem blockInfoCompressionTypeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripComboBox customBlockInfoCompressionComboBox;
-        private System.Windows.Forms.ToolStripMenuItem blockCompressionTypeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripComboBox customBlockCompressionComboBox;
         private System.Windows.Forms.ToolStripMenuItem saveOptionsToDiskToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator importOptionsToolStripSeparator;
+        private System.Windows.Forms.ToolStripSeparator importOptionsToolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem meshLazyLoadToolStripMenuItem;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.ToolStripMenuItem tvCopyNameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator importOptionsToolStripSeparator;
+        private System.Windows.Forms.ToolStripMenuItem moreOptionsToolStripMenuItem;
     }
 }
 

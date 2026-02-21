@@ -370,5 +370,17 @@ namespace AssetStudioGUI.Properties {
                 this["rawByteArrayFromMono"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string cachePath {
+            get {
+                return ((string)(this["cachePath"]));
+            }
+            set {
+                this["cachePath"] = value;
+            }
+        }
     }
 }

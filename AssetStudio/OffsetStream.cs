@@ -10,7 +10,7 @@ namespace AssetStudio
 
         public override bool CanRead => _baseStream.CanRead;
         public override bool CanSeek => _baseStream.CanSeek;
-        public override bool CanWrite => false;
+        public override bool CanWrite => _baseStream.CanWrite;
         public override long Length => _length > 0
             ? _length
             : _baseStream.Length - _offset;
@@ -86,7 +86,7 @@ namespace AssetStudio
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            throw new System.NotImplementedException();
+            _baseStream.Write(buffer, offset, count);
         }
 
         protected override void Dispose(bool disposing)

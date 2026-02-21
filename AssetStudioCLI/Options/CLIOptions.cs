@@ -15,6 +15,7 @@ namespace AssetStudioCLI.Options
         Live2D,
         FBX,
         Filter,
+        Import,
         Advanced,
     }
 
@@ -118,14 +119,16 @@ namespace AssetStudioCLI.Options
         public static Option<List<string>> o_filterByPathID;
         public static Option<List<string>> o_filterByText;
         public static Option<bool> f_filterWithRegex;
-        //advanced
+        //import
+        public static Option<UnityVersion> o_unityVersion;
+        public static Option<string> o_cachePath;
         public static Option<CompressionType> o_bundleBlockInfoCompression;
         public static Option<CompressionType> o_bundleBlockCompression;
+        public static Option<bool> f_decompressToDisk;
+        //advanced
         public static Option<int> o_maxParallelExportTasks;
         public static Option<ExportListType> o_exportAssetList;
         public static Option<string> o_assemblyPath;
-        public static Option<UnityVersion> o_unityVersion;
-        public static Option<bool> f_decompressToDisk;
         public static Option<bool> f_notRestoreExtensionName;
         public static Option<bool> f_avoidLoadingViaTypetree;
         public static Option<bool> f_rawByteArrayFromMono;
@@ -463,12 +466,28 @@ namespace AssetStudioCLI.Options
             );
             #endregion
 
-            #region Init Advanced Options
+            #region Init Import Options
+            o_unityVersion = new GroupedOption<UnityVersion>
+            (
+                optionDefaultValue: null,
+                optionName: "--unity-version <text>",
+                optionDescription: "Specify Unity version\n",
+                optionExample: "Example: \"--unity-version 2017.4.39f1\"\n",
+                optionHelpGroup: HelpGroups.Import
+            );
+            o_cachePath = new GroupedOption<string>
+            (
+                optionDefaultValue: "temp",
+                optionName: "--cache-dir <path>",
+                optionDescription: "Specify a directory for storing temporary files. Default: <program folder>.\n",
+                optionExample: "",
+                optionHelpGroup: HelpGroups.Import
+            );
             o_bundleBlockInfoCompression = new GroupedOption<CompressionType>
             (
                 optionDefaultValue: CompressionType.Auto,
                 optionName: "--blockinfo-comp <value>",
-                optionDescription: "Specify the compression type of bundle's blockInfo data\n" + 
+                optionDescription: "Specify the compression type of bundle's blockInfo data\n" +
                     "<Value: auto(default) | zstd | oodle | lz4 | lzma>\n" +
                     "Auto - Use compression type specified in an asset bundle\n" +
                     "Zstd - Try to decompress as zstd archive\n" +
@@ -476,9 +495,8 @@ namespace AssetStudioCLI.Options
                     "Lz4 - Try to decompress as lz4/lz4hc archive\n" +
                     "Lzma - Try to decompress as lzma archive\n",
                 optionExample: "Example: \"--blockinfo-comp lz4\"\n",
-                optionHelpGroup: HelpGroups.Advanced
+                optionHelpGroup: HelpGroups.Import
             );
-
             o_bundleBlockCompression = new GroupedOption<CompressionType>
             (
                 optionDefaultValue: CompressionType.Auto,
@@ -491,9 +509,20 @@ namespace AssetStudioCLI.Options
                     "Lz4 - Try to decompress as lz4/lz4hc archive\n" +
                     "Lzma - Try to decompress as lzma archive\n",
                 optionExample: "Example: \"--block-comp zstd\"\n",
-                optionHelpGroup: HelpGroups.Advanced
+                optionHelpGroup: HelpGroups.Import
             );
+            f_decompressToDisk = new GroupedOption<bool>
+            (
+                optionDefaultValue: false,
+                optionName: "--decompress-to-disk",
+                optionDescription: "(Flag) If not specified, only bundles larger than 2GB will be decompressed to disk\ninstead of RAM",
+                optionExample: "",
+                optionHelpGroup: HelpGroups.Import,
+                isFlag: true
+            );
+            #endregion
 
+            #region Init Advanced Options
             o_maxParallelExportTasks = new GroupedOption<int>
             (
                 optionDefaultValue: Environment.ProcessorCount - 1,
@@ -504,7 +533,6 @@ namespace AssetStudioCLI.Options
                 optionExample: "Example: \"--max-export-tasks 8\"\n",
                 optionHelpGroup: HelpGroups.Advanced
             );
-
             o_exportAssetList = new GroupedOption<ExportListType>
             (
                 optionDefaultValue: ExportListType.None,
@@ -522,23 +550,6 @@ namespace AssetStudioCLI.Options
                 optionDescription: "Specify the path to the assembly folder\n",
                 optionExample: "",
                 optionHelpGroup: HelpGroups.Advanced
-            );
-            o_unityVersion = new GroupedOption<UnityVersion>
-            (
-                optionDefaultValue: null,
-                optionName: "--unity-version <text>",
-                optionDescription: "Specify Unity version\n",
-                optionExample: "Example: \"--unity-version 2017.4.39f1\"\n",
-                optionHelpGroup: HelpGroups.Advanced
-            );
-            f_decompressToDisk = new GroupedOption<bool>
-            (
-                optionDefaultValue: false,
-                optionName: "--decompress-to-disk",
-                optionDescription: "(Flag) If not specified, only bundles larger than 2GB will be decompressed to disk\ninstead of RAM\n",
-                optionExample: "",
-                optionHelpGroup: HelpGroups.Advanced,
-                isFlag: true
             );
             f_notRestoreExtensionName = new GroupedOption<bool>
             (
@@ -1242,6 +1253,18 @@ namespace AssetStudioCLI.Options
                                 return;
                             }
                             break;
+                        case "--cache-dir":
+                            value = Path.GetFullPath(value);
+                            if (Directory.Exists(value))
+                            {
+                                o_cachePath.Value = value;
+                            }
+                            else
+                            {
+                                Console.WriteLine($"{"Error".Color(brightRed)} during parsing [{option.Color(brightYellow)}] option. Cache folder [{value.Color(brightRed)}] was not found.");
+                                return;
+                            }
+                            break;
                         default:
                             Console.WriteLine($"{"Error:".Color(brightRed)} Unknown option [{option.Color(brightRed)}].\n");
                             if (!TryFindOptionDescription(option, optionsDict))
@@ -1294,6 +1317,15 @@ namespace AssetStudioCLI.Options
                     Directory.CreateDirectory(fullPath);
                 }
                 o_outputFolder.Value = fullPath;
+            }
+            if (o_cachePath.Value == o_cachePath.DefaultValue)
+            {
+                var defaultCachePath = Path.Combine(Directory.GetCurrentDirectory(), o_cachePath.DefaultValue + Path.DirectorySeparatorChar);
+                if (!Directory.Exists(defaultCachePath))
+                {
+                    Directory.CreateDirectory(defaultCachePath);
+                }
+                o_cachePath.Value = defaultCachePath;
             }
             isParsed = true;
         }
@@ -1415,6 +1447,11 @@ namespace AssetStudioCLI.Options
             if (o_workMode.Value != WorkMode.Info)
             {
                 sb.AppendLine($"# Output Path: \"{o_outputFolder}\"");
+            }
+            if (f_decompressToDisk.Value || o_cachePath.Value != o_cachePath.DefaultValue)
+            {
+                var driveInfo = new DriveInfo(Directory.GetDirectoryRoot(o_cachePath.Value));
+                sb.AppendLine($"# Cache Folder: \"{o_cachePath}\" (Free space: {driveInfo.AvailableFreeSpace * 1.0f / 0x40000000:.00}GB)");
             }
             sb.AppendLine($"# Log Level: {o_logLevel}");
             sb.AppendLine($"# Log Output: {o_logOutput}");

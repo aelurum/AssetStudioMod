@@ -38,6 +38,7 @@ namespace AssetStudioGUI
         private DirectBitmap imageTexture;
         private string tempClipboard;
         private bool isDarkMode;
+        private ImportOptionsForm importOptionsForm;
 
         #region FMODControl
         private FMOD.System system;
@@ -150,9 +151,8 @@ namespace AssetStudioGUI
             useDumpTreeViewToolStripMenuItem.Checked = Properties.Settings.Default.useDumpTreeView;
             autoPlayAudioAssetsToolStripMenuItem.Checked = Properties.Settings.Default.autoplayAudio;
             meshLazyLoadToolStripMenuItem.Checked = Properties.Settings.Default.meshLazyLoad;
-            customBlockCompressionComboBox.SelectedIndex = 0;
-            customBlockInfoCompressionComboBox.SelectedIndex = 0;
             assetsManager.Options.BundleOptions.DecompressToDisk = Properties.Settings.Default.decompressToDisk;
+            assetsManager.Options.BundleOptions.CustomCachePath = GetCachePath();
             FMODinit();
             listSearchFilterMode.SelectedIndex = 0;
             FbxInitOptions(Properties.Settings.Default.fbxSettings);
@@ -172,6 +172,17 @@ namespace AssetStudioGUI
             Progress.Default = new Progress<int>(SetProgressBarValue);
             Progress.SetInstance(index: 1, new Progress<int>(SetProgressBarStringValue));
             Studio.StatusStripUpdate = StatusStripUpdate;
+        }
+
+        private static string GetCachePath()
+        {
+            var path = Properties.Settings.Default.cachePath;
+            if (string.IsNullOrEmpty(path) || !Directory.Exists(path))
+            {
+                path = Path.Combine(Directory.GetCurrentDirectory(), "temp");
+                Directory.CreateDirectory(path);
+            }
+            return path;
         }
 
         private void AssetStudioGUIForm_DragEnter(object sender, DragEventArgs e)
@@ -2476,53 +2487,10 @@ namespace AssetStudioGUI
                 specifyUnityVersionTextBox.Text = assetsManager.Options.CustomUnityVersion.FullVersion;
             }
             alwaysDecompressToDiskToolStripMenuItem.Checked = assetsManager.Options.BundleOptions.DecompressToDisk;
-            customBlockInfoCompressionComboBox.SelectedIndex = SetComboBoxIndex(assetsManager.Options.BundleOptions.CustomBlockInfoCompression);
-            customBlockCompressionComboBox.SelectedIndex = SetComboBoxIndex(assetsManager.Options.BundleOptions.CustomBlockCompression);
             
             //highDpi workaround
             var font = customUnityVersionToolStripMenuItem.Font;
             specifyUnityVersionTextBox.Font = font;
-            customBlockInfoCompressionComboBox.Font = font;
-            customBlockCompressionComboBox.Font = font;
-        }
-
-        private static int SetComboBoxIndex(CompressionType compressionType)
-        {
-            switch (compressionType)
-            {
-                case CompressionType.Auto: return 0;
-                case CompressionType.Lzma: return 4;
-                case CompressionType.Lz4:
-                case CompressionType.Lz4HC: return 3;
-                case CompressionType.Zstd:  return 1;
-                case CompressionType.Oodle: return 2;
-                default: throw new NotSupportedException();
-            }
-        }
-
-        private void customBlockCompressionComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var selectedTypeIndex = customBlockCompressionComboBox.SelectedIndex;
-            assetsManager.Options.BundleOptions.CustomBlockCompression = GetCustomCompressionTypes(selectedTypeIndex);
-        }
-
-        private void customBlockInfoCompressionComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var selectedTypeIndex = customBlockInfoCompressionComboBox.SelectedIndex;
-            assetsManager.Options.BundleOptions.CustomBlockInfoCompression = GetCustomCompressionTypes(selectedTypeIndex);
-        }
-
-        private static CompressionType GetCustomCompressionTypes(int index)
-        {
-            switch (index)
-            {
-                case 0: return CompressionType.Auto;
-                case 1: return CompressionType.Zstd;
-                case 2: return CompressionType.Oodle;
-                case 3: return CompressionType.Lz4HC;
-                case 4: return CompressionType.Lzma;
-                default: throw new NotSupportedException();
-            }
         }
 
         private void alwaysDecompressToDiskToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2742,6 +2710,19 @@ namespace AssetStudioGUI
             else
             {
                 Studio.FbxSettings = Fbx.Settings.FromBase64(base64String);
+            }
+        }
+
+        private void moreOptionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (importOptionsForm == null || importOptionsForm.IsDisposed)
+            {
+                importOptionsForm = new ImportOptionsForm(assetsManager);
+                importOptionsForm.Show(this);
+            }
+            else
+            {
+                importOptionsForm.Focus();
             }
         }
 

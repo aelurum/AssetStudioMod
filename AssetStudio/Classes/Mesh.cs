@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Buffers.Binary;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace AssetStudio
 {
@@ -1463,7 +1463,6 @@ namespace AssetStudio
             }
         }
 
-
         public static uint GetFormatSize(VertexFormat format)
         {
             switch (format)
@@ -1493,8 +1492,13 @@ namespace AssetStudio
             return format >= VertexFormat.UInt8;
         }
 
-        public static float[] BytesToFloatArray(byte[] inputBytes, VertexFormat format)
+        public static float[] BytesToFloatArray(ReadOnlySpan<byte> inputBytes, VertexFormat format)
         {
+            if (format == VertexFormat.Float)
+            {
+                return MemoryMarshal.Cast<byte, float>(inputBytes).ToArray();
+            }
+
             var size = GetFormatSize(format);
             var len = inputBytes.Length / size;
             var result = new float[len];
@@ -1502,15 +1506,8 @@ namespace AssetStudio
             {
                 switch (format)
                 {
-                    case VertexFormat.Float:
-#if NET
-                        result[i] = BinaryPrimitives.ReadSingleLittleEndian(inputBytes.AsSpan(i * 4));
-#else
-                        result[i] = BitConverter.ToSingle(inputBytes, i * 4);
-#endif
-                        break;
                     case VertexFormat.Float16:
-                        result[i] = (float)HalfHelper.ToHalf(inputBytes, i * 2);
+                        result[i] = (float)inputBytes.ReadHalf(i * 2);
                         break;
                     case VertexFormat.UNorm8:
                         result[i] = inputBytes[i] / 255f;
@@ -1519,10 +1516,10 @@ namespace AssetStudio
                         result[i] = Math.Max((sbyte)inputBytes[i] / 127f, -1f);
                         break;
                     case VertexFormat.UNorm16:
-                        result[i] = BinaryPrimitives.ReadUInt16LittleEndian(inputBytes.AsSpan(i * 2)) / 65535f;
+                        result[i] = inputBytes.ReadUInt16(i * 2) / 65535f;
                         break;
                     case VertexFormat.SNorm16:
-                        result[i] = Math.Max(BinaryPrimitives.ReadInt16LittleEndian(inputBytes.AsSpan(i * 2)) / 32767f, -1f);
+                        result[i] = Math.Max(inputBytes.ReadInt16(i * 2) / 32767f, -1f);
                         break;
                 }
             }
@@ -1531,6 +1528,11 @@ namespace AssetStudio
 
         public static int[] BytesToIntArray(ReadOnlySpan<byte> inputBytes, VertexFormat format)
         {
+            if (format == VertexFormat.SInt32)
+            {
+                return MemoryMarshal.Cast<byte, int>(inputBytes).ToArray();
+            }
+
             var size = GetFormatSize(format);
             var len = inputBytes.Length / size;
             var result = new int[len];
@@ -1543,16 +1545,13 @@ namespace AssetStudio
                         result[i] = inputBytes[i];
                         break;
                     case VertexFormat.UInt16:
-                        result[i] = BinaryPrimitives.ReadUInt16LittleEndian(inputBytes.Slice(i * 2));
+                        result[i] = inputBytes.ReadUInt16(i * 2);
                         break;
                     case VertexFormat.SInt16:
-                        result[i] = BinaryPrimitives.ReadInt16LittleEndian(inputBytes.Slice(i * 2));
+                        result[i] = inputBytes.ReadInt16(i * 2);
                         break;
                     case VertexFormat.UInt32:
-                        result[i] = (int)BinaryPrimitives.ReadUInt32LittleEndian(inputBytes.Slice(i * 4));
-                        break;
-                    case VertexFormat.SInt32:
-                        result[i] = BinaryPrimitives.ReadInt32LittleEndian(inputBytes.Slice(i * 4));
+                        result[i] = (int)inputBytes.ReadUInt32(i * 4);
                         break;
                 }
             }

@@ -416,7 +416,7 @@ namespace AssetStudio
             {
                 buff[i] = 0;
                 buff[i + 1] = 0;
-                buff[i + 2] = (byte)MathF.Round((float)HalfHelper.ToHalf(image_data, i / 2) * 255f);
+                buff[i + 2] = (byte)MathF.Round((float)image_data.ReadHalf(i / 2) * 255f);
                 buff[i + 3] = 255;
             }
             return true;
@@ -427,8 +427,8 @@ namespace AssetStudio
             for (var i = 0; i < outPutDataSize; i += 4)
             {
                 buff[i] = 0;
-                buff[i + 1] = (byte)MathF.Round((float)HalfHelper.ToHalf(image_data, i + 2) * 255f);
-                buff[i + 2] = (byte)MathF.Round((float)HalfHelper.ToHalf(image_data, i) * 255f);
+                buff[i + 1] = (byte)MathF.Round((float)image_data.ReadHalf(i + 2) * 255f);
+                buff[i + 2] = (byte)MathF.Round((float)image_data.ReadHalf(i) * 255f);
                 buff[i + 3] = 255;
             }
             return true;
@@ -438,10 +438,10 @@ namespace AssetStudio
         {
             for (var i = 0; i < outPutDataSize; i += 4)
             {
-                buff[i] = (byte)MathF.Round((float)HalfHelper.ToHalf(image_data, i * 2 + 4) * 255f);
-                buff[i + 1] = (byte)MathF.Round((float)HalfHelper.ToHalf(image_data, i * 2 + 2) * 255f);
-                buff[i + 2] = (byte)MathF.Round((float)HalfHelper.ToHalf(image_data, i * 2) * 255f);
-                buff[i + 3] = (byte)MathF.Round((float)HalfHelper.ToHalf(image_data, i * 2 + 6) * 255f);
+                buff[i] = (byte)MathF.Round((float)image_data.ReadHalf(i * 2 + 4) * 255f);
+                buff[i + 1] = (byte)MathF.Round((float)image_data.ReadHalf(i * 2 + 2) * 255f);
+                buff[i + 2] = (byte)MathF.Round((float)image_data.ReadHalf(i * 2) * 255f);
+                buff[i + 3] = (byte)MathF.Round((float)image_data.ReadHalf(i * 2 + 6) * 255f);
             }
             return true;
         }

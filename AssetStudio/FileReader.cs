@@ -33,7 +33,7 @@ namespace AssetStudio
             var dataLen = Read(headerBuff, 0, headerBuffLen);
             Position = 0;
 
-            var signature = buff.ReadStringToNull(20);
+            var signature = buff.ReadStringToNull(maxLength: 20);
             switch (signature)
             {
                 case "UnityWeb":

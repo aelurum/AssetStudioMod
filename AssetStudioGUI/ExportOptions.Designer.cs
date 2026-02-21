@@ -82,6 +82,7 @@
             this.optionTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.optionsTabControl = new System.Windows.Forms.TabControl();
             this.generalTabPage = new System.Windows.Forms.TabPage();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.imagesTabPage = new System.Windows.Forms.TabPage();
             this.fbxTabPage = new System.Windows.Forms.TabPage();
             this.live2DTabPage = new System.Windows.Forms.TabPage();
@@ -94,6 +95,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.filterPrecision)).BeginInit();
             this.optionsTabControl.SuspendLayout();
             this.generalTabPage.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.imagesTabPage.SuspendLayout();
             this.fbxTabPage.SuspendLayout();
             this.live2DTabPage.SuspendLayout();
@@ -138,11 +140,12 @@
             // 
             // parallelExportMaxLabel
             // 
-            this.parallelExportMaxLabel.AutoSize = true;
+            this.parallelExportMaxLabel.Dock = System.Windows.Forms.DockStyle.Left;
             this.parallelExportMaxLabel.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.parallelExportMaxLabel.Location = new System.Drawing.Point(312, 132);
+            this.parallelExportMaxLabel.Location = new System.Drawing.Point(49, 0);
             this.parallelExportMaxLabel.Name = "parallelExportMaxLabel";
-            this.parallelExportMaxLabel.Size = new System.Drawing.Size(36, 15);
+            this.parallelExportMaxLabel.Padding = new System.Windows.Forms.Padding(4, 4, 0, 0);
+            this.parallelExportMaxLabel.Size = new System.Drawing.Size(81, 26);
             this.parallelExportMaxLabel.TabIndex = 9;
             this.parallelExportMaxLabel.Text = "Max: ";
             this.optionTooltip.SetToolTip(this.parallelExportMaxLabel, "*The maximum number matches the number of CPU cores");
@@ -165,8 +168,8 @@
             // 
             // parallelExportUpDown
             // 
-            this.parallelExportUpDown.AutoSize = true;
-            this.parallelExportUpDown.Location = new System.Drawing.Point(256, 129);
+            this.parallelExportUpDown.Dock = System.Windows.Forms.DockStyle.Left;
+            this.parallelExportUpDown.Location = new System.Drawing.Point(0, 0);
             this.parallelExportUpDown.Maximum = new decimal(new int[] {
             8,
             0,
@@ -477,7 +480,6 @@
             // 
             // fbxResetButton
             // 
-            this.fbxResetButton.AutoSize = true;
             this.fbxResetButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.fbxResetButton.Location = new System.Drawing.Point(280, 320);
             this.fbxResetButton.Name = "fbxResetButton";
@@ -775,13 +777,12 @@
             // generalTabPage
             // 
             this.generalTabPage.BackColor = System.Drawing.SystemColors.Menu;
+            this.generalTabPage.Controls.Add(this.panel2);
             this.generalTabPage.Controls.Add(this.rawByteArrayFromMono);
             this.generalTabPage.Controls.Add(this.label6);
             this.generalTabPage.Controls.Add(this.overwriteExistingFiles);
-            this.generalTabPage.Controls.Add(this.parallelExportMaxLabel);
             this.generalTabPage.Controls.Add(this.parallelExportCheckBox);
             this.generalTabPage.Controls.Add(this.convertAudio);
-            this.generalTabPage.Controls.Add(this.parallelExportUpDown);
             this.generalTabPage.Controls.Add(this.assetGroupOptions);
             this.generalTabPage.Controls.Add(this.filenameFormatLabel);
             this.generalTabPage.Controls.Add(this.restoreExtensionName);
@@ -792,6 +793,16 @@
             this.generalTabPage.Size = new System.Drawing.Size(390, 372);
             this.generalTabPage.TabIndex = 0;
             this.generalTabPage.Text = "General";
+            // 
+            // panel2
+            // 
+            this.panel2.AutoSize = true;
+            this.panel2.Controls.Add(this.parallelExportMaxLabel);
+            this.panel2.Controls.Add(this.parallelExportUpDown);
+            this.panel2.Location = new System.Drawing.Point(251, 130);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(130, 26);
+            this.panel2.TabIndex = 12;
             // 
             // imagesTabPage
             // 
@@ -897,6 +908,7 @@
             this.optionsTabControl.ResumeLayout(false);
             this.generalTabPage.ResumeLayout(false);
             this.generalTabPage.PerformLayout();
+            this.panel2.ResumeLayout(false);
             this.imagesTabPage.ResumeLayout(false);
             this.imagesTabPage.PerformLayout();
             this.fbxTabPage.ResumeLayout(false);
@@ -966,5 +978,6 @@
         private System.Windows.Forms.TabPage live2DTabPage;
         private System.Windows.Forms.TabPage imagesTabPage;
         private System.Windows.Forms.Button Cancel;
+        private System.Windows.Forms.Panel panel2;
     }
 }

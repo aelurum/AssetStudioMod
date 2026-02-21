@@ -885,6 +885,7 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.SystemColors.Window;
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel2.Controls.Add(this.sceneExactSearchCheckBox);
             this.panel2.Controls.Add(this.treeSearch);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
@@ -895,11 +896,12 @@
             // 
             // sceneExactSearchCheckBox
             // 
-            this.sceneExactSearchCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.sceneExactSearchCheckBox.AutoSize = true;
             this.sceneExactSearchCheckBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.sceneExactSearchCheckBox.Location = new System.Drawing.Point(369, 3);
+            this.sceneExactSearchCheckBox.Dock = System.Windows.Forms.DockStyle.Right;
+            this.sceneExactSearchCheckBox.Location = new System.Drawing.Point(379, 0);
             this.sceneExactSearchCheckBox.Name = "sceneExactSearchCheckBox";
-            this.sceneExactSearchCheckBox.Size = new System.Drawing.Size(100, 16);
+            this.sceneExactSearchCheckBox.Size = new System.Drawing.Size(91, 20);
             this.sceneExactSearchCheckBox.TabIndex = 2;
             this.sceneExactSearchCheckBox.Text = "Exact search";
             this.sceneExactSearchCheckBox.UseVisualStyleBackColor = true;
@@ -907,12 +909,12 @@
             // 
             // treeSearch
             // 
-            this.treeSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.treeSearch.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.treeSearch.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeSearch.ForeColor = System.Drawing.SystemColors.GrayText;
             this.treeSearch.Location = new System.Drawing.Point(0, 0);
             this.treeSearch.Name = "treeSearch";
-            this.treeSearch.Size = new System.Drawing.Size(472, 23);
+            this.treeSearch.Size = new System.Drawing.Size(470, 16);
             this.treeSearch.TabIndex = 1;
             this.treeSearch.Text = " Search ";
             this.treeSearch.TextChanged += new System.EventHandler(this.treeSearch_TextChanged);

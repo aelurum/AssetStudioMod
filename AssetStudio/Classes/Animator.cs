@@ -17,7 +17,7 @@
                 var m_UpdateMode = reader.ReadInt32();
             }
 
-            if (version.IsTuanjie && (version > (2022, 3, 48) || version == (2022, 3, 48) && version.Build >= 7)) //2022.3.48t7(1.4.4) and up
+            if (version.IsTuanjie && version >= (2022, 3, 48, 7)) //2022.3.48t7(1.4.4) and up
             {
                 var m_UpdateFrequencyMode = reader.ReadInt32();
                 var m_UpdateFrequency = reader.ReadSingle();

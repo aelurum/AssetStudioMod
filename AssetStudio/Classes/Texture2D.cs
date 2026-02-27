@@ -83,7 +83,7 @@ namespace AssetStudio
             {
                 var m_MipsStripped = reader.ReadInt32();
             }
-            if (version.IsTuanjie && (version > (2022, 3, 2) || version.Build >= 8)) //2022.3.2t8(1.1.0) and up
+            if (version.IsTuanjie && version >= (2022, 3, 2, 8)) //2022.3.2t8(1.1.0) and up
             {
                 var m_WebStreaming = reader.ReadBoolean();
                 reader.AlignStream();

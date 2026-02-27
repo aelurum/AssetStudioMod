@@ -753,7 +753,7 @@ namespace AssetStudio
             {
                 m_Binding = new ValueArrayConstant(reader);
             }
-            if (version.IsTuanjie && (version > (2022, 3, 48) || (version == (2022, 3, 48) && version.Build >= 3))) //2022.3.48t3(1.4.0) and up
+            if (version.IsTuanjie && version >= (2022, 3, 48, 3)) //2022.3.48t3(1.4.0) and up
             {
                 m_ACLClip = new ACLClip(reader);
             }

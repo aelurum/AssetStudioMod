@@ -210,6 +210,38 @@ namespace AssetStudio
         }
         #endregion
 
+        #region UnityVer, (int, int, int, int)
+        public static bool operator ==(UnityVersion left, (int, int, int, int) right)
+        {
+            return (left?.Major, left?.Minor, left?.Patch, left?.Build) == (right.Item1, right.Item2, right.Item3, right.Item4);
+        }
+
+        public static bool operator !=(UnityVersion left, (int, int, int, int) right)
+        {
+            return (left?.Major, left?.Minor, left?.Patch, left?.Build) != (right.Item1, right.Item2, right.Item3, right.Item4);
+        }
+
+        public static bool operator >(UnityVersion left, (int, int, int, int) right)
+        {
+            return left?.CompareTo(right) > 0;
+        }
+
+        public static bool operator <(UnityVersion left, (int, int, int, int) right)
+        {
+            return left?.CompareTo(right) < 0;
+        }
+
+        public static bool operator >=(UnityVersion left, (int, int, int, int) right)
+        {
+            return left == right || left > right;
+        }
+
+        public static bool operator <=(UnityVersion left, (int, int, int, int) right)
+        {
+            return left == right || left < right;
+        }
+        #endregion
+
         #region int, UnityVer
         public static bool operator ==(int left, UnityVersion right)
         {
@@ -305,7 +337,39 @@ namespace AssetStudio
             return left == right || left < right;
         }
         #endregion
-        
+
+        #region (int, int, int, int), UnityVer
+        public static bool operator ==((int, int, int, int) left, UnityVersion right)
+        {
+            return (left.Item1, left.Item2, left.Item3, left.Item4) == (right?.Major, right?.Minor, right?.Patch, right?.Build);
+        }
+
+        public static bool operator !=((int, int, int, int) left, UnityVersion right)
+        {
+            return (left.Item1, left.Item2, left.Item3, left.Item4) != (right?.Major, right?.Minor, right?.Patch, right?.Build);
+        }
+
+        public static bool operator >((int, int, int, int) left, UnityVersion right)
+        {
+            return right?.CompareTo(left) < 0;
+        }
+
+        public static bool operator <((int, int, int, int) left, UnityVersion right)
+        {
+            return right?.CompareTo(left) > 0;
+        }
+
+        public static bool operator >=((int, int, int, int) left, UnityVersion right)
+        {
+            return left == right || left > right;
+        }
+
+        public static bool operator <=((int, int, int, int) left, UnityVersion right)
+        {
+            return left == right || left < right;
+        }
+        #endregion
+
         private int CompareTo((int, int) other)
         {
             var result = Major.CompareTo(other.Item1);
@@ -332,6 +396,23 @@ namespace AssetStudio
             }
             
             result = Patch.CompareTo(other.Item3);
+            if (result != 0)
+            {
+                return result;
+            }
+
+            return 0;
+        }
+
+        private int CompareTo((int, int, int, int) other)
+        {
+            var result = CompareTo((other.Item1, other.Item2, other.Item3));
+            if (result != 0)
+            {
+                return result;
+            }
+
+            result = Build.CompareTo(other.Item4);
             if (result != 0)
             {
                 return result;
@@ -416,6 +497,11 @@ namespace AssetStudio
             return ver >= lowerLimit && ver < upperLimit;
         }
 
+        public static bool IsInRange(this UnityVersion ver, (int, int, int, int) lowerLimit, UnityVersion upperLimit)
+        {
+            return ver >= lowerLimit && ver < upperLimit;
+        }
+
         public static bool IsInRange(this UnityVersion ver, UnityVersion lowerLimit, int upperLimit)
         {
             return ver >= lowerLimit && ver.Major < upperLimit;
@@ -427,6 +513,11 @@ namespace AssetStudio
         }
 
         public static bool IsInRange(this UnityVersion ver, UnityVersion lowerLimit, (int, int, int) upperLimit)
+        {
+            return ver >= lowerLimit && ver < upperLimit;
+        }
+
+        public static bool IsInRange(this UnityVersion ver, UnityVersion lowerLimit, (int, int, int, int) upperLimit)
         {
             return ver >= lowerLimit && ver < upperLimit;
         }
@@ -446,12 +537,22 @@ namespace AssetStudio
             return ver.Major >= lowerLimit && ver < upperLimit;
         }
 
+        public static bool IsInRange(this UnityVersion ver, int lowerLimit, (int, int, int, int) upperLimit)
+        {
+            return ver.Major >= lowerLimit && ver < upperLimit;
+        }
+
         public static bool IsInRange(this UnityVersion ver, (int, int) lowerLimit, int upperLimit)
         {
             return ver >= lowerLimit && ver.Major < upperLimit;
         }
 
         public static bool IsInRange(this UnityVersion ver, (int, int, int) lowerLimit, int upperLimit)
+        {
+            return ver >= lowerLimit && ver.Major < upperLimit;
+        }
+
+        public static bool IsInRange(this UnityVersion ver, (int, int, int, int) lowerLimit, int upperLimit)
         {
             return ver >= lowerLimit && ver.Major < upperLimit;
         }
@@ -466,12 +567,37 @@ namespace AssetStudio
             return ver >= lowerLimit && ver < upperLimit;
         }
 
+        public static bool IsInRange(this UnityVersion ver, (int, int) lowerLimit, (int, int, int, int) upperLimit)
+        {
+            return ver >= lowerLimit && ver < upperLimit;
+        }
+
         public static bool IsInRange(this UnityVersion ver, (int, int, int) lowerLimit, (int, int) upperLimit)
         {
             return ver >= lowerLimit && ver < upperLimit;
         }
 
         public static bool IsInRange(this UnityVersion ver, (int, int, int) lowerLimit, (int, int, int) upperLimit)
+        {
+            return ver >= lowerLimit && ver < upperLimit;
+        }
+
+        public static bool IsInRange(this UnityVersion ver, (int, int, int) lowerLimit, (int, int, int, int) upperLimit)
+        {
+            return ver >= lowerLimit && ver < upperLimit;
+        }
+
+        public static bool IsInRange(this UnityVersion ver, (int, int, int, int) lowerLimit, (int, int) upperLimit)
+        {
+            return ver >= lowerLimit && ver < upperLimit;
+        }
+
+        public static bool IsInRange(this UnityVersion ver, (int, int, int, int) lowerLimit, (int, int, int) upperLimit)
+        {
+            return ver >= lowerLimit && ver < upperLimit;
+        }
+
+        public static bool IsInRange(this UnityVersion ver, (int, int, int, int) lowerLimit, (int, int, int, int) upperLimit)
         {
             return ver >= lowerLimit && ver < upperLimit;
         }

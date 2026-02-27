@@ -805,7 +805,7 @@ namespace AssetStudio
                 m_StreamData = new StreamingInfo(reader);
             }
 
-            if (version.IsTuanjie && (version > (2022, 3, 2) || (version == (2022, 3, 2) && version.Build >= 13))) //2022.3.2t13(1.2.0) and up
+            if (version.IsTuanjie && version >= (2022, 3, 2, 13)) //2022.3.2t13(1.2.0) and up
             {
                 var m_GenerateGeometryBuffer = reader.ReadBoolean();
                 m_HasVirtualGeometryMesh = reader.ReadBoolean();

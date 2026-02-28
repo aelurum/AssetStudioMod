@@ -497,7 +497,13 @@ namespace AssetStudio
             }
 
             m_DefaultState = reader.ReadUInt32();
-            m_MotionSetCount = reader.ReadUInt32();
+            m_MotionSetCount = reader.ReadUInt32(); //m_SynchronizedLayerCount from 2018.2
+
+            if (version >= (6000, 4))
+            {
+                var m_EvaluateTransitionsOnStart = reader.ReadBoolean();
+                reader.AlignStream();
+            }
         }
     }
 
@@ -604,6 +610,11 @@ namespace AssetStudio
 
         public AnimatorController(ObjectReader reader) : base(reader)
         {
+            if (reader.version >= (6000, 4))
+            {
+                var m_EvaluateTransitionsOnStart = reader.ReadBoolean();
+                reader.AlignStream();
+            }
             var m_ControllerSize = reader.ReadUInt32();
             var m_Controller = new ControllerConstant(reader);
 

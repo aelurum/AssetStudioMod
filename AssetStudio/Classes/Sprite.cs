@@ -87,6 +87,7 @@ namespace AssetStudio
         public ushort[] indices;
         public Matrix4x4[] m_Bindpose;
         public BoneWeights4[] m_SourceSkin;
+        public BlendShapeData m_BlendShapes;
         public Rectf textureRect;
         public Vector2 textureRectOffset;
         public Vector2 atlasRectOffset;
@@ -152,6 +153,11 @@ namespace AssetStudio
                         m_SourceSkin[i] = new BoneWeights4(reader);
                     }
                 }
+            }
+
+            if ((!version.IsAlpha && version >= (6000, 5)) || (version.IsAlpha && version >= (6000, 5, 0, 7))) //6000.5.0a7 and up
+            {
+                m_BlendShapes = new BlendShapeData(reader);
             }
 
             textureRect = new Rectf(reader);
@@ -222,7 +228,7 @@ namespace AssetStudio
             }
 
             m_Extrude = reader.ReadUInt32();
-            if (version >= (5, 3)) //5.3 and up
+            if (version.IsInRange((5, 3), (6000, 5))) //5.3 - 6000.4
             {
                 m_IsPolygon = reader.ReadBoolean();
                 reader.AlignStream();

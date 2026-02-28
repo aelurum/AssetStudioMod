@@ -37,6 +37,11 @@ namespace AssetStudio
             serializedType = objectInfo.serializedType;
             platform = assetsFile.m_TargetPlatform;
             m_Version = assetsFile.header.m_Version;
+
+            if (assetsFile.ExtractedTypeTreeHashes.Count > 0)
+            {
+                assetsFile.ReadExtractedTypeTree();
+            }
         }
 
         public void ThrowIfTooLarge(float val)

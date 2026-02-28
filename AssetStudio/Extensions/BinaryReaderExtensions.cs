@@ -75,6 +75,18 @@ namespace AssetStudio
             return Encoding.Unicode.GetString(bytes.ToArray());
         }
 
+        public static string ReadBytesAsHexString(this BinaryReader reader, int length)
+        {
+#if NETFRAMEWORK
+            var bytes = reader.ReadBytes(length);
+            return BitConverter.ToString(bytes).Replace("-", string.Empty);
+#else
+            Span<byte> bytes = length < 256 ? stackalloc byte[length] : new byte[length];
+            _ = reader.Read(bytes);
+            return Convert.ToHexString(bytes);
+#endif
+        }
+
         public static Quaternion ReadQuaternion(this BinaryReader reader)
         {
             return new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());

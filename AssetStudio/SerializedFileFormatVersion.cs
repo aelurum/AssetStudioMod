@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AssetStudio
+﻿namespace AssetStudio
 {
     public enum SerializedFileFormatVersion
     {
@@ -80,8 +74,12 @@ namespace AssetStudio
         /// </summary>
         StoresTypeDependencies = 21,
         /// <summary>
-        /// 2020.1 to x
+        /// 2020.1 to 6000.5
         /// </summary>
-        LargeFilesSupport = 22
+        LargeFilesSupport = 22,
+        /// <summary>
+        /// 6000.5.0a5 to x
+        /// </summary>
+        ExtractedTypeTreeSupport = 23,
     }
 }

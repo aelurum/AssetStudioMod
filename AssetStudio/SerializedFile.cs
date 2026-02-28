@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace AssetStudio
 {
@@ -12,8 +13,9 @@ namespace AssetStudio
         public string originalPath;
         public string fileName;
         public UnityVersion version = new UnityVersion();
-        public List<Object> Objects;
-        public Dictionary<long, Object> ObjectsDic;
+        public readonly List<Object> Objects;
+        public readonly Dictionary<long, Object> ObjectsDic;
+        public readonly Dictionary<string, SerializedType> ExtractedTypeTreeHashes = new Dictionary<string, SerializedType>();
 
         public SerializedFileHeader header;
         private byte m_FileEndianess;
@@ -270,7 +272,21 @@ namespace AssetStudio
             {
                 type.m_Type = new TypeTree();
                 type.m_Type.m_Nodes = new List<TypeTreeNode>();
-                if (header.m_Version >= SerializedFileFormatVersion.Unknown_12 || header.m_Version == SerializedFileFormatVersion.Unknown_10)
+                if (header.m_Version >= SerializedFileFormatVersion.ExtractedTypeTreeSupport)
+                {
+                    var typeTreeHash = reader.ReadBytesAsHexString(16); //xxh3 
+                    var typeTreeSize = reader.ReadInt32();
+                    if (typeTreeSize != 0)
+                    {
+                        TypeTreeBlobRead(type.m_Type);
+                    }
+                    else
+                    {
+                        type.m_Type = null;
+                        ExtractedTypeTreeHashes.Add(typeTreeHash, type);
+                    }
+                }
+                else if (header.m_Version >= SerializedFileFormatVersion.Unknown_12 || header.m_Version == SerializedFileFormatVersion.Unknown_10)
                 {
                     TypeTreeBlobRead(type.m_Type);
                 }
@@ -326,28 +342,33 @@ namespace AssetStudio
             }
         }
 
-        private void TypeTreeBlobRead(TypeTree m_Type)
+        private void TypeTreeBlobRead(TypeTree m_Type, FileReader fileReader = null)
         {
-            int numberOfNodes = reader.ReadInt32();
-            int stringBufferSize = reader.ReadInt32();
+            var typeTreeReader = fileReader ?? reader;
+            if (header.m_Version >= SerializedFileFormatVersion.ExtractedTypeTreeSupport)
+            {
+                ReadTypeTreeHeader(typeTreeReader);
+            }
+            int numberOfNodes = typeTreeReader.ReadInt32();
+            int stringBufferSize = typeTreeReader.ReadInt32();
             for (var i = 0; i < numberOfNodes; i++)
             {
                 var typeTreeNode = new TypeTreeNode();
                 m_Type.m_Nodes.Add(typeTreeNode);
-                typeTreeNode.m_Version = reader.ReadUInt16();
-                typeTreeNode.m_Level = reader.ReadByte();
-                typeTreeNode.m_TypeFlags = reader.ReadByte();
-                typeTreeNode.m_TypeStrOffset = reader.ReadUInt32();
-                typeTreeNode.m_NameStrOffset = reader.ReadUInt32();
-                typeTreeNode.m_ByteSize = reader.ReadInt32();
-                typeTreeNode.m_Index = reader.ReadInt32();
-                typeTreeNode.m_MetaFlag = reader.ReadInt32();
+                typeTreeNode.m_Version = typeTreeReader.ReadUInt16();
+                typeTreeNode.m_Level = typeTreeReader.ReadByte();
+                typeTreeNode.m_TypeFlags = typeTreeReader.ReadByte();
+                typeTreeNode.m_TypeStrOffset = typeTreeReader.ReadUInt32();
+                typeTreeNode.m_NameStrOffset = typeTreeReader.ReadUInt32();
+                typeTreeNode.m_ByteSize = typeTreeReader.ReadInt32();
+                typeTreeNode.m_Index = typeTreeReader.ReadInt32();
+                typeTreeNode.m_MetaFlag = typeTreeReader.ReadInt32();
                 if (header.m_Version >= SerializedFileFormatVersion.TypeTreeNodeWithTypeFlags)
                 {
-                    typeTreeNode.m_RefTypeHash = reader.ReadUInt64();
+                    typeTreeNode.m_RefTypeHash = typeTreeReader.ReadUInt64();
                 }
             }
-            m_Type.m_StringBuffer = reader.ReadBytes(stringBufferSize);
+            m_Type.m_StringBuffer = typeTreeReader.ReadBytes(stringBufferSize);
 
             var stringBufferSpan = new ReadOnlySpan<byte>(m_Type.m_StringBuffer);
             foreach (var m_Node in m_Type.m_Nodes)
@@ -370,6 +391,52 @@ namespace AssetStudio
                 }
                 return offset.ToString();
             }
+        }
+
+        private void ReadTypeTreeHeader(FileReader typeTreeReader)
+        {
+            var typeTreeSign = typeTreeReader.ReadInt32(); //0x7474686d ("tthm")
+            var serializedFileVersion = (SerializedFileFormatVersion)typeTreeReader.ReadInt32();
+
+            if (typeTreeSign != 0x7474686d)
+            {
+                Logger.Warning("Unknown TypeTree file format");
+            }
+
+            if (serializedFileVersion != header.m_Version)
+            {
+                Logger.Warning("Serialized file versions do not match");
+            }
+        }
+
+        public void ReadExtractedTypeTree()
+        {
+            foreach (var kv in ExtractedTypeTreeHashes)
+            {
+                if (assetsManager.resourceFileReaders.TryGetValue(kv.Key, out var binaryReader))
+                {
+                    var fileReader = (FileReader)binaryReader;
+                    fileReader.Endian = EndianType.LittleEndian;
+                    fileReader.Position = 0;
+
+                    kv.Value.m_Type = new TypeTree();
+                    kv.Value.m_Type.m_Nodes = new List<TypeTreeNode>();
+                    TypeTreeBlobRead(kv.Value.m_Type, fileReader);
+
+                    ExtractedTypeTreeHashes[kv.Key] = null;
+                }
+            }
+            var notFound = ExtractedTypeTreeHashes.Where(x=> x.Value != null).ToArray();
+            if (notFound.Length > 0 && notFound.Length != ExtractedTypeTreeHashes.Count)
+            {
+                foreach (var kv in notFound)
+                {
+                    Logger.Warning($"Failed to find extracted typetree with hash \"{kv.Key}\" for \"{(ClassIDType)kv.Value.classID}\" asset type");
+                }
+                Logger.Warning("Not all typetree hashes were found in the loaded typetree file\n" +
+                               "The typetree file is probably outdated or not designed for the loaded asset bundles");
+            }
+            ExtractedTypeTreeHashes.Clear();
         }
 
         public void AddObject(Object obj)

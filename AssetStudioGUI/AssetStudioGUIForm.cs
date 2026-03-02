@@ -1560,9 +1560,11 @@ namespace AssetStudioGUI
             {
                 BeginInvoke(new Action(() =>
                 {
+                    progressBar1.Refresh();
+                    if (value == 0)
+                        return;
                     using (var graphics = progressBar1.CreateGraphics())
                     {
-                        progressBar1.Refresh();
                         var rect = new Rectangle(0, 0, progressBar1.Width, progressBar1.Height);
                         graphics.DrawString(str, progressBarTextFont, progressBarTextBrush, rect, progressBarTextFormat);
                     }
@@ -1570,9 +1572,11 @@ namespace AssetStudioGUI
             }
             else
             {
+                progressBar1.Refresh();
+                if (value == 0)
+                    return;
                 using (var graphics = progressBar1.CreateGraphics())
                 {
-                    progressBar1.Refresh();
                     var rect = new Rectangle(0, 0, progressBar1.Width, progressBar1.Height);
                     graphics.DrawString(str, progressBarTextFont, progressBarTextBrush, rect, progressBarTextFormat);
                 }

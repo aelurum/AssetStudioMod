@@ -1,4 +1,4 @@
-// LzmaDecoder.cs
+﻿// LzmaDecoder.cs
 
 using System;
 using AssetStudio;
@@ -349,6 +349,7 @@ namespace SevenZip.Compression.LZMA
 			m_OutWindow.Flush();
 			m_OutWindow.ReleaseStream();
 			m_RangeDecoder.ReleaseStream();
+			Progress.Reset(index: 1);
 		}
 
 		public void SetDecoderProperties(byte[] properties)

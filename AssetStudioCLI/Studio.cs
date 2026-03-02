@@ -103,9 +103,9 @@ namespace AssetStudioCLI
             var bundleReader = new FileReader(reader.FullPath, bundleStream);
             var bundleFile = new BundleFile(bundleReader, assetsManager.Options);
             var extractPath = Path.Combine(savePath, reader.FileName + "_unpacked");
-            if (bundleFile.fileList.Count > 0)
+            if (bundleFile.FileList.Count > 0)
             {
-                count += ExtractStreamFile(extractPath, bundleFile.fileList);
+                count += ExtractStreamFile(extractPath, bundleFile);
             }
             while (bundleFile.IsDataAfterBundle)
             {
@@ -121,9 +121,9 @@ namespace AssetStudioCLI
                 }
                 Logger.Info($"[MultiBundle] Decompressing \"{reader.FileName}\" from offset: 0x{bundleStream.Offset:X}..");
                 bundleFile = new BundleFile(bundleReader, assetsManager.Options, isMultiBundle: true);
-                if (bundleFile.fileList.Count > 0)
+                if (bundleFile.FileList.Count > 0)
                 {
-                    count += ExtractStreamFile(extractPath, bundleFile.fileList);
+                    count += ExtractStreamFile(extractPath, bundleFile);
                 }
             }
             bundleStream.Dispose();
@@ -135,21 +135,23 @@ namespace AssetStudioCLI
             Logger.Info($"Decompressing {reader.FileName} ...");
             var webFile = new WebFile(reader);
             reader.Dispose();
-            if (webFile.fileList.Count > 0)
+            if (webFile.FileList.Count > 0)
             {
                 var extractPath = Path.Combine(savePath, reader.FileName + "_unpacked");
-                return ExtractStreamFile(extractPath, webFile.fileList, isOffsetStream: false);
+                return ExtractStreamFile(extractPath, webFile);
             }
             return 0;
         }
 
-        private static int ExtractStreamFile(string extractPath, List<StreamFile> fileList, bool isOffsetStream = true)
+        private static int ExtractStreamFile(string extractPath, FileArchive fileArchive)
         {
             var extractedCount = 0;
-            foreach (var file in fileList)
+            var isWebFile = fileArchive is WebFile;
+            foreach (var file in fileArchive.FileList)
             {
                 if (file.stream == null)
                     continue;
+
                 var filePath = Path.Combine(extractPath, file.path);
                 var fileDirectory = Path.GetDirectoryName(filePath);
                 if (!Directory.Exists(fileDirectory))
@@ -165,11 +167,11 @@ namespace AssetStudioCLI
                     }
                     extractedCount++;
                 }
-                if (!isOffsetStream) file.stream.Dispose();
+                if (isWebFile) file.stream.Dispose();
             }
-            if (isOffsetStream && fileList.Count > 0)
+            if (!isWebFile)
             {
-                fileList[0].stream?.Dispose();
+                fileArchive.FileList.FirstOrDefault(x => x.stream != null)?.stream.Dispose();
             }
             return extractedCount;
         }

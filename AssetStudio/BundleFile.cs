@@ -1,6 +1,5 @@
 ﻿using AssetStudio.CustomOptions;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -42,7 +41,7 @@ namespace AssetStudio
         Oodle, //custom
     }
 
-    public class BundleFile
+    public class BundleFile : FileArchive
     {
         public readonly bool IsDataAfterBundle;
         private static TempFileStream _sharedTempFileStream;
@@ -78,8 +77,6 @@ namespace AssetStudio
         public Header m_Header;
         private StorageBlock[] m_BlocksInfo;
         private Node[] m_DirectoryInfo;
-
-        public List<StreamFile> fileList;
 
         public BundleFile(FileReader reader, ImportOptions importOptions, bool isMultiBundle = false)
         {
@@ -240,11 +237,10 @@ namespace AssetStudio
 
         private void ReadFiles(Stream inputStream, long blocksOffset = 0)
         {
-            fileList = new List<StreamFile>(m_DirectoryInfo.Length);
             foreach (var node in m_DirectoryInfo)
             {
                 var file = new StreamFile();
-                fileList.Add(file);
+                this.FileList.Add(file);
                 file.path = node.path;
                 file.fileName = Path.GetFileName(node.path);
                 try

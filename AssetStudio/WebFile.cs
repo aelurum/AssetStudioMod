@@ -4,10 +4,8 @@ using System.Text;
 
 namespace AssetStudio
 {
-    public class WebFile
+    public class WebFile : FileArchive
     {
-        public List<StreamFile> fileList;
-
         private class WebData
         {
             public int dataOffset;
@@ -30,15 +28,14 @@ namespace AssetStudio
                 data.path = Encoding.UTF8.GetString(reader.ReadBytes(pathLength));
                 dataList.Add(data);
             }
-            fileList = new List<StreamFile>(dataList.Count);
             foreach (var data in dataList)
             {
                 var file = new StreamFile();
+                this.FileList.Add(file);
                 file.path = data.path;
                 file.fileName = Path.GetFileName(data.path);
                 reader.BaseStream.Position = data.dataOffset;
                 file.stream = new MemoryStream(reader.ReadBytes(data.dataLength));
-                fileList.Add(file);
             }
         }
     }

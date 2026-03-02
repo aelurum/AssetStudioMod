@@ -360,7 +360,7 @@ namespace AssetStudio
 
         private bool LoadBundleFiles(FileReader reader, BundleFile bundleFile, string originalPath = null)
         {
-            foreach (var file in bundleFile.fileList)
+            foreach (var file in bundleFile.FileList)
             {
                 if (file.stream == null)
                     continue;
@@ -386,7 +386,7 @@ namespace AssetStudio
             try
             {
                 var webFile = new WebFile(reader);
-                foreach (var file in webFile.fileList)
+                foreach (var file in webFile.FileList)
                 {
                     var dummyPath = Path.Combine(Path.GetDirectoryName(reader.FullPath), file.fileName);
                     var subReader = new FileReader(dummyPath, file.stream);

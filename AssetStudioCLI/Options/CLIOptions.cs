@@ -119,6 +119,7 @@ namespace AssetStudioCLI.Options
         public static Option<List<string>> o_filterByPathID;
         public static Option<List<string>> o_filterByText;
         public static Option<bool> f_filterWithRegex;
+        public static Option<bool> f_filterExcludeMode;
         //import
         public static Option<UnityVersion> o_unityVersion;
         public static Option<string> o_cachePath;
@@ -129,6 +130,7 @@ namespace AssetStudioCLI.Options
         public static Option<int> o_maxParallelExportTasks;
         public static Option<ExportListType> o_exportAssetList;
         public static Option<string> o_assemblyPath;
+        public static Option<string> o_stripPathPrefix;
         public static Option<bool> f_notRestoreExtensionName;
         public static Option<bool> f_avoidLoadingViaTypetree;
         public static Option<bool> f_rawByteArrayFromMono;
@@ -459,7 +461,17 @@ namespace AssetStudioCLI.Options
                 optionDefaultValue: false,
                 optionName: "--filter-with-regex",
                 optionDescription: "(Flag) If specified, the filter options will handle the specified text\n" +
-                    "as a regular expression (doesn't apply to --filter-by-pathid)",
+                    "as a regular expression (doesn't apply to --filter-by-pathid)\n",
+                optionExample: "",
+                optionHelpGroup: HelpGroups.Filter,
+                isFlag: true
+            );
+            f_filterExcludeMode = new GroupedOption<bool>
+            (
+                optionDefaultValue: false,
+                optionName: "--filter-exclude-mode",
+                optionDescription: "(Flag) If specified, the filter options will work as an exclusion\n" +
+                    "(i.e. assets that match the filter conditions will be excluded)",
                 optionExample: "",
                 optionHelpGroup: HelpGroups.Filter,
                 isFlag: true
@@ -549,6 +561,14 @@ namespace AssetStudioCLI.Options
                 optionName: "--assembly-folder <path>",
                 optionDescription: "Specify the path to the assembly folder\n",
                 optionExample: "",
+                optionHelpGroup: HelpGroups.Advanced
+            );
+            o_stripPathPrefix = new GroupedOption<string>
+            (
+                optionDefaultValue: "",
+                optionName: "--strip-path-prefix <path>",
+                optionDescription: "Specify a path prefix to be stripped from exported asset paths\n",
+                optionExample: "Example: \"--strip-path-prefix assets/models/char/\"\n",
                 optionHelpGroup: HelpGroups.Advanced
             );
             f_notRestoreExtensionName = new GroupedOption<bool>
@@ -748,6 +768,10 @@ namespace AssetStudioCLI.Options
                         break;
                     case "--filter-with-regex":
                         f_filterWithRegex.Value = true;
+                        flagIndexes.Add(i);
+                        break;
+                    case "--filter-exclude-mode":
+                        f_filterExcludeMode.Value = true;
                         flagIndexes.Add(i);
                         break;
                     case "--decompress-to-disk":
@@ -1241,6 +1265,13 @@ namespace AssetStudioCLI.Options
                                 return;
                             }
                             break;
+                        case "--strip-path-prefix":
+                            o_stripPathPrefix.Value = Path.Combine(Path.GetDirectoryName(value), Path.GetFileName(value));
+                            if (!o_stripPathPrefix.Value.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                            {
+                                o_stripPathPrefix.Value += Path.DirectorySeparatorChar;
+                            }
+                            break;
                         case "--unity-version":
                             try
                             {
@@ -1494,12 +1525,14 @@ namespace AssetStudioCLI.Options
                     }
                     sb.AppendLine(ShowCurrentFilter());
                     sb.AppendLine($"# Filter With Regex: {f_filterWithRegex}");
+                    sb.AppendLine($"# Filter Exclusion Mode: {f_filterExcludeMode}");
                     sb.AppendLine($"# Assembly Path: \"{o_assemblyPath}\"");
                     break;
                 case WorkMode.Live2D:
                     sb.AppendLine($"# [{o_workMode} Options]");
                     sb.AppendLine($"# Filter by Text: \"{string.Join("\", \"", o_filterByText.Value)}\"");
                     sb.AppendLine($"# Filter With Regex: {f_filterWithRegex}");
+                    sb.AppendLine($"# Filter Exclusion Mode: {f_filterExcludeMode}");
                     sb.AppendLine($"# Model Group Option: {o_l2dGroupOption}");
                     sb.AppendFormat("# Search Model-related Assets by: {0}\n", f_l2dAssetSearchByFilename.Value ? "FileName" : "Container");
                     sb.AppendLine($"# Motion Export Method: {o_l2dMotionMode}");
@@ -1513,6 +1546,7 @@ namespace AssetStudioCLI.Options
                         ? ShowCurrentFilter()
                         : $"# Filter by Name(s): \"{string.Join("\", \"", o_filterByName.Value)}\"");
                     sb.AppendLine($"# Filter With Regex: {f_filterWithRegex}");
+                    sb.AppendLine($"# Filter Exclusion Mode: {f_filterExcludeMode}");
                     sb.AppendLine($"# Export Image Format: {o_imageFormat}");
                     sb.AppendLine($"# FBX Scale Factor: {o_fbxScaleFactor}");
                     sb.AppendLine($"# FBX Bone Size: {o_fbxBoneSize}");

@@ -9,6 +9,7 @@
   
   <ItemGroup>
       <PackageReference Include="ZstdSharp.Port" Version="0.8.6" />
+      <PackageReference Include="System.IO.Hashing" Version="10.0.4" />
       <PackageReference Include="K4os.Compression.LZ4" Version="1.3.8" />
   </ItemGroup>
 

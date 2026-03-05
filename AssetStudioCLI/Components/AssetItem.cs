@@ -13,6 +13,7 @@ namespace AssetStudioCLI
         public ClassIDType Type;
         public string Text;
         public string UniqueID;
+        public ulong Hash;
         public GameObjectNode Node;
 
         public AssetItem(Object asset)
@@ -23,6 +24,7 @@ namespace AssetStudioCLI
             TypeString = Type.ToString();
             m_PathID = asset.m_PathID;
             FullSize = asset.byteSize;
+            Hash = 0;
         }
     }
 }

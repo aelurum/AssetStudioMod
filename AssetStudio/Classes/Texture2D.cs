@@ -19,6 +19,8 @@ namespace AssetStudio
         public ResourceReader image_data;
         public StreamingInfo m_StreamData;
         public StreamingInfo m_DataStreamData; //Tuanjie
+        [JsonIgnore]
+        private ulong dataHash; //we need to store hashes because of sprites
 
         public Texture2D() { }
 
@@ -177,6 +179,28 @@ namespace AssetStudio
             image_data = !string.IsNullOrEmpty(m_StreamData?.path)
                 ? new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size)
                 : new ResourceReader(reader, reader.BaseStream.Position, image_data_size);
+        }
+
+        public ulong GetImageDataHash()
+        {
+            if (dataHash != 0)
+                return dataHash;
+
+            if (image_data.Size == 0)
+                return 0;
+
+            var buff = BigArrayPool<byte>.Shared.Rent(image_data.Size);
+            try
+            {
+                _ = image_data.GetData(buff);
+                dataHash = System.IO.Hashing.XxHash3.HashToUInt64(buff.AsSpan(0, image_data.Size));
+            }
+            finally
+            {
+                BigArrayPool<byte>.Shared.Return(buff);
+            }
+            
+            return dataHash;
         }
 
         // https://docs.unity3d.com/2023.3/Documentation/Manual/class-TextureImporterOverride.html

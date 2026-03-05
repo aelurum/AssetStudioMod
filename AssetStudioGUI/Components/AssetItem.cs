@@ -14,6 +14,7 @@ namespace AssetStudioGUI
         public ClassIDType Type;
         public string InfoText;
         public string UniqueID;
+        public ulong Hash;
         public GameObjectTreeNode TreeNode;
 
         public AssetItem(Object asset)
@@ -24,6 +25,7 @@ namespace AssetStudioGUI
             TypeString = Type.ToString();
             m_PathID = asset.m_PathID;
             FullSize = asset.byteSize;
+            Hash = 0;
         }
 
         public void SetSubItems()

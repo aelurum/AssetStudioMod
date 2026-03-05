@@ -20,12 +20,28 @@ namespace AssetStudioGUI
             m_bitmap = new Bitmap(Width, Height, Stride, PixelFormat.Format32bppArgb, m_handle.AddrOfPinnedObject());
         }
 
+        public DirectBitmap(Texture2D texture2D, bool flip)
+        {
+            Width = texture2D.m_Width;
+            Height = texture2D.m_Height;
+            var converter = new Texture2DConverter(texture2D);
+            Bits = BigArrayPool<byte>.Shared.Rent(converter.OutputDataSize);
+            if (converter.GetBgra32RawImageData(Bits, flip))
+            {
+                m_handle = GCHandle.Alloc(Bits, GCHandleType.Pinned);
+                m_bitmap = new Bitmap(Width, Height, Stride, PixelFormat.Format32bppArgb, m_handle.AddrOfPinnedObject());
+            }
+        }
+
         private void Dispose(bool disposing)
         {
             if (disposing)
             {
-                m_bitmap.Dispose();
-                m_handle.Free();
+                if (m_bitmap != null)
+                {
+                    m_bitmap.Dispose();
+                    m_handle.Free();
+                }
                 BigArrayPool<byte>.Shared.Return(Bits);
             }
             m_bitmap = null;

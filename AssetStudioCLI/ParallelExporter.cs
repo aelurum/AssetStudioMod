@@ -19,7 +19,10 @@ namespace AssetStudioCLI
             if (CLIOptions.convertTexture)
             {
                 var type = CLIOptions.o_imageFormat.Value;
-                if (!TryExportFile(exportPath, item, "." + type.ToString().ToLower(), out var exportFullPath))
+                var converter = new Texture2DConverter(m_Texture2D);
+                if (CLIOptions.o_filenameFormat.Value == FilenameFormat.AssetName_Hash)
+                    item.Hash = converter.GetTextureHash();
+                if (!TryExportFile(exportPath, item, $".{type}", out var exportFullPath))
                     return false;
 
                 if (CLIOptions.o_logLevel.Value <= LoggerEvent.Debug)
@@ -45,7 +48,7 @@ namespace AssetStudioCLI
                     debugLog += sb.ToString();
                 }
 
-                if (!m_Texture2D.TryConvertToImage(flip: true, out var image))
+                if (!converter.TryConvertToBgra32Image(flip: true, out var image))
                 {
                     Logger.Error($"{debugLog}Export error. Failed to convert texture \"{m_Texture2D.m_Name}\" into image");
                     return false;
@@ -74,11 +77,13 @@ namespace AssetStudioCLI
         {
             debugLog = "";
             var type = CLIOptions.o_imageFormat.Value;
-            var alphaMask = SpriteMaskMode.On;
-            if (!TryExportFile(exportPath, item, "." + type.ToString().ToLower(), out var exportFullPath))
+            var converter = new SpriteConverter((Sprite)item.Asset);
+            if (CLIOptions.o_filenameFormat.Value == FilenameFormat.AssetName_Hash)
+                item.Hash = converter.GetSpriteHash();
+            if (!TryExportFile(exportPath, item, $".{type}", out var exportFullPath))
                 return false;
-            var image = ((Sprite)item.Asset).GetImage(alphaMask);
-            if (image != null)
+            
+            if (converter.TryConvertToImage(out var image, maskMode: SpriteMaskMode.On))
             {
                 using (image)
                 {
@@ -192,8 +197,12 @@ namespace AssetStudioCLI
                 case FilenameFormat.PathID:
                     fileName = item.m_PathID.ToString();
                     break;
+                case FilenameFormat.AssetName_Hash when item.Hash > 0:
+                    fileName = $"{fileName} @{item.Hash:x}";
+                    break;
             }
-            fullPath = Path.Combine(dir, fileName + extension);
+            extension = extension.ToLower();
+            fullPath = Path.Combine(dir, $"{fileName}{extension}");
             if (ExportPathDict.TryAdd(fullPath, true))
             {
                 if (CanWrite(fullPath, dir, canOverwrite))
@@ -201,9 +210,9 @@ namespace AssetStudioCLI
                     return true;
                 }
             }
-            else if (filenameFormat == FilenameFormat.AssetName)
+            else if (filenameFormat == FilenameFormat.AssetName || (filenameFormat == FilenameFormat.AssetName_Hash && item.Hash == 0))
             {
-                fullPath = Path.Combine(dir, fileName + item.UniqueID + extension);
+                fullPath = Path.Combine(dir, $"{fileName}{item.UniqueID}{extension}");
                 if (CanWrite(fullPath, dir, canOverwrite))
                 {
                     return true;

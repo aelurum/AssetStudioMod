@@ -46,6 +46,7 @@ namespace AssetStudioCLI.Options
         AssetName,
         AssetName_PathID,
         PathID,
+        AssetName_Hash,
     }
 
     internal enum ExportListType
@@ -245,10 +246,11 @@ namespace AssetStudioCLI.Options
                 optionDefaultValue: FilenameFormat.AssetName,
                 optionName: "-f, --filename-format <value>",
                 optionDescription: "Specify the file name format for exported assets\n" +
-                    "<Value: assetName(default) | assetName_pathID | pathID>\n" +
+                    "<Value: assetName(default) | assetName_pathID | pathID | assetName_hash>\n" +
                     "AssetName - Asset file names will look like \"assetName.extension\"\n" +
                     "AssetName_pathID - Asset file names will look like \"assetName @pathID.extension\"\n" +
-                    "PathID - Asset file names will look like \"pathID.extension\"\n",
+                    "PathID - Asset file names will look like \"pathID.extension\"\n" +
+                    "AssetName_hash - (images only) image names will look like \"assetName @hash.extension\"\n",
                 optionExample: "Example: \"-f assetName_pathID\"\n",
                 optionHelpGroup: HelpGroups.General
             );
@@ -930,6 +932,9 @@ namespace AssetStudioCLI.Options
                                     break;
                                 case "pathid":
                                     o_filenameFormat.Value = FilenameFormat.PathID;
+                                    break;
+                                case "assetname_hash":
+                                    o_filenameFormat.Value = FilenameFormat.AssetName_Hash;
                                     break;
                                 default:
                                     Console.WriteLine($"{"Error".Color(brightRed)} during parsing [{option.Color(brightYellow)}] option. Unsupported file name format: [{value.Color(brightRed)}].\n");

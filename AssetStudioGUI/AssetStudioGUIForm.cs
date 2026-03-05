@@ -53,7 +53,7 @@ namespace AssetStudioGUI
         #endregion
 
         #region SpriteControl
-        private SpriteMaskMode spriteMaskVisibleMode = SpriteMaskMode.On;
+        private SpriteMaskMode spriteMaskVisibleMode = SpriteMaskMode.Preview;
         #endregion
 
         #region TexControl
@@ -441,16 +441,16 @@ namespace AssetStudioGUI
                                 break;
                         }
                     }
-                    else if (lastSelectedItem?.Type == ClassIDType.Sprite && !((Sprite)lastSelectedItem.Asset).m_RD.alphaTexture.IsNull)
+                    else if (lastSelectedItem?.Type == ClassIDType.Sprite && new SpriteConverter((Sprite)lastSelectedItem.Asset).m_AlphaTexture2D != null)
                     {
                         switch (e.KeyCode)
                         {
                             case Keys.A:
-                                spriteMaskVisibleMode = spriteMaskVisibleMode == SpriteMaskMode.On ? SpriteMaskMode.Off : SpriteMaskMode.On;
+                                spriteMaskVisibleMode = spriteMaskVisibleMode == SpriteMaskMode.Preview ? SpriteMaskMode.Off : SpriteMaskMode.Preview;
                                 need = true;
                                 break;
                             case Keys.M:
-                                spriteMaskVisibleMode = spriteMaskVisibleMode == SpriteMaskMode.MaskOnly ? SpriteMaskMode.On : SpriteMaskMode.MaskOnly;
+                                spriteMaskVisibleMode = spriteMaskVisibleMode == SpriteMaskMode.MaskOnly ? SpriteMaskMode.Preview : SpriteMaskMode.MaskOnly;
                                 need = true;
                                 break;
                         }
@@ -976,14 +976,13 @@ namespace AssetStudioGUI
 
         private void PreviewTexture2D(AssetItem assetItem, Texture2D m_Texture2D)
         {
-            if (!m_Texture2D.TryConvertToImage(true, out var image))
+            var bitmap = new DirectBitmap(m_Texture2D, flip: true);
+            if (bitmap.Bitmap == null)
             {
                 StatusStripUpdate("Unsupported image for preview");
+                bitmap.Dispose();
                 return;
             }
-
-            var bitmap = new DirectBitmap(image);
-            image.Dispose();
 
             assetItem.InfoText =
                 $"Width: {m_Texture2D.m_Width}" +
@@ -1488,15 +1487,15 @@ namespace AssetStudioGUI
 
         private void PreviewSprite(AssetItem assetItem, Sprite m_Sprite)
         {
-            var image = m_Sprite.GetImage(spriteMaskMode: spriteMaskVisibleMode);
-            if (image != null)
+            var converter = new SpriteConverter(m_Sprite);
+            if (converter.TryConvertToImage(out var image, maskMode: spriteMaskVisibleMode))
             {
                 var bitmap = new DirectBitmap(image);
                 image.Dispose();
                 assetItem.InfoText = $"Width: {bitmap.Width}\nHeight: {bitmap.Height}\n";
                 PreviewTexture(bitmap);
 
-                if (!m_Sprite.m_RD.alphaTexture.IsNull)
+                if (converter.m_AlphaTexture2D != null)
                 {
                     assetItem.InfoText += $"Alpha Mask: {spriteMaskVisibleMode}\n";
                     StatusStripUpdate("'Ctrl'+'A' - Enable/Disable alpha mask usage. 'Ctrl'+'M' - Show alpha mask only.");
@@ -1510,9 +1509,11 @@ namespace AssetStudioGUI
 
         private void PreviewTexture(DirectBitmap bitmap)
         {
+            previewPanel.Image.Dispose();
             imageTexture?.Dispose();
             imageTexture = bitmap;
             previewPanel.Image = imageTexture.Bitmap;
+
             if (imageTexture.Width > previewPanel.Width || imageTexture.Height > previewPanel.Height)
                 previewPanel.SizeMode = PictureBoxSizeMode.Zoom;
             else

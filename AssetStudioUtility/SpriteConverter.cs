@@ -4,6 +4,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,92 +16,133 @@ namespace AssetStudio
     {
         Off,
         On,
+        Preview,
         MaskOnly,
-        Export
     }
 
-    public static class SpriteHelper
+    public class SpriteConverter
     {
-        public static Image<Bgra32> GetImage(this Sprite m_Sprite, SpriteMaskMode spriteMaskMode = SpriteMaskMode.On)
+        private Sprite sprite;
+        private Rectf textureRect;
+        private Vector2 textureRectOffset;
+        private float downscaleMultiplier;
+        private SpriteSettings settingsRaw;
+        private bool cutImageWithCanvas;
+        private int resultWidth;
+        private int resultHeight;
+
+        public Texture2D m_Texture2D { get; }
+        public Texture2D m_AlphaTexture2D { get; }
+
+        public SpriteConverter(Sprite m_Sprite, bool cutWithCanvas = true)
         {
+            sprite = m_Sprite;
+            cutImageWithCanvas = cutWithCanvas;
+
             if (m_Sprite.m_SpriteAtlas != null && m_Sprite.m_SpriteAtlas.TryGet(out var m_SpriteAtlas))
             {
-                if (m_SpriteAtlas.m_RenderDataMap.TryGetValue(m_Sprite.m_RenderDataKey, out var spriteAtlasData) && spriteAtlasData.texture.TryGet(out var m_Texture2D))
+                if (m_SpriteAtlas.m_RenderDataMap.TryGetValue(m_Sprite.m_RenderDataKey, out var spriteAtlasData) && spriteAtlasData.texture.TryGet(out var texture2D))
                 {
-                    return CutImage(m_Sprite, m_Texture2D, spriteAtlasData.textureRect, spriteAtlasData.textureRectOffset, spriteAtlasData.downscaleMultiplier, spriteAtlasData.settingsRaw);
+                    m_Texture2D = texture2D;
+                    if (spriteAtlasData.alphaTexture.TryGet(out var alphaTexture2D))
+                        m_AlphaTexture2D = alphaTexture2D;
+                    textureRect = spriteAtlasData.textureRect;
+                    textureRectOffset = spriteAtlasData.textureRectOffset;
+                    downscaleMultiplier = spriteAtlasData.downscaleMultiplier;
+                    settingsRaw = spriteAtlasData.settingsRaw;
                 }
             }
-            else
+            else if (m_Sprite.m_RD.texture.TryGet(out var texture2D))
             {
-                if (m_Sprite.m_RD.texture.TryGet(out var m_Texture2D) && m_Sprite.m_RD.alphaTexture.TryGet(out var m_AlphaTexture2D) && spriteMaskMode != SpriteMaskMode.Off)
-                {
-                    Image<Bgra32> tex = null;
-                    if (spriteMaskMode != SpriteMaskMode.MaskOnly)
-                    {
-                        tex = CutImageWithCanvas(m_Sprite, m_Texture2D, m_Sprite.m_RD.textureRect, m_Sprite.m_RD.textureRectOffset, m_Sprite.m_RD.downscaleMultiplier, m_Sprite.m_RD.settingsRaw);
-                    }
-                    var alphaTex = CutImageWithCanvas(m_Sprite, m_AlphaTexture2D, m_Sprite.m_RD.textureRect, m_Sprite.m_RD.textureRectOffset, m_Sprite.m_RD.downscaleMultiplier, m_Sprite.m_RD.settingsRaw);
-
-                    switch (spriteMaskMode)
-                    {
-                        case SpriteMaskMode.On:
-                            tex.ApplyRGBMask(alphaTex, isPreview: true);
-                            return tex;
-                        case SpriteMaskMode.Export:
-                            tex.ApplyRGBMask(alphaTex);
-                            return tex;
-                        case SpriteMaskMode.MaskOnly:
-                            return alphaTex;
-                    }
-                }
-                else if (m_Sprite.m_RD.texture.TryGet(out m_Texture2D))
-                {
-                    return CutImageWithCanvas(m_Sprite, m_Texture2D, m_Sprite.m_RD.textureRect, m_Sprite.m_RD.textureRectOffset, m_Sprite.m_RD.downscaleMultiplier, m_Sprite.m_RD.settingsRaw);
-                }
+                m_Texture2D = texture2D;
+                if (m_Sprite.m_RD.alphaTexture.TryGet(out var alphaTexture2D))
+                    m_AlphaTexture2D = alphaTexture2D;
+                textureRect = m_Sprite.m_RD.textureRect;
+                textureRectOffset = m_Sprite.m_RD.textureRectOffset;
+                downscaleMultiplier = m_Sprite.m_RD.downscaleMultiplier;
+                settingsRaw = m_Sprite.m_RD.settingsRaw;
             }
-            return null;
+
+            if (textureRect == null)
+                return;
+
+            resultWidth = cutImageWithCanvas
+                ? (int)sprite.m_Rect.width
+                : (int)textureRect.width;
+            resultHeight = cutImageWithCanvas
+                ? (int)sprite.m_Rect.height
+                : (int)textureRect.height;
         }
 
-        private static void ApplyRGBMask(this Image<Bgra32> tex, Image<Bgra32> texMask, bool isPreview = false)
+        public bool TryConvertToImage(out Image<Bgra32> spriteImage, SpriteMaskMode maskMode)
         {
-            using (texMask)
+            spriteImage = null;
+            if (m_Texture2D == null)
+                return false;
+
+            if (m_AlphaTexture2D != null)
             {
-                if (tex.Width != texMask.Width || tex.Height != texMask.Height)
+                var alphaTex = CutSprite(m_AlphaTexture2D);
+                if (maskMode != SpriteMaskMode.MaskOnly)
                 {
-                    var resampler = isPreview ? KnownResamplers.NearestNeighbor : KnownResamplers.Bicubic;
-                    texMask.Mutate(x => x.Resize(tex.Width, tex.Height, resampler));
+                    spriteImage = CutSprite(m_Texture2D);
                 }
 
-                tex.ProcessPixelRows(texMask, (sourceTex, targetTexMask) =>
+                switch (maskMode)
                 {
-                    for (int y = 0; y < texMask.Height; y++)
-                    {
-                        var texRow = sourceTex.GetRowSpan(y);
-                        var maskRow = targetTexMask.GetRowSpan(y);
-                        for (int x = 0; x < maskRow.Length; x++)
-                        {
-                            var grayscale = (byte)((maskRow[x].R + maskRow[x].G + maskRow[x].B) / 3);
-                            texRow[x].A = grayscale;
-                        }
-                    }
-                });
+                    case SpriteMaskMode.MaskOnly:
+                        spriteImage = alphaTex;
+                        break;
+                    case SpriteMaskMode.Preview when alphaTex != null:
+                        spriteImage.ApplyRgbMask(alphaTex, fastResize: true);
+                        break;
+                    case SpriteMaskMode.On when alphaTex != null:
+                        spriteImage.ApplyRgbMask(alphaTex);
+                        break;
+                }
+                return spriteImage != null;
+            }
+
+            spriteImage = CutSprite(m_Texture2D);
+            return spriteImage != null;
+        }
+
+        private Image<Bgra32> CutSprite(Texture2D texture2D)
+        {
+            var croppedImage = CutImage(texture2D);
+            if (croppedImage == null)
+                return null;
+
+            if (!cutImageWithCanvas)
+                return croppedImage;
+
+            using (croppedImage)
+            {
+                var canvas = new Image<Bgra32>(resultWidth, resultHeight);
+                canvas.Mutate(ctx => ctx.DrawImage(
+                    croppedImage,
+                    new Point((int)textureRectOffset.X, (int)(resultHeight - textureRectOffset.Y - croppedImage.Height)),
+                    1f)
+                );
+                
+                return canvas;
             }
         }
 
-        private static Image<Bgra32> CutImage(Sprite m_Sprite, Texture2D m_Texture2D, Rectf textureRect, Vector2 textureRectOffset, float downscaleMultiplier, SpriteSettings settingsRaw)
+        private Image<Bgra32> CutImage(Texture2D texture2D)
         {
-            if (!m_Texture2D.TryConvertToImage(false, out var textureImage))
+            if (!texture2D.TryConvertToImage(false, out var textureImage))
                 return null;
 
             if (downscaleMultiplier > 0f && downscaleMultiplier != 1f)
             {
-                var width = (int)(m_Texture2D.m_Width / downscaleMultiplier);
-                var height = (int)(m_Texture2D.m_Height / downscaleMultiplier);
+                var width = (int)(texture2D.m_Width / downscaleMultiplier);
+                var height = (int)(texture2D.m_Height / downscaleMultiplier);
                 textureImage.Mutate(x => x.Resize(width, height));
             }
 
-            var rectX = (int)MathF.Floor(textureRect.x);
-            var rectY = (int)MathF.Floor(textureRect.y);
+            var rectX = (int)textureRect.x;
+            var rectY = (int)textureRect.y;
             var rectRight = (int)MathF.Ceiling(textureRect.x + textureRect.width);
             var rectBottom = (int)MathF.Ceiling(textureRect.y + textureRect.height);
             rectRight = Math.Min(rectRight, textureImage.Width);
@@ -133,9 +175,9 @@ namespace AssetStudio
             {
                 try
                 {
-                    var matrix = Matrix3x2.CreateScale(m_Sprite.m_PixelsToUnits);
-                    matrix *= Matrix3x2.CreateTranslation(m_Sprite.m_Rect.width * m_Sprite.m_Pivot.X - textureRectOffset.X, m_Sprite.m_Rect.height * m_Sprite.m_Pivot.Y - textureRectOffset.Y);
-                    var triangles = GetTriangles(m_Sprite.m_RD);
+                    var matrix = Matrix3x2.CreateScale(sprite.m_PixelsToUnits);
+                    matrix *= Matrix3x2.CreateTranslation(sprite.m_Rect.width * sprite.m_Pivot.X - textureRectOffset.X, sprite.m_Rect.height * sprite.m_Pivot.Y - textureRectOffset.Y);
+                    var triangles = GetTriangles(sprite.m_RD);
                     var points = triangles.Select(x => x.Select(y => new PointF(y.X, y.Y)));
                     var pathBuilder = new PathBuilder(matrix);
                     foreach (var p in points)
@@ -177,26 +219,13 @@ namespace AssetStudio
                 }
                 catch (Exception e)
                 {
-                    Logger.Warning($"{m_Sprite.m_Name} Unable to render the packed sprite correctly.\n{e}");
+                    Logger.Warning($"{sprite.m_Name} Unable to render the packed sprite correctly.\n{e}");
                 }
             }
 
             //Rectangle
             spriteImage.Mutate(x => x.Flip(FlipMode.Vertical));
             return spriteImage;
-        }
-
-        private static Image<Bgra32> CutImageWithCanvas(Sprite m_Sprite, Texture2D m_Texture2D, Rectf textureRect, Vector2 textureRectOffset, float downscaleMultiplier, SpriteSettings settingsRaw)
-        {
-            var cropped = CutImage(m_Sprite, m_Texture2D, textureRect, textureRectOffset, downscaleMultiplier, settingsRaw);
-            if (cropped == null)
-                return null;
-            
-            var canvas = new Image<Bgra32>((int)MathF.Floor(m_Sprite.m_Rect.width), (int)MathF.Floor(m_Sprite.m_Rect.height));
-            canvas.Mutate(ctx => ctx.DrawImage(cropped, new Point((int)MathF.Floor(textureRectOffset.X), (int)MathF.Floor(m_Sprite.m_Rect.height - textureRectOffset.Y - cropped.Height)), 1f));
-
-            cropped.Dispose();
-            return canvas;
         }
 
         private static Vector2[][] GetTriangles(SpriteRenderData m_RD)
@@ -253,6 +282,41 @@ namespace AssetStudio
                 }
                 return triangles.ToArray();
             }
+        }
+
+        public ulong GetSpriteHash()
+        {
+            ulong spriteHash = 0;
+            if (m_Texture2D == null)
+                return spriteHash;
+
+            spriteHash = m_Texture2D.GetImageDataHash();
+            
+            if (m_AlphaTexture2D != null)
+            {
+                spriteHash ^= m_AlphaTexture2D.GetImageDataHash();
+            }
+
+            return (m_Texture2D.m_Width, m_Texture2D.m_Height) == (resultWidth, resultHeight)
+                ? spriteHash
+                : spriteHash ^ GetRectHash();
+        }
+
+        private ulong GetRectHash()
+        {
+            Span<byte> buff = stackalloc byte[40];
+            BinaryPrimitives.WriteInt32LittleEndian(buff, (int)textureRect.x);
+            BinaryPrimitives.WriteInt32LittleEndian(buff.Slice(4), (int)textureRect.y);
+            BinaryPrimitives.WriteInt32LittleEndian(buff.Slice(8), (int)textureRect.width);
+            BinaryPrimitives.WriteInt32LittleEndian(buff.Slice(12), (int)textureRect.height);
+            BinaryPrimitives.WriteInt32LittleEndian(buff.Slice(16), (int)textureRectOffset.X);
+            BinaryPrimitives.WriteInt32LittleEndian(buff.Slice(20), (int)textureRectOffset.Y);
+            BinaryPrimitives.WriteInt32LittleEndian(buff.Slice(24), (int)sprite.m_Rect.x);
+            BinaryPrimitives.WriteInt32LittleEndian(buff.Slice(28), (int)sprite.m_Rect.y);
+            BinaryPrimitives.WriteInt32LittleEndian(buff.Slice(32), (int)sprite.m_Rect.width);
+            BinaryPrimitives.WriteInt32LittleEndian(buff.Slice(36), (int)sprite.m_Rect.height);
+
+            return System.IO.Hashing.XxHash3.HashToUInt64(buff);
         }
     }
 }

@@ -18,7 +18,10 @@ namespace AssetStudioGUI
             if (Properties.Settings.Default.convertTexture)
             {
                 var type = Properties.Settings.Default.convertType;
-                if (!TryExportFile(exportPath, item, "." + type.ToString().ToLower(), out var exportFullPath))
+                var converter = new Texture2DConverter(m_Texture2D);
+                if (Properties.Settings.Default.filenameFormat == 3) //asset name@hash
+                    item.Hash = converter.GetTextureHash();
+                if (!TryExportFile(exportPath, item, $".{type}", out var exportFullPath))
                     return false;
 
                 if (GUILogger.ShowDebugMessage)
@@ -44,9 +47,9 @@ namespace AssetStudioGUI
                     debugLog += sb.ToString();
                 }
 
-                if (!m_Texture2D.TryConvertToImage(flip: true, out var image))
+                if (!converter.TryConvertToBgra32Image(flip: true, out var image))
                 {
-                    Logger.Warning($"Failed to convert texture \"{m_Texture2D.m_Name}\" into image");
+                    Logger.Warning($"{debugLog}Failed to convert texture \"{m_Texture2D.m_Name}\" into image");
                     return false;
                 }
                 using (image)
@@ -73,11 +76,14 @@ namespace AssetStudioGUI
         {
             debugLog = "";
             var type = Properties.Settings.Default.convertType;
-            var spriteMaskMode = Properties.Settings.Default.exportSpriteWithMask ? SpriteMaskMode.Export : SpriteMaskMode.Off;
-            if (!TryExportFile(exportPath, item, "." + type.ToString().ToLower(), out var exportFullPath))
+            var converter = new SpriteConverter((Sprite)item.Asset);
+            if (Properties.Settings.Default.filenameFormat == 3) //asset name@hash
+                item.Hash = converter.GetSpriteHash();
+            if (!TryExportFile(exportPath, item, $".{type}", out var exportFullPath))
                 return false;
-            var image = ((Sprite)item.Asset).GetImage(spriteMaskMode: spriteMaskMode);
-            if (image != null)
+            
+            var spriteMaskMode = Properties.Settings.Default.exportSpriteWithMask ? SpriteMaskMode.On : SpriteMaskMode.Off;
+            if (converter.TryConvertToImage(out var image, maskMode: spriteMaskMode))
             {
                 using (image)
                 {
@@ -191,8 +197,12 @@ namespace AssetStudioGUI
                 case 2: //pathID
                     fileName = item.m_PathID.ToString();
                     break;
+                case 3 when item.Hash > 0: //asset name@hash
+                    fileName = $"{fileName} @{item.Hash:x}";
+                    break;
             }
-            fullPath = Path.Combine(dir, fileName + extension);
+            extension = extension.ToLower();
+            fullPath = Path.Combine(dir, $"{fileName}{extension}");
             if (ExportPathDict.TryAdd(fullPath, true))
             {
                 if (CanWrite(fullPath, dir, canOverwrite))
@@ -200,9 +210,9 @@ namespace AssetStudioGUI
                     return true;
                 }
             }
-            else if (filenameFormatIndex == 0) //assetName
+            else if (filenameFormatIndex == 0 || (filenameFormatIndex == 3 && item.Hash == 0)) //assetName, asset name@hash
             {
-                fullPath = Path.Combine(dir, fileName + item.UniqueID + extension);
+                fullPath = Path.Combine(dir, $"{fileName}{item.UniqueID}{extension}");
                 if (CanWrite(fullPath, dir, canOverwrite))
                 {
                     return true;

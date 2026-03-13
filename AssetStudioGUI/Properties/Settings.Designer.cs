@@ -382,5 +382,17 @@ namespace AssetStudioGUI.Properties {
                 this["cachePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool keepSpriteSize {
+            get {
+                return ((bool)(this["keepSpriteSize"]));
+            }
+            set {
+                this["keepSpriteSize"] = value;
+            }
+        }
     }
 }

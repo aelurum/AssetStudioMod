@@ -54,6 +54,8 @@ namespace AssetStudioGUI
 
         #region SpriteControl
         private SpriteMaskMode spriteMaskVisibleMode = SpriteMaskMode.Preview;
+        private bool spriteRenderWithOrigSize = true;
+        private bool spriteRednerWithBorder;
         #endregion
 
         #region TexControl
@@ -441,15 +443,24 @@ namespace AssetStudioGUI
                                 break;
                         }
                     }
-                    else if (lastSelectedItem?.Type == ClassIDType.Sprite && new SpriteConverter((Sprite)lastSelectedItem.Asset).m_AlphaTexture2D != null)
+                    else if (lastSelectedItem?.Asset is Sprite m_Sprite)
                     {
+                        var spriteConverter = new SpriteConverter(m_Sprite);
                         switch (e.KeyCode)
                         {
-                            case Keys.A:
+                            case Keys.R:
+                                spriteRenderWithOrigSize = !spriteRenderWithOrigSize;
+                                need = true;
+                                break;
+                            case Keys.B:
+                                spriteRednerWithBorder = !spriteRednerWithBorder;
+                                need = true;
+                                break;
+                            case Keys.A when spriteConverter.m_AlphaTexture2D != null:
                                 spriteMaskVisibleMode = spriteMaskVisibleMode == SpriteMaskMode.Preview ? SpriteMaskMode.Off : SpriteMaskMode.Preview;
                                 need = true;
                                 break;
-                            case Keys.M:
+                            case Keys.M when spriteConverter.m_AlphaTexture2D != null:
                                 spriteMaskVisibleMode = spriteMaskVisibleMode == SpriteMaskMode.MaskOnly ? SpriteMaskMode.Preview : SpriteMaskMode.MaskOnly;
                                 need = true;
                                 break;
@@ -1487,19 +1498,29 @@ namespace AssetStudioGUI
 
         private void PreviewSprite(AssetItem assetItem, Sprite m_Sprite)
         {
-            var converter = new SpriteConverter(m_Sprite);
+            var converter = new SpriteConverter(m_Sprite, spriteRenderWithOrigSize);
             if (converter.TryConvertToImage(out var image, maskMode: spriteMaskVisibleMode))
             {
                 var bitmap = new DirectBitmap(image);
                 image.Dispose();
-                assetItem.InfoText = $"Width: {bitmap.Width}\nHeight: {bitmap.Height}\n";
-                PreviewTexture(bitmap);
+                assetItem.InfoText =
+                    $"Width: {bitmap.Width}\n" +
+                    $"Height: {bitmap.Height}\n" +
+                    $"Keep original size: {spriteRenderWithOrigSize}\n" +
+                    $"Show border: {spriteRednerWithBorder}\n";
+                
+                if (spriteRednerWithBorder)
+                    PreviewTextureWithBorder(bitmap);
+                else
+                    PreviewTexture(bitmap);
 
+                var statusStrip = "'Ctrl'+'R' - Switch cropping method | 'Ctrl'+'B' - Show sprite border";
                 if (converter.m_AlphaTexture2D != null)
                 {
-                    assetItem.InfoText += $"Alpha Mask: {spriteMaskVisibleMode}\n";
-                    StatusStripUpdate("'Ctrl'+'A' - Enable/Disable alpha mask usage. 'Ctrl'+'M' - Show alpha mask only.");
+                    assetItem.InfoText += $"Alpha Mask: {(spriteMaskVisibleMode == SpriteMaskMode.Preview ? "On" : spriteMaskVisibleMode.ToString())}\n";
+                    statusStrip += "\n'Ctrl'+'A' - Enable/Disable alpha mask usage | 'Ctrl'+'M' - Show alpha mask only";
                 }
+                StatusStripUpdate(statusStrip);
             }
             else
             {
@@ -1515,6 +1536,34 @@ namespace AssetStudioGUI
             previewPanel.Image = imageTexture.Bitmap;
 
             if (imageTexture.Width > previewPanel.Width || imageTexture.Height > previewPanel.Height)
+                previewPanel.SizeMode = PictureBoxSizeMode.Zoom;
+            else
+                previewPanel.SizeMode = PictureBoxSizeMode.CenterImage;
+        }
+
+        private void PreviewTextureWithBorder(DirectBitmap bitmap)
+        {
+            previewPanel.Image.Dispose();
+            imageTexture?.Dispose();
+            imageTexture = null;
+
+            var borderSize = 1;
+            var newWidth = bitmap.Width + borderSize * 2;
+            var newHeight = bitmap.Height + borderSize * 2;
+
+            var newImage = new Bitmap(newWidth, newHeight);
+            using (var gfx = Graphics.FromImage(newImage))
+            {
+                using (var border = new Pen(System.Drawing.Color.Black, borderSize))
+                {
+                    gfx.DrawRectangle(border, 0, 0, newWidth - borderSize, newHeight - borderSize);
+                }
+                gfx.DrawImage(bitmap.Bitmap, new Point(borderSize, borderSize));
+                bitmap.Dispose();
+                previewPanel.Image = newImage;
+            }
+
+            if (newWidth > previewPanel.Width || newHeight > previewPanel.Height)
                 previewPanel.SizeMode = PictureBoxSizeMode.Zoom;
             else
                 previewPanel.SizeMode = PictureBoxSizeMode.CenterImage;

@@ -76,7 +76,7 @@ namespace AssetStudioGUI
         {
             debugLog = "";
             var type = Properties.Settings.Default.convertType;
-            var converter = new SpriteConverter((Sprite)item.Asset);
+            var converter = new SpriteConverter((Sprite)item.Asset, Properties.Settings.Default.keepSpriteSize);
             if (Properties.Settings.Default.filenameFormat == 3) //asset name@hash
                 item.Hash = converter.GetSpriteHash();
             if (!TryExportFile(exportPath, item, $".{type}", out var exportFullPath))

@@ -77,7 +77,8 @@ namespace AssetStudioCLI
         {
             debugLog = "";
             var type = CLIOptions.o_imageFormat.Value;
-            var converter = new SpriteConverter((Sprite)item.Asset);
+            var keepSpriteSize = CLIOptions.o_spriteCroppingMode.Value == SpriteCroppingMode.SpriteRect;
+            var converter = new SpriteConverter((Sprite)item.Asset, keepSpriteSize);
             if (CLIOptions.o_filenameFormat.Value == FilenameFormat.AssetName_Hash)
                 item.Hash = converter.GetSpriteHash();
             if (!TryExportFile(exportPath, item, $".{type}", out var exportFullPath))

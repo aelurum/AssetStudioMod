@@ -84,6 +84,7 @@
             this.generalTabPage = new System.Windows.Forms.TabPage();
             this.panel2 = new System.Windows.Forms.Panel();
             this.imagesTabPage = new System.Windows.Forms.TabPage();
+            this.keepSpriteSizeCheckBox = new System.Windows.Forms.CheckBox();
             this.fbxTabPage = new System.Windows.Forms.TabPage();
             this.live2DTabPage = new System.Windows.Forms.TabPage();
             this.Cancel = new System.Windows.Forms.Button();
@@ -222,9 +223,9 @@
             this.exportSpriteWithAlphaMask.CheckState = System.Windows.Forms.CheckState.Checked;
             this.exportSpriteWithAlphaMask.Location = new System.Drawing.Point(7, 70);
             this.exportSpriteWithAlphaMask.Name = "exportSpriteWithAlphaMask";
-            this.exportSpriteWithAlphaMask.Size = new System.Drawing.Size(228, 19);
+            this.exportSpriteWithAlphaMask.Size = new System.Drawing.Size(278, 19);
             this.exportSpriteWithAlphaMask.TabIndex = 2;
-            this.exportSpriteWithAlphaMask.Text = "Export sprites with alpha mask applied";
+            this.exportSpriteWithAlphaMask.Text = "Export sprites with alpha mask applied (if exists)";
             this.exportSpriteWithAlphaMask.UseVisualStyleBackColor = true;
             // 
             // openAfterExport
@@ -809,6 +810,7 @@
             // imagesTabPage
             // 
             this.imagesTabPage.BackColor = System.Drawing.SystemColors.Menu;
+            this.imagesTabPage.Controls.Add(this.keepSpriteSizeCheckBox);
             this.imagesTabPage.Controls.Add(this.panel1);
             this.imagesTabPage.Controls.Add(this.converttexture);
             this.imagesTabPage.Controls.Add(this.exportSpriteWithAlphaMask);
@@ -817,6 +819,20 @@
             this.imagesTabPage.Size = new System.Drawing.Size(390, 372);
             this.imagesTabPage.TabIndex = 3;
             this.imagesTabPage.Text = "Images";
+            // 
+            // keepSpriteSizeCheckBox
+            // 
+            this.keepSpriteSizeCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.keepSpriteSizeCheckBox.AutoSize = true;
+            this.keepSpriteSizeCheckBox.Checked = true;
+            this.keepSpriteSizeCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.keepSpriteSizeCheckBox.Location = new System.Drawing.Point(7, 95);
+            this.keepSpriteSizeCheckBox.Name = "keepSpriteSizeCheckBox";
+            this.keepSpriteSizeCheckBox.Size = new System.Drawing.Size(154, 19);
+            this.keepSpriteSizeCheckBox.TabIndex = 3;
+            this.keepSpriteSizeCheckBox.Text = "Keep original sprite sizes";
+            this.keepSpriteSizeCheckBox.UseVisualStyleBackColor = true;
             // 
             // fbxTabPage
             // 
@@ -981,5 +997,6 @@
         private System.Windows.Forms.TabPage imagesTabPage;
         private System.Windows.Forms.Button Cancel;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.CheckBox keepSpriteSizeCheckBox;
     }
 }

@@ -78,6 +78,12 @@ namespace AssetStudioCLI.Options
         All,
     }
 
+    internal enum SpriteCroppingMode
+    {
+        SpriteRect,
+        TextureRect,
+    }
+
     internal static class CLIOptions
     {
         public static bool isParsed;
@@ -132,6 +138,7 @@ namespace AssetStudioCLI.Options
         public static Option<ExportListType> o_exportAssetList;
         public static Option<string> o_assemblyPath;
         public static Option<string> o_stripPathPrefix;
+        public static Option<SpriteCroppingMode> o_spriteCroppingMode;
         public static Option<bool> f_notRestoreExtensionName;
         public static Option<bool> f_avoidLoadingViaTypetree;
         public static Option<bool> f_rawByteArrayFromMono;
@@ -571,6 +578,17 @@ namespace AssetStudioCLI.Options
                 optionName: "--strip-path-prefix <path>",
                 optionDescription: "Specify a path prefix to be stripped from exported asset paths\n",
                 optionExample: "Example: \"--strip-path-prefix assets/models/char/\"\n",
+                optionHelpGroup: HelpGroups.Advanced
+            );
+            o_spriteCroppingMode = new GroupedOption<SpriteCroppingMode>
+            (
+                optionDefaultValue: SpriteCroppingMode.SpriteRect,
+                optionName: "--sprite-cropping",
+                optionDescription: "Specify the sprite cropping mode\n" +
+                    "<Value: spriteRect(default) | textureRect>\n" +
+                    "SpriteRect - Crop sprites keeping their own size and alignment\n" +
+                    "TextureRect - Crop sprites to their actual image size (aka trim)\n",
+                optionExample: "Example: \"--sprite-cropping textureRect\"\n",
                 optionHelpGroup: HelpGroups.Advanced
             );
             f_notRestoreExtensionName = new GroupedOption<bool>
@@ -1277,6 +1295,21 @@ namespace AssetStudioCLI.Options
                                 o_stripPathPrefix.Value += Path.DirectorySeparatorChar;
                             }
                             break;
+                        case "--sprite-cropping":
+                            switch (value.ToLower())
+                            {
+                                case "spriterect":
+                                    o_spriteCroppingMode.Value = SpriteCroppingMode.SpriteRect;
+                                    break;
+                                case "texturerect":
+                                    o_spriteCroppingMode.Value = SpriteCroppingMode.TextureRect;
+                                    break;
+                                default:
+                                    Console.WriteLine($"{"Error".Color(brightRed)} during parsing [{option.Color(brightYellow)}] option. Unsupported sprite cropping mode: [{value.Color(brightRed)}].\n");
+                                    ShowOptionDescription(o_spriteCroppingMode);
+                                    return;
+                            }
+                            break;
                         case "--unity-version":
                             try
                             {
@@ -1521,6 +1554,7 @@ namespace AssetStudioCLI.Options
                     {
                         sb.AppendLine($"# Export Image Format: {o_imageFormat}");
                         sb.AppendLine($"# Export Audio Format: {o_audioFormat}");
+                        sb.AppendLine($"# Sprite Cropping Mode: {o_spriteCroppingMode}");
                         sb.AppendLine($"# Restore TextAsset Extension: {!f_notRestoreExtensionName.Value}");
                         sb.AppendLine($"# Max Parallel Export Tasks: {o_maxParallelExportTasks}");
                     }

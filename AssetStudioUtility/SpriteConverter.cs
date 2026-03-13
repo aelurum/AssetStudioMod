@@ -27,17 +27,17 @@ namespace AssetStudio
         private Vector2 textureRectOffset;
         private float downscaleMultiplier;
         private SpriteSettings settingsRaw;
-        private bool cutImageWithCanvas;
+        private bool keepSpriteSize;
         private int resultWidth;
         private int resultHeight;
 
         public Texture2D m_Texture2D { get; }
         public Texture2D m_AlphaTexture2D { get; }
 
-        public SpriteConverter(Sprite m_Sprite, bool cutWithCanvas = true)
+        public SpriteConverter(Sprite m_Sprite, bool keepSize = true)
         {
             sprite = m_Sprite;
-            cutImageWithCanvas = cutWithCanvas;
+            keepSpriteSize = keepSize;
 
             if (m_Sprite.m_SpriteAtlas != null && m_Sprite.m_SpriteAtlas.TryGet(out var m_SpriteAtlas))
             {
@@ -66,12 +66,12 @@ namespace AssetStudio
             if (textureRect == null)
                 return;
 
-            resultWidth = cutImageWithCanvas
-                ? (int)sprite.m_Rect.width
-                : (int)textureRect.width;
-            resultHeight = cutImageWithCanvas
-                ? (int)sprite.m_Rect.height
-                : (int)textureRect.height;
+            resultWidth = keepSpriteSize
+                ? (int)MathF.Round(sprite.m_Rect.width)
+                : (int)MathF.Round(textureRect.width);
+            resultHeight = keepSpriteSize
+                ? (int)MathF.Round(sprite.m_Rect.height)
+                : (int)MathF.Round(textureRect.height);
         }
 
         public bool TryConvertToImage(out Image<Bgra32> spriteImage, SpriteMaskMode maskMode)
@@ -113,7 +113,7 @@ namespace AssetStudio
             if (croppedImage == null)
                 return null;
 
-            if (!cutImageWithCanvas)
+            if (!keepSpriteSize)
                 return croppedImage;
 
             using (croppedImage)

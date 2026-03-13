@@ -19,6 +19,7 @@ namespace AssetStudioGUI
             restoreExtensionName.Checked = Properties.Settings.Default.restoreExtensionName;
             converttexture.Checked = Properties.Settings.Default.convertTexture;
             exportSpriteWithAlphaMask.Checked = Properties.Settings.Default.exportSpriteWithMask;
+            keepSpriteSizeCheckBox.Checked = Properties.Settings.Default.keepSpriteSize;
             convertAudio.Checked = Properties.Settings.Default.convertAudio;
             var defaultImageType = Properties.Settings.Default.convertType.ToString();
             ((RadioButton)panel1.Controls.Cast<Control>().First(x => x.Text == defaultImageType)).Checked = true;
@@ -48,6 +49,7 @@ namespace AssetStudioGUI
             Properties.Settings.Default.restoreExtensionName = restoreExtensionName.Checked;
             Properties.Settings.Default.convertTexture = converttexture.Checked;
             Properties.Settings.Default.exportSpriteWithMask = exportSpriteWithAlphaMask.Checked;
+            Properties.Settings.Default.keepSpriteSize = keepSpriteSizeCheckBox.Checked;
             Properties.Settings.Default.convertAudio = convertAudio.Checked;
             var checkedImageType = (RadioButton)panel1.Controls.Cast<Control>().First(x => ((RadioButton)x).Checked);
             Properties.Settings.Default.convertType = (ImageFormat)Enum.Parse(typeof(ImageFormat), checkedImageType.Text);

@@ -30,9 +30,12 @@ namespace AssetStudio
         private bool keepSpriteSize;
         private int resultWidth;
         private int resultHeight;
+        private bool canConvert;
 
-        public Texture2D m_Texture2D { get; }
-        public Texture2D m_AlphaTexture2D { get; }
+        public readonly Texture2D m_Texture2D;
+        public readonly Texture2D m_AlphaTexture2D;
+        public int Width => resultWidth;
+        public int Height => resultHeight;
 
         public SpriteConverter(Sprite m_Sprite, bool keepSize = true)
         {
@@ -41,31 +44,37 @@ namespace AssetStudio
 
             if (m_Sprite.m_SpriteAtlas != null && m_Sprite.m_SpriteAtlas.TryGet(out var m_SpriteAtlas))
             {
-                if (m_SpriteAtlas.m_RenderDataMap.TryGetValue(m_Sprite.m_RenderDataKey, out var spriteAtlasData) && spriteAtlasData.texture.TryGet(out var texture2D))
+                if (m_SpriteAtlas.m_RenderDataMap.TryGetValue(m_Sprite.m_RenderDataKey, out var spriteAtlasData) && spriteAtlasData.texture.TryGet(out m_Texture2D))
                 {
-                    m_Texture2D = texture2D;
-                    if (spriteAtlasData.alphaTexture.TryGet(out var alphaTexture2D))
-                        m_AlphaTexture2D = alphaTexture2D;
+                    spriteAtlasData.alphaTexture.TryGet(out m_AlphaTexture2D);
                     textureRect = spriteAtlasData.textureRect;
                     textureRectOffset = spriteAtlasData.textureRectOffset;
                     downscaleMultiplier = spriteAtlasData.downscaleMultiplier;
                     settingsRaw = spriteAtlasData.settingsRaw;
+                    SetResultSpriteSize();
+                    if (resultWidth > 0 && resultHeight > 0)
+                    {
+                        canConvert = true;
+                    }
                 }
             }
-            else if (m_Sprite.m_RD.texture.TryGet(out var texture2D))
+            if (!canConvert && m_Sprite.m_RD.texture.TryGet(out m_Texture2D))
             {
-                m_Texture2D = texture2D;
-                if (m_Sprite.m_RD.alphaTexture.TryGet(out var alphaTexture2D))
-                    m_AlphaTexture2D = alphaTexture2D;
+                m_Sprite.m_RD.alphaTexture.TryGet(out m_AlphaTexture2D);
                 textureRect = m_Sprite.m_RD.textureRect;
                 textureRectOffset = m_Sprite.m_RD.textureRectOffset;
                 downscaleMultiplier = m_Sprite.m_RD.downscaleMultiplier;
                 settingsRaw = m_Sprite.m_RD.settingsRaw;
+                SetResultSpriteSize();
+                if (resultWidth > 0 && resultHeight > 0)
+                {
+                    canConvert = true;
+                }
             }
+        }
 
-            if (textureRect == null)
-                return;
-
+        private void SetResultSpriteSize()
+        {
             resultWidth = keepSpriteSize
                 ? (int)MathF.Round(sprite.m_Rect.width)
                 : (int)MathF.Round(textureRect.width);
@@ -77,7 +86,7 @@ namespace AssetStudio
         public bool TryConvertToImage(out Image<Bgra32> spriteImage, SpriteMaskMode maskMode)
         {
             spriteImage = null;
-            if (m_Texture2D == null)
+            if (!canConvert)
                 return false;
 
             if (m_AlphaTexture2D != null)

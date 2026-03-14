@@ -1508,7 +1508,7 @@ namespace AssetStudioGUI
                     $"Height: {bitmap.Height}\n" +
                     $"Keep original size: {spriteRenderWithOrigSize}\n" +
                     $"Show border: {spriteRednerWithBorder}\n";
-                
+
                 if (spriteRednerWithBorder)
                     PreviewTextureWithBorder(bitmap);
                 else
@@ -1524,7 +1524,10 @@ namespace AssetStudioGUI
             }
             else
             {
-                StatusStripUpdate("Unsupported sprite for preview.");
+                var statusStrip = "Unsupported sprite for preview. ";
+                if (converter.Width == 0 || converter.Height == 0)
+                    statusStrip += "The width or height of the sprite is 0.";
+                StatusStripUpdate(statusStrip);
             }
         }
 

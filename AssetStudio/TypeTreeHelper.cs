@@ -141,7 +141,7 @@ namespace AssetStudio
                         reader.BaseStream.Position += size;
                         i += 2;
                         sb.AppendFormat("{0}{1} {2}\r\n", (new string('\t', level)), varTypeStr, varNameStr);
-                        sb.AppendFormat("{0}{1} {2} = {3}\r\n", (new string('\t', level)), "int", "size", size);
+                        sb.AppendFormat("{0}{1} {2} = {3}\r\n", (new string('\t', level + 1)), "int", "size", size);
                         break;
                     }
                 default:
@@ -151,12 +151,26 @@ namespace AssetStudio
                             if ((m_Nodes[i + 1].m_MetaFlag & 0x4000) != 0)
                                 align = true;
                             append = false;
+                            var arrayTypeStr = m_Nodes.Count > i + 3
+                                ? m_Nodes[i + 3].m_Type
+                                : "";
                             sb.AppendFormat("{0}{1} {2}\r\n", (new string('\t', level)), varTypeStr, varNameStr);
                             sb.AppendFormat("{0}{1} {2}\r\n", (new string('\t', level + 1)), "Array", "Array");
                             var size = reader.ReadInt32();
                             sb.AppendFormat("{0}{1} {2} = {3}\r\n", (new string('\t', level + 1)), "int", "size", size);
                             var vector = GetNodes(m_Nodes, i);
                             i += vector.Count - 1;
+                            if (varNameStr.ToLower() == "m_fontdata" && arrayTypeStr == "char")
+                            {
+                                vector[vector.Count - 1].m_Type = arrayTypeStr = "UInt8";
+                            }
+
+                            if (size > 8192 && arrayTypeStr == "UInt8")
+                            {
+                                var data = Convert.ToBase64String(reader.ReadBytes(size));
+                                sb.AppendFormat("{0}{1} {2} = \"{3}\"\r\n", (new string('\t', level + 1)), "byte[]", "data", data);
+                                break;
+                            }
                             for (int j = 0; j < size; j++)
                             {
                                 sb.AppendFormat("{0}[{1}]\r\n", (new string('\t', level + 2)), j);
@@ -324,11 +338,13 @@ namespace AssetStudio
                             var arrayTypeStr = m_Nodes.Count > i + 3
                                 ? m_Nodes[i + 3].m_Type
                                 : "";
+                            var nodeName = m_Nodes[i].m_Name.ToLower();
                             var vector = GetNodes(m_Nodes, i);
                             i += vector.Count - 1;
                             switch (arrayTypeStr)
                             {
                                 case "UInt8":
+                                case "char" when nodeName == "m_fontdata":
                                     value = reader.ReadUInt8Array();
                                     break;
                                 case "UInt16":

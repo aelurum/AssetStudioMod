@@ -1,5 +1,4 @@
 ﻿using AssetStudio;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -121,7 +120,7 @@ namespace AssetStudioGUI
                 var m_Type = Studio.MonoBehaviourToTypeTree(m_MonoBehaviour);
                 type = m_MonoBehaviour.ToType(m_Type);
             }
-            var str = JsonConvert.SerializeObject(type, Formatting.Indented);
+            var str = System.Text.Json.JsonSerializer.Serialize(type, Object.JsonOptions);
             File.WriteAllText(exportFullPath, str);
             return true;
         }

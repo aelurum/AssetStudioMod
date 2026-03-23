@@ -8,6 +8,7 @@ namespace AssetStudio
 {
     public class Object
     {
+        public static readonly JsonSerializerOptions JsonOptions;
         [JsonIgnore]
         public SerializedFile assetsFile;
         [JsonIgnore]
@@ -25,11 +26,10 @@ namespace AssetStudio
         public uint byteSize;
         [JsonIgnore]
         public string Name;
-        private static readonly JsonSerializerOptions jsonOptions;
 
         static Object()
         {
-            jsonOptions = new JsonSerializerOptions
+            JsonOptions = new JsonSerializerOptions
             {
                 Converters = { new JsonConverterHelper.FloatConverter() },
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
@@ -72,8 +72,8 @@ namespace AssetStudio
                     m_Mesh.ProcessData();
                 }
 
-                str = JsonSerializer.Deserialize<JsonObject>(JsonSerializer.SerializeToUtf8Bytes(this, GetType(), jsonOptions))
-                    .ToJsonString(jsonOptions).Replace("  ", "    ");
+                str = JsonSerializer.Deserialize<JsonObject>(JsonSerializer.SerializeToUtf8Bytes(this, GetType(), JsonOptions))
+                    .ToJsonString(JsonOptions).Replace("  ", "    ");
             }
             catch
             {
@@ -108,7 +108,7 @@ namespace AssetStudio
             {
                 if (typeDict != null)
                 {
-                    return JsonSerializer.SerializeToDocument(typeDict, jsonOptions);
+                    return JsonSerializer.SerializeToDocument(typeDict, JsonOptions);
                 }
 
                 if (this is Mesh m_Mesh)
@@ -116,7 +116,7 @@ namespace AssetStudio
                     m_Mesh.ProcessData();
                 }
 
-                return JsonSerializer.SerializeToDocument(this, GetType(), jsonOptions);
+                return JsonSerializer.SerializeToDocument(this, GetType(), JsonOptions);
             }
             catch
             {

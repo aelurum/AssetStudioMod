@@ -1,6 +1,5 @@
 ﻿using AssetStudio;
 using AssetStudioCLI.Options;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -143,7 +142,7 @@ namespace AssetStudioCLI
             }
             if (type != null)
             {
-                var str = JsonConvert.SerializeObject(type, Formatting.Indented);
+                var str = System.Text.Json.JsonSerializer.Serialize(type, Object.JsonOptions);
                 File.WriteAllText(exportFullPath, str);
 
                 Logger.Debug($"{item.TypeString} \"{item.Text}\" exported to \"{exportFullPath}\"");

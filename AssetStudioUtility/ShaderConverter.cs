@@ -17,7 +17,7 @@ namespace AssetStudio
             {
                 var decompressedBytes = new byte[shader.decompressedSize];
                 LZ4Codec.Decode(shader.m_SubProgramBlob, decompressedBytes);
-                using (var blobReader = new BinaryReader(new MemoryStream(decompressedBytes)))
+                using (var blobReader = new EndianBinaryReader(new MemoryStream(decompressedBytes), EndianType.LittleEndian))
                 {
                     var program = new ShaderProgram(blobReader, shader.version);
                     program.Read(blobReader, 0);
@@ -46,7 +46,7 @@ namespace AssetStudio
                     var decompressedLength = shader.decompressedLengths[i][j];
                     var decompressedBytes = new byte[decompressedLength];
                     LZ4Codec.Decode(shader.compressedBlob, (int)offset, (int)compressedLength, decompressedBytes, 0, (int)decompressedLength);
-                    using (var blobReader = new BinaryReader(new MemoryStream(decompressedBytes)))
+                    using (var blobReader = new EndianBinaryReader(new MemoryStream(decompressedBytes), EndianType.LittleEndian))
                     {
                         if (j == 0)
                         {
@@ -872,7 +872,7 @@ namespace AssetStudio
         public int Length;
         public int Segment;
 
-        public ShaderSubProgramEntry(BinaryReader reader, UnityVersion version)
+        public ShaderSubProgramEntry(EndianBinaryReader reader, UnityVersion version)
         {
             Offset = reader.ReadInt32();
             Length = reader.ReadInt32();
@@ -888,7 +888,7 @@ namespace AssetStudio
         public ShaderSubProgramEntry[] entries;
         public ShaderSubProgram[] m_SubPrograms;
 
-        public ShaderProgram(BinaryReader reader, UnityVersion version)
+        public ShaderProgram(EndianBinaryReader reader, UnityVersion version)
         {
             var subProgramsCapacity = reader.ReadInt32();
             entries = new ShaderSubProgramEntry[subProgramsCapacity];
@@ -899,7 +899,7 @@ namespace AssetStudio
             m_SubPrograms = new ShaderSubProgram[subProgramsCapacity];
         }
 
-        public void Read(BinaryReader reader, int segment)
+        public void Read(EndianBinaryReader reader, int segment)
         {
             for (int i = 0; i < entries.Length; i++)
             {
@@ -932,7 +932,7 @@ namespace AssetStudio
         public string[] m_LocalKeywords;
         public byte[] m_ProgramCode;
 
-        public ShaderSubProgram(BinaryReader reader)
+        public ShaderSubProgram(EndianBinaryReader reader)
         {
             //LoadGpuProgramFromData
             //201509030 - Unity 5.3
@@ -1043,7 +1043,7 @@ namespace AssetStudio
                         }
                     case ShaderGpuProgramType.MetalVS:
                     case ShaderGpuProgramType.MetalFS:
-                        using (var reader = new BinaryReader(new MemoryStream(m_ProgramCode)))
+                        using (var reader = new EndianBinaryReader(new MemoryStream(m_ProgramCode), EndianType.LittleEndian))
                         {
                             var fourCC = reader.ReadUInt32();
                             if (fourCC == 0xf00dcafe)

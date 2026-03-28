@@ -316,7 +316,10 @@ namespace AssetStudio
             attribute = reader.ReadAlignedString();
             path = reader.ReadAlignedString();
             classID = (ClassIDType)reader.ReadInt32();
-            script = new PPtr<MonoScript>(reader);
+            if (reader.version >= 2)
+            {
+                script = new PPtr<MonoScript>(reader);
+            }
             if (reader.version >= (2022, 2)) //2022.2 and up
             {
                 flags = reader.ReadInt32();
@@ -528,7 +531,7 @@ namespace AssetStudio
 
             public StreamedCurveKey() { }
 
-            public StreamedCurveKey(BinaryReader reader)
+            public StreamedCurveKey(EndianBinaryReader reader)
             {
                 index = reader.ReadInt32();
                 coeff = reader.ReadSingleArray(4);
@@ -561,7 +564,7 @@ namespace AssetStudio
 
             public StreamedFrame() { }
 
-            public StreamedFrame(BinaryReader reader)
+            public StreamedFrame(EndianBinaryReader reader)
             {
                 time = reader.ReadSingle();
 
@@ -579,7 +582,7 @@ namespace AssetStudio
             var frameList = new List<StreamedFrame>();
             var buffer = new byte[data.Length * 4];
             Buffer.BlockCopy(data, 0, buffer, 0, buffer.Length);
-            using (var reader = new BinaryReader(new MemoryStream(buffer)))
+            using (var reader = new EndianBinaryReader(new MemoryStream(buffer), EndianType.LittleEndian))
             {
                 while (reader.BaseStream.Position < reader.BaseStream.Length)
                 {
@@ -1146,6 +1149,22 @@ namespace AssetStudio
 
         public AnimationClip(ObjectReader reader) : base(reader)
         {
+            if (version < 2) //2.0 down
+            {
+                var numClassIDToTrack = reader.ReadInt32();
+                for (var i = 0; i < numClassIDToTrack; ++i)
+                {
+                    var first = reader.ReadInt32();
+                    var second = new PPtr<Object>(reader);
+                }
+                var numChildTracks = reader.ReadInt32();
+                for (var i = 0; i < numChildTracks; ++i)
+                {
+                    var path = reader.ReadAlignedString();
+                    var classId = reader.ReadInt32();
+                    var track = new PPtr<Object>(reader);
+                }
+            }
             if (version >= 5)//5.0 and up
             {
                 m_Legacy = reader.ReadBoolean();
@@ -1159,15 +1178,17 @@ namespace AssetStudio
             {
                 m_Legacy = true;
             }
+
             if (version >= (2, 6)) //2.6 and up
             {
                 m_Compressed = reader.ReadBoolean();
+                if (version >= (4, 3)) //4.3 and up
+                {
+                    m_UseHighQualityCurve = reader.ReadBoolean();
+                }
+                reader.AlignStream();
             }
-            if (version >= (4, 3))//4.3 and up
-            {
-                m_UseHighQualityCurve = reader.ReadBoolean();
-            }
-            reader.AlignStream();
+
             int numRCurves = reader.ReadInt32();
             m_RotationCurves = new List<QuaternionCurve>();
             for (var i = 0; i < numRCurves; i++)
@@ -1265,11 +1286,14 @@ namespace AssetStudio
                 var m_HasMotionFloatCurves = reader.ReadBoolean();
                 reader.AlignStream();
             }
-            int numEvents = reader.ReadInt32();
-            m_Events = new List<AnimationEvent>();
-            for (var i = 0; i < numEvents; i++)
+            if (version >= (2, 1)) //2.1 and up
             {
-                m_Events.Add(new AnimationEvent(reader));
+                int numEvents = reader.ReadInt32();
+                m_Events = new List<AnimationEvent>();
+                for (var i = 0; i < numEvents; i++)
+                {
+                    m_Events.Add(new AnimationEvent(reader));
+                }
             }
             if (version >= 2017) //2017 and up
             {

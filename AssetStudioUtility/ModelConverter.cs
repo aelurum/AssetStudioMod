@@ -37,9 +37,13 @@ namespace AssetStudio
                     CollectAnimationClip(m_GameObject.m_Animator);
                 }
             }
-            else
+            else if (m_GameObject.m_Transform != null)
             {
                 InitWithGameObject(m_GameObject);
+            }
+            else
+            {
+                throw new NotSupportedException("Unable to export model from this object");
             }
             if (animationList != null && animationList.Count > 0)
             {
@@ -656,7 +660,7 @@ namespace AssetStudio
                     return iMat;
                 }
                 iMat = new ImportedMaterial();
-                iMat.Name = mat.m_Name;
+                iMat.Name = mat.m_Name ?? $"material {mat.m_PathID}";
                 //default values
                 iMat.Diffuse = new Color(0.8f, 0.8f, 0.8f, 1);
                 iMat.Ambient = new Color(0.2f, 0.2f, 0.2f, 1);

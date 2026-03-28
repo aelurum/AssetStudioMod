@@ -406,7 +406,7 @@
             this.specifyUnityVersionTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.specifyUnityVersionTextBox.Name = "specifyUnityVersionTextBox";
             this.specifyUnityVersionTextBox.Size = new System.Drawing.Size(100, 23);
-            this.specifyUnityVersionTextBox.ToolTipText = "Specify full Unity version, including letters at the end\r\nExample: 2017.4.39f1";
+            this.specifyUnityVersionTextBox.ToolTipText = "Specify full Unity version, including letters at the end\r\nExample: 2022.3.2f1";
             // 
             // bundleDecompressionToolStripMenuItem
             // 

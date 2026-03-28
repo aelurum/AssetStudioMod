@@ -14,7 +14,7 @@ namespace AssetStudio
         {
             m_LocalRotation = reader.ReadQuaternion();
             m_LocalPosition = reader.ReadVector3();
-            m_LocalScale = reader.ReadVector3();
+            m_LocalScale = version >= (1, 5) ? reader.ReadVector3() : new Vector3(1, 1, 1); //?
 
             int m_ChildrenCount = reader.ReadInt32();
             m_Children = new List<PPtr<Transform>>();

@@ -33,13 +33,10 @@
             this.cachePathSelectButton = new System.Windows.Forms.Button();
             this.cachePathResetButton = new System.Windows.Forms.Button();
             this.unityVersionGroupBox = new System.Windows.Forms.GroupBox();
+            this.legacyUnityVersionComboBox = new System.Windows.Forms.ComboBox();
+            this.legacyUnityVersionLabel = new System.Windows.Forms.Label();
             this.customUnityVersionTextBox = new System.Windows.Forms.TextBox();
             this.customUnityVersionLabel = new System.Windows.Forms.Label();
-            this.unityVerDetectionModePanel = new System.Windows.Forms.Panel();
-            this.unityVerAutoRadioButton = new System.Windows.Forms.RadioButton();
-            this.unityVerLegacy2RadioButton = new System.Windows.Forms.RadioButton();
-            this.unityVerLegacyRadioButton = new System.Windows.Forms.RadioButton();
-            this.unityVerDetectionModeLabel = new System.Windows.Forms.Label();
             this.decompressionGroupBox = new System.Windows.Forms.GroupBox();
             this.customBlockCompressionComboBox = new System.Windows.Forms.ComboBox();
             this.customBlockCompressionLabel = new System.Windows.Forms.Label();
@@ -56,7 +53,6 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.cacheGroupBox = new System.Windows.Forms.GroupBox();
             this.unityVersionGroupBox.SuspendLayout();
-            this.unityVerDetectionModePanel.SuspendLayout();
             this.decompressionGroupBox.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -95,17 +91,44 @@
             // 
             // unityVersionGroupBox
             // 
+            this.unityVersionGroupBox.Controls.Add(this.legacyUnityVersionComboBox);
+            this.unityVersionGroupBox.Controls.Add(this.legacyUnityVersionLabel);
             this.unityVersionGroupBox.Controls.Add(this.customUnityVersionTextBox);
             this.unityVersionGroupBox.Controls.Add(this.customUnityVersionLabel);
-            this.unityVersionGroupBox.Controls.Add(this.unityVerDetectionModePanel);
-            this.unityVersionGroupBox.Controls.Add(this.unityVerDetectionModeLabel);
             this.unityVersionGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.unityVersionGroupBox.Location = new System.Drawing.Point(3, 3);
             this.unityVersionGroupBox.Name = "unityVersionGroupBox";
-            this.unityVersionGroupBox.Size = new System.Drawing.Size(357, 126);
+            this.unityVersionGroupBox.Size = new System.Drawing.Size(357, 99);
             this.unityVersionGroupBox.TabIndex = 0;
             this.unityVersionGroupBox.TabStop = false;
             this.unityVersionGroupBox.Text = "Unity version";
+            // 
+            // legacyUnityVersionComboBox
+            // 
+            this.legacyUnityVersionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.legacyUnityVersionComboBox.FormattingEnabled = true;
+            this.legacyUnityVersionComboBox.Items.AddRange(new object[] {
+            "None",
+            "1.2 mac",
+            "1.5 - 1.6 mac",
+            "2.0 mac",
+            "2.1 mac / 1.7 iphone",
+            "2.5",
+            "2.6"});
+            this.legacyUnityVersionComboBox.Location = new System.Drawing.Point(205, 49);
+            this.legacyUnityVersionComboBox.Name = "legacyUnityVersionComboBox";
+            this.legacyUnityVersionComboBox.Size = new System.Drawing.Size(146, 23);
+            this.legacyUnityVersionComboBox.TabIndex = 3;
+            this.legacyUnityVersionComboBox.SelectionChangeCommitted += new System.EventHandler(this.legacyUnityVersionComboBox_SelectionChangeCommitted);
+            // 
+            // legacyUnityVersionLabel
+            // 
+            this.legacyUnityVersionLabel.AutoSize = true;
+            this.legacyUnityVersionLabel.Location = new System.Drawing.Point(6, 52);
+            this.legacyUnityVersionLabel.Name = "legacyUnityVersionLabel";
+            this.legacyUnityVersionLabel.Size = new System.Drawing.Size(193, 15);
+            this.legacyUnityVersionLabel.TabIndex = 2;
+            this.legacyUnityVersionLabel.Text = "Custom legacy Unity version (WIP):";
             // 
             // customUnityVersionTextBox
             // 
@@ -113,7 +136,9 @@
             this.customUnityVersionTextBox.Name = "customUnityVersionTextBox";
             this.customUnityVersionTextBox.Size = new System.Drawing.Size(121, 23);
             this.customUnityVersionTextBox.TabIndex = 1;
-            this.toolTip1.SetToolTip(this.customUnityVersionTextBox, "Specify full Unity version, including letters at the end\r\nExample: 2017.4.39f1\r\n");
+            this.toolTip1.SetToolTip(this.customUnityVersionTextBox, "Specify full Unity version, including letters at the end\r\nExample: 2022.3.2f1");
+            this.customUnityVersionTextBox.Enter += new System.EventHandler(this.customUnityVersionTextBox_Enter);
+            this.customUnityVersionTextBox.Leave += new System.EventHandler(this.customUnityVersionTextBox_Leave);
             // 
             // customUnityVersionLabel
             // 
@@ -123,70 +148,7 @@
             this.customUnityVersionLabel.Size = new System.Drawing.Size(124, 15);
             this.customUnityVersionLabel.TabIndex = 0;
             this.customUnityVersionLabel.Text = "Custom Unity version:";
-            this.toolTip1.SetToolTip(this.customUnityVersionLabel, "Specify full Unity version, including letters at the end\r\nExample: 2017.4.39f1\r\n");
-            // 
-            // unityVerDetectionModePanel
-            // 
-            this.unityVerDetectionModePanel.Controls.Add(this.unityVerAutoRadioButton);
-            this.unityVerDetectionModePanel.Controls.Add(this.unityVerLegacy2RadioButton);
-            this.unityVerDetectionModePanel.Controls.Add(this.unityVerLegacyRadioButton);
-            this.unityVerDetectionModePanel.Location = new System.Drawing.Point(35, 75);
-            this.unityVerDetectionModePanel.Name = "unityVerDetectionModePanel";
-            this.unityVerDetectionModePanel.Size = new System.Drawing.Size(289, 34);
-            this.unityVerDetectionModePanel.TabIndex = 3;
-            // 
-            // unityVerAutoRadioButton
-            // 
-            this.unityVerAutoRadioButton.AutoSize = true;
-            this.unityVerAutoRadioButton.Dock = System.Windows.Forms.DockStyle.Left;
-            this.unityVerAutoRadioButton.Location = new System.Drawing.Point(152, 0);
-            this.unityVerAutoRadioButton.Name = "unityVerAutoRadioButton";
-            this.unityVerAutoRadioButton.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
-            this.unityVerAutoRadioButton.Size = new System.Drawing.Size(103, 34);
-            this.unityVerAutoRadioButton.TabIndex = 2;
-            this.unityVerAutoRadioButton.TabStop = true;
-            this.unityVerAutoRadioButton.Text = "Auto/Custom";
-            this.unityVerAutoRadioButton.UseVisualStyleBackColor = true;
-            // 
-            // unityVerLegacy2RadioButton
-            // 
-            this.unityVerLegacy2RadioButton.AutoSize = true;
-            this.unityVerLegacy2RadioButton.Dock = System.Windows.Forms.DockStyle.Left;
-            this.unityVerLegacy2RadioButton.Enabled = false;
-            this.unityVerLegacy2RadioButton.Location = new System.Drawing.Point(76, 0);
-            this.unityVerLegacy2RadioButton.Name = "unityVerLegacy2RadioButton";
-            this.unityVerLegacy2RadioButton.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
-            this.unityVerLegacy2RadioButton.Size = new System.Drawing.Size(76, 34);
-            this.unityVerLegacy2RadioButton.TabIndex = 1;
-            this.unityVerLegacy2RadioButton.TabStop = true;
-            this.unityVerLegacy2RadioButton.Text = "Legacy 2";
-            this.toolTip1.SetToolTip(this.unityVerLegacy2RadioButton, "WIP");
-            this.unityVerLegacy2RadioButton.UseVisualStyleBackColor = true;
-            // 
-            // unityVerLegacyRadioButton
-            // 
-            this.unityVerLegacyRadioButton.AutoSize = true;
-            this.unityVerLegacyRadioButton.Dock = System.Windows.Forms.DockStyle.Left;
-            this.unityVerLegacyRadioButton.Enabled = false;
-            this.unityVerLegacyRadioButton.Location = new System.Drawing.Point(0, 0);
-            this.unityVerLegacyRadioButton.Name = "unityVerLegacyRadioButton";
-            this.unityVerLegacyRadioButton.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
-            this.unityVerLegacyRadioButton.Size = new System.Drawing.Size(76, 34);
-            this.unityVerLegacyRadioButton.TabIndex = 0;
-            this.unityVerLegacyRadioButton.TabStop = true;
-            this.unityVerLegacyRadioButton.Text = "Legacy 1";
-            this.toolTip1.SetToolTip(this.unityVerLegacyRadioButton, "WIP");
-            this.unityVerLegacyRadioButton.UseVisualStyleBackColor = true;
-            // 
-            // unityVerDetectionModeLabel
-            // 
-            this.unityVerDetectionModeLabel.AutoSize = true;
-            this.unityVerDetectionModeLabel.Location = new System.Drawing.Point(6, 57);
-            this.unityVerDetectionModeLabel.Name = "unityVerDetectionModeLabel";
-            this.unityVerDetectionModeLabel.Size = new System.Drawing.Size(92, 15);
-            this.unityVerDetectionModeLabel.TabIndex = 2;
-            this.unityVerDetectionModeLabel.Text = "Detection mode";
-            this.toolTip1.SetToolTip(this.unityVerDetectionModeLabel, "WIP");
+            this.toolTip1.SetToolTip(this.customUnityVersionLabel, "Specify full Unity version, including letters at the end\r\nExample: 2022.3.2f1");
             // 
             // decompressionGroupBox
             // 
@@ -204,6 +166,7 @@
             // 
             // customBlockCompressionComboBox
             // 
+            this.customBlockCompressionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.customBlockCompressionComboBox.FormattingEnabled = true;
             this.customBlockCompressionComboBox.Items.AddRange(new object[] {
             "Auto",
@@ -228,6 +191,7 @@
             // 
             // customBlockInfoCompressionComboBox
             // 
+            this.customBlockInfoCompressionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.customBlockInfoCompressionComboBox.FormattingEnabled = true;
             this.customBlockInfoCompressionComboBox.Items.AddRange(new object[] {
             "Auto",
@@ -385,8 +349,6 @@
             this.Text = "Import options";
             this.unityVersionGroupBox.ResumeLayout(false);
             this.unityVersionGroupBox.PerformLayout();
-            this.unityVerDetectionModePanel.ResumeLayout(false);
-            this.unityVerDetectionModePanel.PerformLayout();
             this.decompressionGroupBox.ResumeLayout(false);
             this.decompressionGroupBox.PerformLayout();
             this.tabControl1.ResumeLayout(false);
@@ -419,14 +381,11 @@
         private System.Windows.Forms.Button saveToDiskButton;
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.Label cacheFreeSpaceLabel;
-        private System.Windows.Forms.Panel unityVerDetectionModePanel;
-        private System.Windows.Forms.RadioButton unityVerAutoRadioButton;
-        private System.Windows.Forms.RadioButton unityVerLegacy2RadioButton;
-        private System.Windows.Forms.RadioButton unityVerLegacyRadioButton;
-        private System.Windows.Forms.Label unityVerDetectionModeLabel;
+        private System.Windows.Forms.Label legacyUnityVersionLabel;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.GroupBox cacheGroupBox;
+        private System.Windows.Forms.ComboBox legacyUnityVersionComboBox;
     }
 }

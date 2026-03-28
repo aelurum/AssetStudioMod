@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace AssetStudio
+﻿namespace AssetStudio
 {
     public class StreamedResource
     {
@@ -8,7 +6,7 @@ namespace AssetStudio
         public long m_Offset; //ulong
         public long m_Size; //ulong
 
-        public StreamedResource(BinaryReader reader)
+        public StreamedResource(ObjectReader reader)
         {
             m_Source = reader.ReadAlignedString();
             m_Offset = reader.ReadInt64();
@@ -61,16 +59,9 @@ namespace AssetStudio
                 var m_sRGB = reader.ReadBoolean();
             }
 
-            ResourceReader resourceReader;
-            if (!string.IsNullOrEmpty(m_ExternalResources.m_Source))
-            {
-                resourceReader = new ResourceReader(m_ExternalResources.m_Source, assetsFile, m_ExternalResources.m_Offset, m_ExternalResources.m_Size);
-            }
-            else
-            {
-                resourceReader = new ResourceReader(reader, reader.BaseStream.Position, m_ExternalResources.m_Size);
-            }
-            m_VideoData = resourceReader;
+            m_VideoData = !string.IsNullOrEmpty(m_ExternalResources.m_Source)
+                ? new ResourceReader(m_ExternalResources.m_Source, assetsFile, m_ExternalResources.m_Offset, m_ExternalResources.m_Size)
+                : new ResourceReader(reader, reader.BaseStream.Position, m_ExternalResources.m_Size);
         }
     }
 }

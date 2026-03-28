@@ -69,6 +69,21 @@ namespace AssetStudio
             {
                 reader.Endian = EndianType.LittleEndian;
             }
+            switch (header.m_Version) //default unity versions
+            {
+                case SerializedFileFormatVersion.Unsupported:
+                    throw new NotSupportedException();
+                case SerializedFileFormatVersion.Unknown_2:
+                case SerializedFileFormatVersion.Unknown_3:
+                    version = new UnityVersion(1, 0); //probably not supported as well
+                    break;
+                case SerializedFileFormatVersion.Unknown_5: //1.2 - 2.1 down
+                    version = new UnityVersion(1, 6);
+                    break;
+                case SerializedFileFormatVersion.Unknown_6: //2.1 - 3.0 down
+                    version = new UnityVersion(2, 5);
+                    break;
+            }
             if (header.m_Version >= SerializedFileFormatVersion.Unknown_7)
             {
                 var versionPos = reader.Position;
@@ -86,10 +101,6 @@ namespace AssetStudio
                     reader.Position = versionPos;
                     reader.ReadBytes(version.ToString().Length + 1);
                 }
-            }
-            else
-            {
-                version = new UnityVersion(2, 5, 0);
             }
             if (header.m_Version >= SerializedFileFormatVersion.Unknown_8)
             {
@@ -236,6 +247,35 @@ namespace AssetStudio
                 userInformation = reader.ReadStringToNull();
             }
 
+            //try to set unity version from BuildSettings (unity 2.0 - 3.0 down)
+            if (header.m_Version <= SerializedFileFormatVersion.Unknown_6)
+            {
+                var buildSettingsAsset = m_Objects.FirstOrDefault(x => (ClassIDType)x.classID == ClassIDType.BuildSettings);
+                if (buildSettingsAsset == null)
+                    return;
+
+                var objReader = new ObjectReader(reader, this, buildSettingsAsset);
+                if (buildSettingsAsset.serializedType?.m_Type != null)
+                {
+                    var settings = new BuildSettings(objReader, TypeTreeHelper.ReadTypeByteArray(objReader.serializedType.m_Type, objReader), Object.JsonOptions);
+                    if (UnityVersion.TryParse(settings.m_Version, out var unityVer))
+                    {
+                        assetsManager.AutoLegacyVersion = unityVer.Major == 1 ? new UnityVersion(2, 1) : unityVer; //detected 1.x versions should mean unity-iphone
+                        Logger.Debug($"Detected legacy version: {unityVer}");
+                    }
+                }
+                else
+                {
+                    objReader.Position = objReader.byteStart + objReader.byteSize - 8;
+                    var buff = objReader.ReadBytes(8).AsSpan();
+                    if (UnityVersion.TryParse(buff.ReadStringToNull(), out var unityVer))
+                    {
+                        assetsManager.AutoLegacyVersion = unityVer.Major == 1 ? new UnityVersion(2, 1) : unityVer;
+                        Logger.Debug($"Detected legacy version: {unityVer}");
+                    }
+                }
+            }
+
             //reader.AlignStream(16);
         }
 
@@ -318,6 +358,15 @@ namespace AssetStudio
             m_Type.m_Nodes.Add(typeTreeNode);
             typeTreeNode.m_Level = level;
             typeTreeNode.m_Type = reader.ReadStringToNull();
+            if (header.m_Version <= SerializedFileFormatVersion.Unknown_6 && typeTreeNode.m_Type == "PPtr<EditorExtensionImpl>")
+            {
+                m_TargetPlatform = BuildTarget.NoTarget;
+                targetPlatformString = m_TargetPlatform.ToString();
+            }
+            if (header.m_Version == SerializedFileFormatVersion.Unknown_5 && (typeTreeNode.m_Type == "TransformComponent" || typeTreeNode.m_Type == "FileTexture"))
+            {
+                assetsManager.AutoLegacyVersion = assetsManager.AutoLegacyVersion ?? new UnityVersion(1, 2);
+            }
             typeTreeNode.m_Name = reader.ReadStringToNull();
             typeTreeNode.m_ByteSize = reader.ReadInt32();
             if (header.m_Version == SerializedFileFormatVersion.Unknown_2)

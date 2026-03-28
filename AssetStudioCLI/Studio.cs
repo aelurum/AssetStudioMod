@@ -365,19 +365,7 @@ namespace AssetStudioCLI
             }
 
             var log = $"Finished loading {assetsManager.AssetsFileList.Count} files with {parsedAssetsList.Count} exportable assets";
-            var unityVer = assetsManager.AssetsFileList[0].version;
-            long m_ObjectsCount;
-            if (unityVer > 2020)
-            {
-                m_ObjectsCount = assetsManager.AssetsFileList.Sum(x => x.m_Objects.LongCount(y =>
-                    y.classID != (int)ClassIDType.Shader
-                    && CLIOptions.o_exportAssetTypes.Value.Any(k => (int)k == y.classID))
-                );
-            }
-            else
-            {
-                m_ObjectsCount = assetsManager.AssetsFileList.Sum(x => x.m_Objects.LongCount(y => CLIOptions.o_exportAssetTypes.Value.Any(k => (int)k == y.classID)));
-            }
+            var m_ObjectsCount = assetsManager.AssetsFileList.Sum(x => x.m_Objects.LongCount(y => CLIOptions.o_exportAssetTypes.Value.Any(k => (int)k == y.classID)));
             var objectsCount = assetsManager.AssetsFileList.Sum(x => x.Objects.LongCount(y => CLIOptions.o_exportAssetTypes.Value.Any(k => k == y.type)));
             if (m_ObjectsCount != objectsCount)
             {
@@ -897,7 +885,8 @@ namespace AssetStudioCLI
                     var gameObjects = new List<GameObject>();
                     CollectNode(j, gameObjects);
 
-                    if (gameObjects.All(x => x.m_SkinnedMeshRenderer == null && x.m_MeshFilter == null))
+                    if ((j.gameObject.m_Transform == null && j.gameObject.m_Animator == null)
+                        || gameObjects.All(x => x.m_SkinnedMeshRenderer == null && x.m_MeshFilter == null))
                     {
                         Progress.Report(++k, count);
                         continue;

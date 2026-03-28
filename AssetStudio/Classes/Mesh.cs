@@ -7,12 +7,85 @@ using System.Runtime.InteropServices;
 
 namespace AssetStudio
 {
+    public class MeshData
+    {
+        public readonly List<uint> IndexBufferList;
+        public readonly bool IsTriangleStrip;
+
+        public MeshData(ObjectReader reader)
+        {
+            IndexBufferList = new List<uint>();
+
+            var facesCount = reader.ReadInt32();
+            for (var i = 0; i < facesCount; i++)
+            {
+                for (var j = 0; j < 3; j++) //Face data (Vector3)
+                {
+                    IndexBufferList.Add(reader.ReadUInt16());
+                }
+            }
+
+            var stripsCount = reader.ReadInt32();
+            for (var i = 0; i < stripsCount; i++)
+            {
+                IndexBufferList.Add(reader.ReadUInt16());
+            }
+
+            IsTriangleStrip = stripsCount > 0;
+        }
+    }
+
+    public class LOD
+    {
+        private readonly List<MeshData> m_MeshData;
+        private readonly int m_VertexCount;
+        public readonly List<uint> IndexBufferList;
+
+        public LOD(ObjectReader reader)
+        {
+            m_MeshData = new List<MeshData>();
+            IndexBufferList = new List<uint>();
+            var meshDataCount = reader.ReadInt32();
+            for (var i = 0; i < meshDataCount; i++)
+            {
+                var meshData = new MeshData(reader);
+                m_MeshData.Add(meshData);
+                IndexBufferList.AddRange(meshData.IndexBufferList);
+            }
+
+            if (reader.version < (1, 5))
+            {
+                m_VertexCount = reader.ReadInt32();
+                var m_NewVertexStart = reader.ReadInt32();
+                var m_MeshError = reader.ReadSingle();
+                var m_MorphToVertexCount = reader.ReadInt32();
+                reader.Position += m_MorphToVertexCount * 2; //skip UInt16[] m_MorphToVertex
+            }
+        }
+
+        public List<SubMesh> ConvertToSubMeshes()
+        {
+            var subMeshList = new List<SubMesh>(m_MeshData.Count);
+            foreach (var meshData in m_MeshData)
+            {
+                subMeshList.Add(new SubMesh
+                {
+                    firstByte = 0, //todo?
+                    indexCount = (uint)meshData.IndexBufferList.Count,
+                    topology = meshData.IsTriangleStrip ? GfxPrimitiveType.TriangleStrip : GfxPrimitiveType.Triangles,
+                    vertexCount = (uint)m_VertexCount,
+                });
+            }
+            return subMeshList;
+        }
+    }
+
     public class MinMaxAABB
     {
         public Vector3 m_Min;
         public Vector3 m_Max;
 
-        public MinMaxAABB(BinaryReader reader)
+        public MinMaxAABB(ObjectReader reader)
         {
             m_Min = reader.ReadVector3();
             m_Max = reader.ReadVector3();
@@ -415,6 +488,8 @@ namespace AssetStudio
         public uint vertexCount;
         public AABB localAABB;
 
+        public SubMesh() { }
+
         public SubMesh(ObjectReader reader)
         {
             var version = reader.version;
@@ -451,7 +526,7 @@ namespace AssetStudio
         public uint[] ChildStartIndex = new uint[8];
         public uint[] PageIndex_PageCount_PageBlockCount = new uint[8];
 
-        public VGPackedHierarchyNode(BinaryReader reader)
+        public VGPackedHierarchyNode(ObjectReader reader)
         {
             for (var i = 0; i < 8; i++)
             {
@@ -572,37 +647,63 @@ namespace AssetStudio
 
         public Mesh(ObjectReader reader) : base(reader)
         {
-            if (version < (3, 5)) //3.5 down
+            if (version < 2) //2.0 down
             {
-                m_Use16BitIndices = reader.ReadInt32() > 0;
-            }
-
-            if (version <= (2, 5)) //2.5 and down
-            {
-                int m_IndexBufferSize = reader.ReadInt32();
-
-                if (m_Use16BitIndices)
+                LOD lod0 = null;
+                var m_LODDataCount = reader.ReadInt32();
+                for (var i = 0; i < m_LODDataCount; i++)
                 {
-                    var indexBufferList = new List<uint>();
-                    for (var i = 0; i < m_IndexBufferSize / 2; i++)
+                    if (i == 0)
+                        lod0 = new LOD(reader);
+                    else
+                        _ = new LOD(reader);
+                }
+                if (lod0 == null)
+                {
+                    Logger.Warning("Can't find lod0 mesh data");
+                    return;
+                }
+
+                m_IndexBuffer = lod0.IndexBufferList.ToArray();
+                m_SubMeshes = lod0.ConvertToSubMeshes();
+            }
+            else //2.0 and up
+            {
+                if (version < (3, 5)) //2.0 - 3.5 down
+                {
+                    m_Use16BitIndices = reader.ReadInt32() > 0;
+                }
+
+                if (version <= (2, 5)) //2.0 - 2.5 down
+                {
+                    int m_IndexBufferSize = reader.ReadInt32();
+
+                    if (m_Use16BitIndices)
                     {
-                        indexBufferList.Add(reader.ReadUInt16());
+                        var indexBufferList = new List<uint>();
+                        for (var i = 0; i < m_IndexBufferSize / 2; i++)
+                        {
+                            indexBufferList.Add(reader.ReadUInt16());
+                        }
+                        if (version >= (2, 1))
+                        {
+                            reader.AlignStream();
+                        }
+                        m_IndexBuffer = indexBufferList.ToArray();
                     }
-
-                    reader.AlignStream();
-                    m_IndexBuffer = indexBufferList.ToArray();
+                    else
+                    {
+                        m_IndexBuffer = reader.ReadUInt32Array(m_IndexBufferSize / 4);
+                    }
                 }
-                else
+
+                int m_SubMeshesSize = reader.ReadInt32();
+                reader.ThrowIfTooLarge(m_SubMeshesSize * 12f);
+                m_SubMeshes = new List<SubMesh>();
+                for (var i = 0; i < m_SubMeshesSize; i++)
                 {
-                    m_IndexBuffer = reader.ReadUInt32Array(m_IndexBufferSize / 4);
+                    m_SubMeshes.Add(new SubMesh(reader));
                 }
-            }
-
-            int m_SubMeshesSize = reader.ReadInt32();
-            m_SubMeshes = new List<SubMesh>();
-            for (var i = 0; i < m_SubMeshesSize; i++)
-            {
-                m_SubMeshes.Add(new SubMesh(reader));
             }
 
             if (version >= (4, 1)) //4.1 and up
@@ -693,21 +794,30 @@ namespace AssetStudio
                 m_VertexCount = reader.ReadInt32();
                 m_Vertices = reader.ReadSingleArray(m_VertexCount * 3); //Vector3
 
-                var numSkin = reader.ReadInt32();
-                reader.ThrowIfTooLarge(numSkin * 32f);
-                m_Skin = new BoneWeights4[numSkin];
-                for (var s = 0; s < numSkin; s++)
+                if (version >= (1, 5)) //1.5 - 3.5 down
                 {
-                    m_Skin[s] = new BoneWeights4(reader);
-                }
+                    var numSkin = reader.ReadInt32();
+                    reader.ThrowIfTooLarge(numSkin * 32f);
+                    m_Skin = new BoneWeights4[numSkin];
+                    for (var s = 0; s < numSkin; s++)
+                    {
+                        m_Skin[s] = new BoneWeights4(reader);
+                    }
 
-                m_BindPose = reader.ReadMatrixArray();
+                    if (version >= (2, 1)) //2.1 - 3.5 down
+                    {
+                        m_BindPose = reader.ReadMatrixArray();
+                    }
+                }
 
                 m_UV0 = reader.ReadSingleArray(reader.ReadInt32() * 2); //Vector2
 
-                m_UV1 = reader.ReadSingleArray(reader.ReadInt32() * 2); //Vector2
+                if (version >= (1, 5)) //1.5 - 3.5 down
+                {
+                    m_UV1 = reader.ReadSingleArray(reader.ReadInt32() * 2); //Vector2
+                }
 
-                if (version <= (2, 5)) //2.5 and down
+                if (version < (2, 6)) //2.6 down
                 {
                     int m_TangentSpaceSize = reader.ReadInt32();
                     reader.ThrowIfTooLarge(m_TangentSpaceSize * 28f);
@@ -727,7 +837,6 @@ namespace AssetStudio
                 else //2.6.0 and later
                 {
                     m_Tangents = reader.ReadSingleArray(reader.ReadInt32() * 4); //Vector4
-
                     m_Normals = reader.ReadSingleArray(reader.ReadInt32() * 3); //Vector3
                 }
             }
@@ -769,12 +878,18 @@ namespace AssetStudio
                 }
                 m_Colors = m_ColorsList.ToArray();
 
-                int m_CollisionTrianglesSize = reader.ReadInt32();
-                reader.Position += m_CollisionTrianglesSize * 4; //UInt32 indices
-                int m_CollisionVertexCount = reader.ReadInt32();
+                if (version >= (1, 5)) //1.5 - 3.5 down
+                {
+                    int m_CollisionTrianglesSize = reader.ReadInt32();
+                    reader.Position += m_CollisionTrianglesSize * 4; //UInt32 indices
+                    int m_CollisionVertexCount = reader.ReadInt32();
+                }
             }
 
-            int m_MeshUsageFlags = reader.ReadInt32();
+            if (version >= (2, 5)) //2.5 and up
+            {
+                int m_MeshUsageFlags = reader.ReadInt32();
+            }
 
             if (version >= (2022, 1)) //2022.1 and up
             {
@@ -823,41 +938,48 @@ namespace AssetStudio
                 return;
 
             var isStreamedDataSize = false;
-            if (!string.IsNullOrEmpty(m_StreamData?.path))
+            try
             {
-                if (m_VertexData.m_VertexCount > 0)
+                if (!string.IsNullOrEmpty(m_StreamData?.path))
                 {
-                    m_VertexData.m_DataSize = BigArrayPool<byte>.Shared.Rent((int)m_StreamData.size);
-                    var resourceReader = new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size);
-                    resourceReader.GetData(m_VertexData.m_DataSize);
-                    isStreamedDataSize = true;
+                    if (m_VertexData.m_VertexCount > 0)
+                    {
+                        m_VertexData.m_DataSize = BigArrayPool<byte>.Shared.Rent((int) m_StreamData.size);
+                        var resourceReader = new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size);
+                        resourceReader.GetData(m_VertexData.m_DataSize);
+                        isStreamedDataSize = true;
+                    }
                 }
-            }
-            if (version >= (3, 5)) //3.5 and up
-            {
-                ReadVertexData();
-            }
 
-            if (version >= (2, 6)) //2.6.0 and later
-            {
-                DecompressCompressedMesh();
-            }
+                if (version >= (3, 5)) //3.5 and up
+                {
+                    ReadVertexData();
+                }
 
-            if (m_IndexBuffer.Length == 0)
-            {
-                var msg = m_HasVirtualGeometryMesh
-                    ? "Unsupported mesh type: Virtual Geometry"
-                    : "Cannot process empty mesh";
-                Logger.Warning($"{msg} | PathID: {m_PathID} | Name: \"{m_Name}\"");
-            }
-            else
-            {
-                GetTriangles();
-            }
+                if (version >= (2, 6)) //2.6.0 and later
+                {
+                    DecompressCompressedMesh();
+                }
 
-            isLoaded = true;
-            if (isStreamedDataSize)
-                BigArrayPool<byte>.Shared.Return(m_VertexData.m_DataSize, clearArray: true);
+                if (m_IndexBuffer?.Length == 0)
+                {
+                    var msg = m_HasVirtualGeometryMesh
+                        ? "Unsupported mesh type: Virtual Geometry"
+                        : "Cannot process empty mesh";
+                    Logger.Warning($"{msg} | PathID: {m_PathID} | Name: \"{m_Name}\"");
+                }
+                else
+                {
+                    GetTriangles();
+                }
+
+                isLoaded = true;
+            }
+            finally
+            {
+                if (isStreamedDataSize)
+                    BigArrayPool<byte>.Shared.Return(m_VertexData.m_DataSize, clearArray: true);
+            }
         }
 
         private void ReadVertexData()

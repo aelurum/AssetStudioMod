@@ -44,9 +44,9 @@ namespace AssetStudio.FbxInterop
         {
             IsDisposed = true;
 
-            _frameToNode.Clear();
-            _createdMaterials.Clear();
-            _createdTextures.Clear();
+            _frameToNode?.Clear();
+            _createdMaterials?.Clear();
+            _createdTextures?.Clear();
 
             AsFbxDisposeContext(ref _pContext);
         }

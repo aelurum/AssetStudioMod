@@ -1,4 +1,5 @@
 ﻿using AssetStudio;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -76,12 +77,15 @@ namespace AssetStudioGUI
 
         private static bool ExportShader(AssetItem item, string exportPath)
         {
-            if (!TryExportFile(exportPath, item, ".shader", out var exportFullPath))
-                return false;
-            var m_Shader = (Shader)item.Asset;
-            var str = m_Shader.Convert();
-            File.WriteAllText(exportFullPath, str);
-            return true;
+            if (item.Asset is Shader m_Shader)
+            {
+                if (!TryExportFile(exportPath, item, ".shader", out var exportFullPath))
+                    return false;
+                var str = m_Shader.Convert();
+                File.WriteAllText(exportFullPath, str);
+                return true;
+            }
+            return false;
         }
 
         private static bool ExportTextAsset(AssetItem item, string exportPath)
@@ -127,11 +131,10 @@ namespace AssetStudioGUI
 
         private static bool ExportFont(AssetItem item, string exportPath)
         {
-            var m_Font = (Font)item.Asset;
-            if (m_Font.m_FontData != null)
+            if (item.Asset is Font m_Font && m_Font.m_FontData != null)
             {
                 var extension = ".ttf";
-                if (m_Font.m_FontData[0] == 79 && m_Font.m_FontData[1] == 84 && m_Font.m_FontData[2] == 84 && m_Font.m_FontData[3] == 79)
+                if (BinaryPrimitives.ReadInt32LittleEndian(m_Font.m_FontData) == 0x4F54544F) //"OTTO"
                 {
                     extension = ".otf";
                 }

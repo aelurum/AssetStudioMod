@@ -41,6 +41,7 @@
         /// </summary>
         DXT1,
         /// <summary>
+        /// Compressed color with alpha channel texture format.
         /// </summary>
         DXT3,
         /// <summary>

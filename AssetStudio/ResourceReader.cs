@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text.Json.Serialization;
 
 namespace AssetStudio
 {
@@ -16,6 +17,8 @@ namespace AssetStudio
             set => size = value;
         }
         public long Offset { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public EndianType Endian { get; }
 
         public ResourceReader() { }
 
@@ -26,13 +29,15 @@ namespace AssetStudio
             this.assetsFile = assetsFile;
             this.Offset = offset;
             this.size = size;
+            this.Endian = assetsFile.reader.Endian;
         }
 
-        public ResourceReader(BinaryReader reader, long offset, long size)
+        public ResourceReader(EndianBinaryReader reader, long offset, long size)
         {
             this.reader = reader;
             this.Offset = offset;
             this.size = size;
+            this.Endian = reader.Endian;
         }
 
         private BinaryReader GetReader()

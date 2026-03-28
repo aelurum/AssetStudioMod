@@ -26,15 +26,22 @@
             {
                 var m_PathName = reader.ReadAlignedString();
             }
+            
             m_ClassName = reader.ReadAlignedString();
+
             if (version >= 3) //3.0 and up
             {
                 m_Namespace = reader.ReadAlignedString();
             }
-            m_AssemblyName = reader.ReadAlignedString();
-            if (version < (2018, 2)) //2018.2 down
+
+            if (version >= (1, 5)) //1.5 and up
             {
-                var m_IsEditorScript = reader.ReadBoolean();
+                m_AssemblyName = reader.ReadAlignedString();
+
+                if (version < (2018, 2)) //2018.2 down
+                {
+                    var m_IsEditorScript = reader.ReadBoolean();
+                }
             }
         }
     }

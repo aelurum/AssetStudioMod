@@ -787,7 +787,8 @@ namespace AssetStudioGUI
                         var gameObjects = new List<GameObject>();
                         CollectNode(j, gameObjects);
                         //跳过一些不需要导出的object
-                        if (gameObjects.All(x => x.m_SkinnedMeshRenderer == null && x.m_MeshFilter == null))
+                        if ((j.gameObject.m_Transform == null && j.gameObject.m_Animator == null)
+                            || gameObjects.All(x => x.m_SkinnedMeshRenderer == null && x.m_MeshFilter == null))
                         {
                             Progress.Report(++k, count);
                             continue;

@@ -6,9 +6,9 @@ using System.Text;
 
 namespace AssetStudio
 {
-    public static class BinaryReaderExtensions
+    public static class EndianBinaryReaderExtensions
     {
-        public static void AlignStream(this BinaryReader reader, int alignment = 4)
+        public static void AlignStream(this EndianBinaryReader reader, int alignment = 4)
         {
             var pos = reader.BaseStream.Position;
             var mod = pos % alignment;
@@ -18,7 +18,7 @@ namespace AssetStudio
             }
         }
 
-        public static string ReadAlignedString(this BinaryReader reader)
+        public static string ReadAlignedString(this EndianBinaryReader reader, bool needAlign = true)
         {
             var length = reader.ReadInt32();
             if (length > reader.BaseStream.Length - reader.BaseStream.Position)
@@ -27,13 +27,14 @@ namespace AssetStudio
             {
                 var stringData = reader.ReadBytes(length);
                 var result = Encoding.UTF8.GetString(stringData);
-                reader.AlignStream();
+                if (needAlign)
+                    reader.AlignStream();
                 return result;
             }
             return "";
         }
 
-        public static string ReadStringToNull(this BinaryReader reader, int maxLength = 32767, Encoding encoding = null)
+        public static string ReadStringToNull(this EndianBinaryReader reader, int maxLength = 32767, Encoding encoding = null)
         {
             if (encoding?.CodePage == 1200) //Unicode (UTF-16LE)
                 return reader.ReadUnicodeStringToNull(maxLength * 2);
@@ -58,7 +59,7 @@ namespace AssetStudio
 #endif
         }
 
-        private static string ReadUnicodeStringToNull(this BinaryReader reader, int maxLength)
+        private static string ReadUnicodeStringToNull(this EndianBinaryReader reader, int maxLength)
         {
             var bytes = new List<byte>();
             var count = 0;
@@ -75,7 +76,7 @@ namespace AssetStudio
             return Encoding.Unicode.GetString(bytes.ToArray());
         }
 
-        public static string ReadBytesAsHexString(this BinaryReader reader, int length)
+        public static string ReadBytesAsHexString(this EndianBinaryReader reader, int length)
         {
 #if NETFRAMEWORK
             var bytes = reader.ReadBytes(length);
@@ -87,74 +88,87 @@ namespace AssetStudio
 #endif
         }
 
-        public static Quaternion ReadQuaternion(this BinaryReader reader)
+        public static Quaternion ReadQuaternion(this EndianBinaryReader reader)
         {
             return new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         }
 
-        public static Vector2 ReadVector2(this BinaryReader reader)
+        public static Vector2 ReadVector2(this EndianBinaryReader reader)
         {
             return new Vector2(reader.ReadSingle(), reader.ReadSingle());
         }
 
-        public static Vector3 ReadVector3(this BinaryReader reader)
+        public static Vector3 ReadVector3(this EndianBinaryReader reader)
         {
             return new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         }
 
-        public static Vector4 ReadVector4(this BinaryReader reader)
+        public static Vector4 ReadVector4(this EndianBinaryReader reader)
         {
             return new Vector4(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         }
 
-        public static Color ReadColor4(this BinaryReader reader)
+        public static Color ReadColor4(this EndianBinaryReader reader)
         {
             return new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         }
 
-        private static T[] ReadArray<T>(BinaryReader reader, int byteLen) where T : struct
+        private static T[] ReadArray<T>(EndianBinaryReader reader, int byteLen) where T : struct
         {
             if (byteLen < 0)
                 throw new ArgumentOutOfRangeException(nameof(byteLen));
             if (reader.BaseStream.Position + byteLen > reader.BaseStream.Length)
                 throw new EndOfStreamException();
-            
+
             var bytes = reader.ReadBytes(byteLen);
+
+            var isBigEndian = reader.Endian == EndianType.BigEndian;
+            if ((isBigEndian && BitConverter.IsLittleEndian) || (!isBigEndian && !BitConverter.IsLittleEndian))
+            {
+                var elementSize = Marshal.SizeOf<T>();
+                if (elementSize > 1)
+                {
+                    for (var i = 0; i < bytes.Length; i += elementSize)
+                    {
+                        bytes.AsSpan(i, elementSize).Reverse();
+                    }
+                }
+            }
 
             var span = MemoryMarshal.Cast<byte, T>(bytes);
             return span.ToArray();
         }
 
-        public static bool[] ReadBooleanArray(this BinaryReader reader)
+        public static bool[] ReadBooleanArray(this EndianBinaryReader reader)
         {
             return ReadArray<bool>(reader, reader.ReadInt32());
         }
 
-        public static byte[] ReadUInt8Array(this BinaryReader reader)
+        public static byte[] ReadUInt8Array(this EndianBinaryReader reader)
         {
             return reader.ReadBytes(reader.ReadInt32());
         }
 
-        public static ushort[] ReadUInt16Array(this BinaryReader reader)
+        public static ushort[] ReadUInt16Array(this EndianBinaryReader reader)
         {
             return ReadArray<ushort>(reader, reader.ReadInt32() * 2);
         }
 
-        public static int[] ReadInt32Array(this BinaryReader reader, int length = -1)
+        public static int[] ReadInt32Array(this EndianBinaryReader reader, int length = -1)
         {
             if (length == -1)
                 length = reader.ReadInt32();
             return ReadArray<int>(reader, length * 4);
         }
 
-        public static uint[] ReadUInt32Array(this BinaryReader reader, int length = -1)
+        public static uint[] ReadUInt32Array(this EndianBinaryReader reader, int length = -1)
         {
             if (length == -1)
                 length = reader.ReadInt32();
             return ReadArray<uint>(reader, length * 4);
         }
 
-        public static uint[][] ReadUInt32ArrayArray(this BinaryReader reader)
+        public static uint[][] ReadUInt32ArrayArray(this EndianBinaryReader reader)
         {
             var length = reader.ReadInt32();
             var list = new List<uint[]>();
@@ -165,35 +179,24 @@ namespace AssetStudio
             return list.ToArray();
         }
 
-        public static float[] ReadSingleArray(this BinaryReader reader, int length = -1)
+        public static float[] ReadSingleArray(this EndianBinaryReader reader, int length = -1)
         {
             if (length == -1)
                 length = reader.ReadInt32();
             return ReadArray<float>(reader, length * 4);
         }
 
-        public static string[] ReadStringArray(this BinaryReader reader)
-        {
-            var length = reader.ReadInt32();
-            var list = new List<string>();
-            for (var i = 0; i < length; i++)
-            {
-                list.Add(reader.ReadAlignedString());
-            }
-            return list.ToArray();
-        }
-
-        public static Vector2[] ReadVector2Array(this BinaryReader reader)
+        public static Vector2[] ReadVector2Array(this EndianBinaryReader reader)
         {
             return ReadArray<Vector2>(reader, reader.ReadInt32() * 8);
         }
 
-        public static Vector4[] ReadVector4Array(this BinaryReader reader)
+        public static Vector4[] ReadVector4Array(this EndianBinaryReader reader)
         {
             return ReadArray<Vector4>(reader, reader.ReadInt32() * 16);
         }
 
-        public static Matrix4x4[] ReadMatrixArray(this BinaryReader reader)
+        public static Matrix4x4[] ReadMatrixArray(this EndianBinaryReader reader)
         {
             return ReadArray<Matrix4x4>(reader, reader.ReadInt32() * 64);
         }

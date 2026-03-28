@@ -30,7 +30,7 @@ namespace AssetStudio
             m_Width = m_Texture2D.m_Width;
             m_Height = m_Texture2D.m_Height;
             texDataSize = m_Texture2D.image_data.Size;
-            if (texDataSize == 0 || m_Width == 0 || m_Height == 0)
+            if (texDataSize <= 0 || m_Width <= 0 || m_Width > 16384 || m_Height <= 0 || m_Height > 16384)
                 return;
 
             m_TextureFormat = m_Texture2D.m_TextureFormat;
@@ -83,7 +83,7 @@ namespace AssetStudio
             if (!DecodeTexture2D(dataSpan)) 
                 return false;
 
-            if (flip)
+            if (flip && m_TextureFormat != TextureFormat.DXT3)
             {
                 var stride = m_Width * 4;
                 Span<byte> tmp = new byte[stride];
@@ -116,7 +116,7 @@ namespace AssetStudio
 
                 image = Image.LoadPixelData<Bgra32>(imageBuffSpan, m_Width, m_Height);
 
-                if (flip)
+                if (flip && m_TextureFormat != TextureFormat.DXT3)
                 {
                     image.Mutate(x => x.Flip(FlipMode.Vertical));
                 }
@@ -134,6 +134,7 @@ namespace AssetStudio
                 return false;
 
             var flag = false;
+            var forceSwap = m_Texture2D.image_data.Endian == EndianType.BigEndian; //PowerPC(PPC) builds
             var buff = BigArrayPool<byte>.Shared.Rent(texDataSize);
             try
             {
@@ -152,7 +153,7 @@ namespace AssetStudio
                         flag = DecodeAlpha8(buff, destSpan);
                         break;
                     case TextureFormat.ARGB4444: //test pass
-                        SwapBytesForXbox(buff);
+                        SwapBytesForXbox(buff, forceSwap);
                         flag = DecodeARGB4444(buff, destSpan);
                         break;
                     case TextureFormat.RGB24: //test pass
@@ -165,7 +166,7 @@ namespace AssetStudio
                         flag = DecodeARGB32(buff, destSpan);
                         break;
                     case TextureFormat.RGB565: //test pass
-                        SwapBytesForXbox(buff);
+                        SwapBytesForXbox(buff, forceSwap);
                         flag = DecodeRGB565(buff, destSpan);
                         break;
                     case TextureFormat.R16: //test pass
@@ -175,7 +176,8 @@ namespace AssetStudio
                         SwapBytesForXbox(buff);
                         flag = DecodeDXT1(buff, destSpan);
                         break;
-                    case TextureFormat.DXT3:
+                    case TextureFormat.DXT3: //TODO
+                        flag = DecodeDXT3(buff, destSpan);
                         break;
                     case TextureFormat.DXT5: //test pass
                         SwapBytesForXbox(buff);
@@ -330,13 +332,13 @@ namespace AssetStudio
             return flag;
         }
 
-        private void SwapBytesForXbox(Span<byte> buff)
+        private void SwapBytesForXbox(Span<byte> buff, bool force = false)
         {
-            if (m_Texture2D.platform == BuildTarget.XBOX360)
+            if (m_Texture2D.platform == BuildTarget.XBOX360 || force)
             {
-                for (var i = 0; i < texDataSize / 2; i++)
+                for (var i = 0; i < texDataSize; i += 2)
                 {
-                    buff.Slice(i * 2, 2).Reverse();
+                    buff.Slice(i, 2).Reverse();
                 }
             }
         }
@@ -437,6 +439,35 @@ namespace AssetStudio
         private bool DecodeDXT1(ReadOnlySpan<byte> buff, Span<byte> destSpan)
         {
             return TextureDecoder.DecodeDXT1(buff, m_Width, m_Height, destSpan);
+        }
+
+        private bool DecodeDXT3(ReadOnlySpan<byte> buff, Span<byte> destSpan)
+        {
+            if (!TextureDecoder.DecodeDXT5(buff, m_Width, m_Height, destSpan)) 
+                return false;
+
+            //decode dxt3 alpha
+            var numBlocksX = (m_Width + 3) / 4;
+            var numBlocksY = (m_Height + 3) / 4;
+            var offset = 0;
+            for (var by = 0; by < numBlocksY; by++)
+            {
+                for (var bx = 0; bx < numBlocksX; bx++, offset += 16)
+                {
+                    var alphaPackedVal = BinaryPrimitives.ReadUInt64LittleEndian(buff.Slice(offset));
+                    var alphaIndex = 0;
+                    for (var y = 0; y < 4; y++)
+                    {
+                        for (var x = 0; x < 4; x++, alphaIndex++)
+                        {
+                            var destOffset = (by * 4 + y) * m_Width * 4 + (bx * 4 + x) * 4;
+                            var alphaValue = ((alphaPackedVal >> (4 * alphaIndex)) & 0x0F) * 0x11;
+                            destSpan[destOffset + 3] = (byte)alphaValue; //A
+                        }
+                    }
+                }
+            }
+            return true;
         }
 
         private bool DecodeDXT5(ReadOnlySpan<byte> buff, Span<byte> destSpan)

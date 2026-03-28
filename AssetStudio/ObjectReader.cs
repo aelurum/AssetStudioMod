@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace AssetStudio
@@ -53,6 +54,67 @@ namespace AssetStudio
         public void Reset()
         {
             Position = byteStart;
+        }
+
+        public override short ReadInt16()
+        {
+            if (Remaining < 2)
+                throw new EndOfStreamException();
+
+            return base.ReadInt16();
+        }
+
+        public override ushort ReadUInt16()
+        {
+            if (Remaining < 2)
+                throw new EndOfStreamException();
+
+            return base.ReadUInt16();
+        }
+
+        public override int ReadInt32()
+        {
+            if (Remaining < 4)
+                throw new EndOfStreamException();
+            
+            return base.ReadInt32();
+        }
+
+        public override uint ReadUInt32()
+        {
+            if (Remaining < 4)
+                throw new EndOfStreamException();
+
+            return base.ReadUInt32();
+        }
+
+        public override float ReadSingle()
+        {
+            if (Remaining < 4)
+                throw new EndOfStreamException();
+
+            return base.ReadSingle();
+        }
+    }
+
+    public static class ObjectReaderExtensions
+    {
+        public static string ReadAlignedString(this ObjectReader reader)
+        {
+            var needAlign = reader.version >= (2, 1); //aligned only since v2.1
+            return reader.ReadAlignedString(needAlign);
+        }
+
+        public static string[] ReadStringArray(this ObjectReader reader)
+        {
+            var length = reader.ReadInt32();
+            var list = new List<string>();
+            var needAlign = reader.version >= (2, 1);
+            for (var i = 0; i < length; i++)
+            {
+                list.Add(reader.ReadAlignedString(needAlign));
+            }
+            return list.ToArray();
         }
     }
 }

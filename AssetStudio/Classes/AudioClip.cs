@@ -7,7 +7,7 @@
         public bool m_3D;
         public bool m_UseHardware;
 
-        //version 5
+        //version 5+
         public int m_LoadType;
         public int m_Channels;
         public int m_Frequency;
@@ -27,36 +27,55 @@
 
         public AudioClip(ObjectReader reader) : base(reader)
         {
-            if (version < 5)
+            if (version < 5) //5.0 down
             {
+                if (version == (2, 0)) //2.0
+                {
+                    var m_DecompressOnLoad = reader.ReadBoolean();
+                }
                 m_Format = reader.ReadInt32();
-                if (version >= (2, 6)) //2.6 to 5
+
+                if (version < (2, 6)) //1.x - 2.6 down
+                {
+                    m_Length = reader.ReadSingle();
+                    m_Frequency = reader.ReadInt32();
+                    m_Size = reader.ReadInt32();
+                    if (version >= (2, 1)) //2.1 - 2.6 down
+                    {
+                        var m_DecompressOnLoad = reader.ReadBoolean();
+                        reader.AlignStream();
+                    }
+                    var typelessDataSize = reader.ReadInt32();
+                    m_Size = typelessDataSize > 0
+                        ? typelessDataSize
+                        : reader.byteSize - (reader.Position - reader.byteStart); //todo?
+
+                    if ((LegacyAudioType)m_Format != LegacyAudioType.CompressedAudio)
+                    {
+                        m_Channels = (m_Format + 1) / 2;
+                    }
+                }
+                else //2.6 to 5
                 {
                     m_Type = (FMODSoundType)reader.ReadInt32();
                     m_3D = reader.ReadBoolean();
                     m_UseHardware = reader.ReadBoolean();
                     reader.AlignStream();
-                }
-                else
-                {
-                    m_Length = reader.ReadSingle();
-                    m_Frequency = reader.ReadInt32();
-                    m_Channels = m_Format != 0x05 ? m_Format >> 1 : 0;
-                }
-                if (version >= (3, 2)) //3.2.0 to 5
-                {
-                    int m_Stream = reader.ReadInt32();
-                    m_Size = reader.ReadInt32();
-                    var tsize = m_Size % 4 != 0 ? m_Size + 4 - m_Size % 4 : m_Size;
-                    if (reader.byteSize + reader.byteStart - reader.Position != tsize)
+                    if (version >= (3, 2)) //3.2.0 to 5
                     {
-                        m_Offset = reader.ReadUInt32();
-                        m_Source = assetsFile.fullName + ".resS";
+                        int m_Stream = reader.ReadInt32();
+                        m_Size = reader.ReadInt32();
+                        var tsize = m_Size % 4 != 0 ? m_Size + 4 - m_Size % 4 : m_Size;
+                        if (reader.byteSize + reader.byteStart - reader.Position != tsize)
+                        {
+                            m_Offset = reader.ReadUInt32();
+                            m_Source = assetsFile.fullName + ".resS";
+                        }
                     }
-                }
-                else
-                {
-                    m_Size = reader.ReadInt32();
+                    else
+                    {
+                        m_Size = reader.ReadInt32();
+                    }
                 }
             }
             else
@@ -81,17 +100,18 @@
                 m_CompressionFormat = (AudioCompressionFormat)reader.ReadInt32();
             }
 
-            ResourceReader resourceReader;
-            if (!string.IsNullOrEmpty(m_Source))
-            {
-                resourceReader = new ResourceReader(m_Source, assetsFile, m_Offset, m_Size);
-            }
-            else
-            {
-                resourceReader = new ResourceReader(reader, reader.BaseStream.Position, m_Size);
-            }
-            m_AudioData = resourceReader;
+            m_AudioData = !string.IsNullOrEmpty(m_Source) 
+                ? new ResourceReader(m_Source, assetsFile, m_Offset, m_Size)
+                : new ResourceReader(reader, reader.BaseStream.Position, m_Size);
         }
+    }
+
+    public enum LegacyAudioType
+    {
+        RawWavU8Mono = 1,
+        RawWavS16Mono = 2,
+        RawWavS16Stereo = 4,
+        CompressedAudio = 5,
     }
 
     public enum FMODSoundType

@@ -8,7 +8,10 @@
 
         protected NamedObject(ObjectReader reader) : base(reader)
         {
-            m_Name = reader.ReadAlignedString();
+            if (version >= (1, 5))
+            {
+                m_Name = reader.ReadAlignedString();
+            }
         }
     }
 }

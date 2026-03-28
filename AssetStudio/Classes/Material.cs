@@ -14,8 +14,29 @@ namespace AssetStudio
         public UnityTexEnv(ObjectReader reader)
         {
             m_Texture = new PPtr<Texture>(reader);
-            m_Scale = reader.ReadVector2();
-            m_Offset = reader.ReadVector2();
+            if (reader.version < (2, 1)) //2.1 down
+            {
+                if (reader.version < (1, 5)) //1.5 down
+                {
+                    m_Offset = reader.ReadVector3();
+                    m_Scale = reader.ReadVector3();
+                    var matRemap0 = reader.ReadInt32();
+                    var matRemap1 = reader.ReadInt32();
+                    var matRemap2 = reader.ReadInt32();
+                    var matRotate = reader.ReadSingle();
+                    var texGen = reader.ReadInt32();
+                }
+                else
+                {
+                    m_Scale = reader.ReadVector3();
+                    m_Offset = reader.ReadVector3();
+                }
+            }
+            else
+            {
+                m_Scale = reader.ReadVector2();
+                m_Offset = reader.ReadVector2();
+            }
         }
     }
 

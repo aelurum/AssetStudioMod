@@ -9,7 +9,14 @@
             if (platform == BuildTarget.NoTarget)
             {
                 var m_PrefabParentObject = new PPtr<EditorExtension>(reader);
-                var m_PrefabInternal = new PPtr<Object>(reader); //PPtr<Prefab>
+                if (version >= (3, 5))
+                {
+                    var m_PrefabInternal = new PPtr<Object>(reader); //PPtr<Prefab>
+                }
+                if (version >= (2018, 3))
+                {
+                    var m_PrefabAsset = new PPtr<Object>(reader);
+                }
             }
         }
     }

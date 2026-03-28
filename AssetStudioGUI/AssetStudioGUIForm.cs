@@ -342,10 +342,7 @@ namespace AssetStudioGUI
             }
             allToolStripMenuItem.Checked = true;
             var log = $"Finished loading {assetsManager.AssetsFileList.Count} file(s) with {assetListView.Items.Count} exportable assets";
-            var unityVer = assetsManager.AssetsFileList[0].version;
-            var m_ObjectsCount = unityVer > 2020
-                ? assetsManager.AssetsFileList.Sum(x => x.m_Objects.LongCount(y => y.classID != (int)ClassIDType.Shader))
-                : assetsManager.AssetsFileList.Sum(x => x.m_Objects.Count);
+            var m_ObjectsCount = assetsManager.AssetsFileList.Sum(x => x.m_Objects.Count);
             var objectsCount = assetsManager.AssetsFileList.Sum(x => x.Objects.Count);
             if (m_ObjectsCount != objectsCount)
             {
@@ -1239,7 +1236,12 @@ namespace AssetStudioGUI
 
         private void PreviewShader(Shader m_Shader)
         {
-            var str = ShaderConverter.Convert(m_Shader);
+            if (m_Shader == null)
+            {
+                StatusStripUpdate("Unsupported shader");
+                return;
+            }
+            var str = m_Shader.Convert();
             PreviewText(str == null ? "Serialized Shader can't be read" : str.Replace("\n", "\r\n"));
         }
 
@@ -1290,52 +1292,53 @@ namespace AssetStudioGUI
 
         private void PreviewFont(Font m_Font)
         {
-            if (m_Font.m_FontData != null)
+            if (m_Font?.m_FontData == null)
             {
-                var data = Marshal.AllocCoTaskMem(m_Font.m_FontData.Length);
-                Marshal.Copy(m_Font.m_FontData, 0, data, m_Font.m_FontData.Length);
+                StatusStripUpdate("Unsupported font for preview.");
+                return;
+            }
 
-                uint cFonts = 0;
-                var re = AddFontMemResourceEx(data, (uint)m_Font.m_FontData.Length, IntPtr.Zero, ref cFonts);
-                if (re != IntPtr.Zero)
+            var data = Marshal.AllocCoTaskMem(m_Font.m_FontData.Length);
+            Marshal.Copy(m_Font.m_FontData, 0, data, m_Font.m_FontData.Length);
+
+            uint cFonts = 0;
+            var re = AddFontMemResourceEx(data, (uint)m_Font.m_FontData.Length, IntPtr.Zero, ref cFonts);
+            if (re != IntPtr.Zero)
+            {
+                using (var pfc = new PrivateFontCollection())
                 {
-                    using (var pfc = new PrivateFontCollection())
+                    pfc.AddMemoryFont(data, m_Font.m_FontData.Length);
+                    Marshal.FreeCoTaskMem(data);
+                    if (pfc.Families.Length > 0)
                     {
-                        pfc.AddMemoryFont(data, m_Font.m_FontData.Length);
-                        Marshal.FreeCoTaskMem(data);
-                        if (pfc.Families.Length > 0)
-                        {
-                            fontPreviewBox.SelectionStart = 0;
-                            fontPreviewBox.SelectionLength = 80;
-                            fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 16, FontStyle.Regular);
-                            fontPreviewBox.SelectionStart = 81;
-                            fontPreviewBox.SelectionLength = 56;
-                            fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 12, FontStyle.Regular);
-                            fontPreviewBox.SelectionStart = 138;
-                            fontPreviewBox.SelectionLength = 56;
-                            fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 18, FontStyle.Regular);
-                            fontPreviewBox.SelectionStart = 195;
-                            fontPreviewBox.SelectionLength = 56;
-                            fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 24, FontStyle.Regular);
-                            fontPreviewBox.SelectionStart = 252;
-                            fontPreviewBox.SelectionLength = 56;
-                            fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 36, FontStyle.Regular);
-                            fontPreviewBox.SelectionStart = 309;
-                            fontPreviewBox.SelectionLength = 56;
-                            fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 48, FontStyle.Regular);
-                            fontPreviewBox.SelectionStart = 366;
-                            fontPreviewBox.SelectionLength = 56;
-                            fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 60, FontStyle.Regular);
-                            fontPreviewBox.SelectionStart = 423;
-                            fontPreviewBox.SelectionLength = 55;
-                            fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 72, FontStyle.Regular);
-                            fontPreviewBox.Visible = true;
-                        }
+                        fontPreviewBox.SelectionStart = 0;
+                        fontPreviewBox.SelectionLength = 80;
+                        fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 16, FontStyle.Regular);
+                        fontPreviewBox.SelectionStart = 81;
+                        fontPreviewBox.SelectionLength = 56;
+                        fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 12, FontStyle.Regular);
+                        fontPreviewBox.SelectionStart = 138;
+                        fontPreviewBox.SelectionLength = 56;
+                        fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 18, FontStyle.Regular);
+                        fontPreviewBox.SelectionStart = 195;
+                        fontPreviewBox.SelectionLength = 56;
+                        fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 24, FontStyle.Regular);
+                        fontPreviewBox.SelectionStart = 252;
+                        fontPreviewBox.SelectionLength = 56;
+                        fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 36, FontStyle.Regular);
+                        fontPreviewBox.SelectionStart = 309;
+                        fontPreviewBox.SelectionLength = 56;
+                        fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 48, FontStyle.Regular);
+                        fontPreviewBox.SelectionStart = 366;
+                        fontPreviewBox.SelectionLength = 56;
+                        fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 60, FontStyle.Regular);
+                        fontPreviewBox.SelectionStart = 423;
+                        fontPreviewBox.SelectionLength = 55;
+                        fontPreviewBox.SelectionFont = new System.Drawing.Font(pfc.Families[0], 72, FontStyle.Regular);
+                        fontPreviewBox.Visible = true;
                     }
-                    return;
                 }
             }
-            StatusStripUpdate("Unsupported font for preview. Try to export.");
         }
 
         private void PreviewMesh(Mesh m_Mesh)

@@ -18,6 +18,7 @@ namespace AssetStudio
     {
         public bool LoadViaTypeTree = true;
         public bool MeshLazyLoad = true;
+        public UnityVersion AutoLegacyVersion = null;
         public ImportOptions Options = new ImportOptions();
         public readonly List<Action<OptionsFile>> OptionLoaders = new List<Action<OptionsFile>>();
         public readonly List<SerializedFile> AssetsFileList = new List<SerializedFile>();
@@ -622,6 +623,18 @@ namespace AssetStudio
 
         private void ReadAssets()
         {
+            var serializedVer = AssetsFileList[0].header.m_Version;
+            if (serializedVer <= SerializedFileFormatVersion.Unknown_6 && serializedVer >= SerializedFileFormatVersion.Unknown_5 && AutoLegacyVersion == null && Options.CustomUnityVersion == null)
+            {
+                var versions = serializedVer == SerializedFileFormatVersion.Unknown_6
+                    ? "'2.1.0f1', '2.5.0f1', '2.6.0f1'"
+                    : "'1.2.0f1', '1.6.0f1', '2.0.0f1";
+                Logger.Warning(
+                    "\nUnable to detect legacy Unity version automatically\n" +
+                    "If the assets load with errors try to specify one of the following Unity versions\n" +
+                    $"Possible versions: {versions}");
+            }
+
             Logger.Info("Read assets...");
 
             var jsonOptions = new JsonSerializerOptions
@@ -637,6 +650,9 @@ namespace AssetStudio
             Progress.Reset();
             foreach (var assetsFile in AssetsFileList)
             {
+                if (AutoLegacyVersion != null && Options.CustomUnityVersion == null)
+                    assetsFile.version = AutoLegacyVersion;
+
                 JsonConverterHelper.AssetsFile = assetsFile;
                 foreach (var objectInfo in assetsFile.m_Objects)
                 {
@@ -648,20 +664,21 @@ namespace AssetStudio
                     try
                     {
                         Object obj = null;
+                        var loadViaTypeTree = objectReader.serializedType?.m_Type != null && LoadViaTypeTree;
                         switch (objectReader.type)
                         {
                             case ClassIDType.Animation:
                                 obj = new Animation(objectReader);
                                 break;
-                            case ClassIDType.AnimationClip:
-                                obj = objectReader.serializedType?.m_Type != null && LoadViaTypeTree
+                            case ClassIDType.AnimationClip when objectReader.version >= (1, 5):
+                                obj = loadViaTypeTree
                                     ? new AnimationClip(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions, objectInfo)
                                     : new AnimationClip(objectReader);
                                 break;
                             case ClassIDType.Animator:
                                 obj = new Animator(objectReader);
                                 break;
-                            case ClassIDType.AnimatorController:
+                            case ClassIDType.AnimatorController when objectReader.version >= (1, 5):
                                 obj = new AnimatorController(objectReader);
                                 break;
                             case ClassIDType.AnimatorOverrideController:
@@ -679,14 +696,14 @@ namespace AssetStudio
                             case ClassIDType.BuildSettings:
                                 obj = new BuildSettings(objectReader);
                                 break;
-                            case ClassIDType.Font:
+                            case ClassIDType.Font when objectReader.version >= 3:
                                 obj = new Font(objectReader);
                                 break;
                             case ClassIDType.GameObject:
                                 obj = new GameObject(objectReader);
                                 break;
                             case ClassIDType.Material:
-                                obj = objectReader.serializedType?.m_Type != null && LoadViaTypeTree
+                                obj = loadViaTypeTree
                                     ? new Material(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
                                     : new Material(objectReader);
                                 break;
@@ -705,24 +722,25 @@ namespace AssetStudio
                             case ClassIDType.MonoScript:
                                 obj = new MonoScript(objectReader);
                                 break;
-                            case ClassIDType.MovieTexture:
+                            case ClassIDType.MovieTexture when objectReader.version >= 2:
                                 obj = new MovieTexture(objectReader);
                                 break;
                             case ClassIDType.PlayerSettings:
                                 obj = new PlayerSettings(objectReader);
                                 break;
-                            case ClassIDType.PreloadData:
+                            case ClassIDType.PreloadData when objectReader.version >= (2, 5):
                                 obj = new PreloadData(objectReader);
                                 break;
                             case ClassIDType.RectTransform:
                                 obj = new RectTransform(objectReader);
                                 break;
-                            case ClassIDType.Shader:
-                                if (objectReader.version < 2021)
-                                    obj = new Shader(objectReader);
+                            case ClassIDType.Shader when objectReader.version < 2021:
+                                obj = new Shader(objectReader);
                                 break;
                             case ClassIDType.SkinnedMeshRenderer:
-                                obj = new SkinnedMeshRenderer(objectReader);
+                                obj = objectReader.version < (2, 1)
+                                    ? new SkinnedMeshFilter(objectReader).ToSkinnedMeshRenderer()
+                                    : new SkinnedMeshRenderer(objectReader);
                                 break;
                             case ClassIDType.Sprite:
                                 obj = new Sprite(objectReader);
@@ -734,12 +752,12 @@ namespace AssetStudio
                                 obj = new TextAsset(objectReader);
                                 break;
                             case ClassIDType.Texture2D:
-                                obj = objectReader.serializedType?.m_Type != null && LoadViaTypeTree
+                                obj = loadViaTypeTree
                                     ? new Texture2D(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
                                     : new Texture2D(objectReader);
                                 break;
                             case ClassIDType.Texture2DArray:
-                                obj = objectReader.serializedType?.m_Type != null && LoadViaTypeTree
+                                obj = loadViaTypeTree
                                     ? new Texture2DArray(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
                                     : new Texture2DArray(objectReader);
                                 break;
@@ -776,6 +794,8 @@ namespace AssetStudio
                     Progress.Report(++i, progressCount);
                 }
             }
+
+            AutoLegacyVersion = null;
         }
 
         private void ProcessAssets()

@@ -10,7 +10,8 @@
         public MonoBehaviour(ObjectReader reader) : base(reader)
         {
             m_Script = new PPtr<MonoScript>(reader);
-            m_Name = reader.ReadAlignedString();
+            if (version >= (2, 1))
+                m_Name = reader.ReadAlignedString();
         }
     }
 }

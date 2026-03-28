@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace AssetStudio
@@ -9,7 +7,7 @@ namespace AssetStudio
     {
         public byte[] bytes;
 
-        public Hash128(BinaryReader reader)
+        public Hash128(ObjectReader reader)
         {
             bytes = reader.ReadBytes(16);
         }
@@ -20,7 +18,7 @@ namespace AssetStudio
         public List<MatrixParameter> m_MatrixParams;
         public List<VectorParameter> m_VectorParams;
 
-        public StructParameter(BinaryReader reader)
+        public StructParameter(ObjectReader reader)
         {
             var m_NameIndex = reader.ReadInt32();
             var m_Index = reader.ReadInt32();
@@ -48,7 +46,7 @@ namespace AssetStudio
         public uint sampler;
         public int bindPoint;
 
-        public SamplerParameter(BinaryReader reader)
+        public SamplerParameter(ObjectReader reader)
         {
             sampler = reader.ReadUInt32();
             bindPoint = reader.ReadInt32();
@@ -71,7 +69,7 @@ namespace AssetStudio
         public string m_DefaultName;
         public TextureDimension m_TexDim;
 
-        public SerializedTextureProperty(BinaryReader reader)
+        public SerializedTextureProperty(ObjectReader reader)
         {
             m_DefaultName = reader.ReadAlignedString();
             m_TexDim = (TextureDimension)reader.ReadInt32();
@@ -98,7 +96,7 @@ namespace AssetStudio
         public float[] m_DefValue;
         public SerializedTextureProperty m_DefTexture;
 
-        public SerializedProperty(BinaryReader reader)
+        public SerializedProperty(ObjectReader reader)
         {
             m_Name = reader.ReadAlignedString();
             m_Description = reader.ReadAlignedString();
@@ -114,7 +112,7 @@ namespace AssetStudio
     {
         public List<SerializedProperty> m_Props;
 
-        public SerializedProperties(BinaryReader reader)
+        public SerializedProperties(ObjectReader reader)
         {
             int numProps = reader.ReadInt32();
             m_Props = new List<SerializedProperty>();
@@ -130,7 +128,7 @@ namespace AssetStudio
         public float val;
         public string name;
 
-        public SerializedShaderFloatValue(BinaryReader reader)
+        public SerializedShaderFloatValue(ObjectReader reader)
         {
             val = reader.ReadSingle();
             name = reader.ReadAlignedString();
@@ -147,7 +145,7 @@ namespace AssetStudio
         public SerializedShaderFloatValue blendOpAlpha;
         public SerializedShaderFloatValue colMask;
 
-        public SerializedShaderRTBlendState(BinaryReader reader)
+        public SerializedShaderRTBlendState(ObjectReader reader)
         {
             srcBlend = new SerializedShaderFloatValue(reader);
             destBlend = new SerializedShaderFloatValue(reader);
@@ -166,7 +164,7 @@ namespace AssetStudio
         public SerializedShaderFloatValue zFail;
         public SerializedShaderFloatValue comp;
 
-        public SerializedStencilOp(BinaryReader reader)
+        public SerializedStencilOp(ObjectReader reader)
         {
             pass = new SerializedShaderFloatValue(reader);
             fail = new SerializedShaderFloatValue(reader);
@@ -183,7 +181,7 @@ namespace AssetStudio
         public SerializedShaderFloatValue w;
         public string name;
 
-        public SerializedShaderVectorValue(BinaryReader reader)
+        public SerializedShaderVectorValue(ObjectReader reader)
         {
             x = new SerializedShaderFloatValue(reader);
             y = new SerializedShaderFloatValue(reader);
@@ -281,7 +279,7 @@ namespace AssetStudio
         public sbyte source;
         public sbyte target;
 
-        public ShaderBindChannel(BinaryReader reader)
+        public ShaderBindChannel(ObjectReader reader)
         {
             source = reader.ReadSByte();
             target = reader.ReadSByte();
@@ -293,7 +291,7 @@ namespace AssetStudio
         public List<ShaderBindChannel> m_Channels;
         public uint m_SourceMap;
 
-        public ParserBindChannels(BinaryReader reader)
+        public ParserBindChannels(ObjectReader reader)
         {
             int numChannels = reader.ReadInt32();
             m_Channels = new List<ShaderBindChannel>();
@@ -315,7 +313,7 @@ namespace AssetStudio
         public sbyte m_Type;
         public sbyte m_Dim;
 
-        public VectorParameter(BinaryReader reader)
+        public VectorParameter(ObjectReader reader)
         {
             m_NameIndex = reader.ReadInt32();
             m_Index = reader.ReadInt32();
@@ -334,7 +332,7 @@ namespace AssetStudio
         public sbyte m_Type;
         public sbyte m_RowCount;
 
-        public MatrixParameter(BinaryReader reader)
+        public MatrixParameter(ObjectReader reader)
         {
             m_NameIndex = reader.ReadInt32();
             m_Index = reader.ReadInt32();
@@ -441,7 +439,7 @@ namespace AssetStudio
         public int m_Index;
         public int m_OriginalIndex;
 
-        public UAVParameter(BinaryReader reader)
+        public UAVParameter(ObjectReader reader)
         {
             m_NameIndex = reader.ReadInt32();
             m_Index = reader.ReadInt32();
@@ -738,7 +736,7 @@ namespace AssetStudio
     {
         public List<KeyValuePair<string, string>> tags;
 
-        public SerializedTagMap(BinaryReader reader)
+        public SerializedTagMap(ObjectReader reader)
         {
             int numTags = reader.ReadInt32();
             tags = new List<KeyValuePair<string, string>>();
@@ -774,7 +772,7 @@ namespace AssetStudio
         public string from;
         public string to;
 
-        public SerializedShaderDependency(BinaryReader reader)
+        public SerializedShaderDependency(ObjectReader reader)
         {
             from = reader.ReadAlignedString();
             to = reader.ReadAlignedString();
@@ -786,7 +784,7 @@ namespace AssetStudio
         public string customEditorName;
         public string renderPipelineType;
 
-        public SerializedCustomEditorForRenderPipeline(BinaryReader reader)
+        public SerializedCustomEditorForRenderPipeline(ObjectReader reader)
         {
             customEditorName = reader.ReadAlignedString();
             renderPipelineType = reader.ReadAlignedString();

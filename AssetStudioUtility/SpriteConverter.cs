@@ -260,9 +260,9 @@ namespace AssetStudio
                 var m_VertexData = m_RD.m_VertexData;
                 var m_Channel = m_VertexData.m_Channels[0]; //kShaderChannelVertex
                 var m_Stream = m_VertexData.m_Streams[m_Channel.stream];
-                using (var vertexReader = new BinaryReader(new MemoryStream(m_VertexData.m_DataSize)))
+                using (var vertexReader = new EndianBinaryReader(new MemoryStream(m_VertexData.m_DataSize), EndianType.LittleEndian))
                 {
-                    using (var indexReader = new BinaryReader(new MemoryStream(m_RD.m_IndexBuffer)))
+                    using (var indexReader = new EndianBinaryReader(new MemoryStream(m_RD.m_IndexBuffer), EndianType.LittleEndian))
                     {
                         foreach (var subMesh in m_RD.m_SubMeshes)
                         {

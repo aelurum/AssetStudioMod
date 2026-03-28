@@ -9,7 +9,8 @@
         protected Behaviour(ObjectReader reader) : base(reader)
         {
             m_Enabled = reader.ReadByte();
-            reader.AlignStream();
+            if (reader.version >= (2, 1))
+                reader.AlignStream();
         }
     }
 }

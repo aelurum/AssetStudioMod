@@ -95,6 +95,7 @@ namespace AssetStudioGUI
                     return true;
                 }
             }
+            Logger.Warning($"Failed to convert sprite \"{item.Text}\" into image");
             return false;
         }
 

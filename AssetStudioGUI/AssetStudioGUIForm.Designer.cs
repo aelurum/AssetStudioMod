@@ -1456,18 +1456,18 @@
             // 
             // unityVersionStatusLabel
             // 
+            this.unityVersionStatusLabel.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.unityVersionStatusLabel.BackColor = System.Drawing.Color.Transparent;
-            this.unityVersionStatusLabel.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.unityVersionStatusLabel.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom;
             this.unityVersionStatusLabel.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
             this.unityVersionStatusLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.unityVersionStatusLabel.DoubleClickEnabled = true;
-            this.unityVersionStatusLabel.Margin = new System.Windows.Forms.Padding(0, 3, 6, 0);
+            this.unityVersionStatusLabel.Margin = new System.Windows.Forms.Padding(0, 2, 6, 1);
             this.unityVersionStatusLabel.Name = "unityVersionStatusLabel";
+            this.unityVersionStatusLabel.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
             this.unityVersionStatusLabel.Size = new System.Drawing.Size(40, 19);
             this.unityVersionStatusLabel.Text = "None";
-            this.unityVersionStatusLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.unityVersionStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.unityVersionStatusLabel.ToolTipText = "Custom Unity version\r\n- Double click to reset";
             this.unityVersionStatusLabel.DoubleClick += new System.EventHandler(this.unityVersionStatusLabel_DoubleClick);
             // 

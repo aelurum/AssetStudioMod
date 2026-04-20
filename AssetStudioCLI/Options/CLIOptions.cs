@@ -500,7 +500,7 @@ namespace AssetStudioCLI.Options
             (
                 optionDefaultValue: "temp",
                 optionName: "--cache-dir <path>",
-                optionDescription: "Specify a directory for storing temporary files. Default: <program folder>.\n",
+                optionDescription: "Specify a directory for storing temporary files (default: program folder)\n",
                 optionExample: "",
                 optionHelpGroup: HelpGroups.Import
             );
@@ -574,7 +574,7 @@ namespace AssetStudioCLI.Options
             );
             o_stripPathPrefix = new GroupedOption<string>
             (
-                optionDefaultValue: "",
+                optionDefaultValue: null,
                 optionName: "--strip-path-prefix <path>",
                 optionDescription: "Specify a path prefix to be stripped from exported asset paths\n",
                 optionExample: "Example: \"--strip-path-prefix assets/models/char/\"\n",

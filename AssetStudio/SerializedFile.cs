@@ -98,8 +98,7 @@ namespace AssetStudio
                         return;
                     }
                     version = assetsManager.Options.CustomUnityVersion;
-                    reader.Position = versionPos;
-                    reader.ReadBytes(version.ToString().Length + 1);
+                    reader.Position = versionPos + version.ToString().Length + 1;
                 }
             }
             if (header.m_Version >= SerializedFileFormatVersion.Unknown_8)

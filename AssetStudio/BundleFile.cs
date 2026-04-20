@@ -118,9 +118,9 @@ namespace AssetStudio
                     {
                         if (!unityVer.IsStripped && customUnityVer != unityVer)
                         {
-                            Logger.Warning($"Detected Unity version is different from the specified one ({customUnityVer.FullVersion.Color(ColorConsole.BrightCyan)}).\n" +
-                                $"Assets may load with errors.\n" +
-                                $"It is recommended to specify the detected Unity version: {unityVer.FullVersion.Color(ColorConsole.BrightCyan)}");
+                            Logger.Warning($"Detected Unity version [{unityVer.FullVersion.Color(ColorConsole.BrightCyan)}] is different from the specified one [{customUnityVer.FullVersion.Color(ColorConsole.BrightCyan)}].\n" +
+                                "Assets may load with errors.\n" +
+                                "It is recommended not to specify a Unity version for this file.");
                         }
                         unityVer = customUnityVer;
                     }
@@ -359,12 +359,13 @@ namespace AssetStudio
                 case CompressionType.Lzham:
                     throw new IOException($"Unsupported blockInfo compression type: {compressionType}.\n");
                 default:
-                    throw new IOException($"Unknown blockInfo compression type: {compressionType}.\nYou may try to specify the compression type manually.\n");
+                    throw new IOException($"Unknown blockInfo compression type: {compressionType}.\nYou may try to specify the compression type manually in the options.\n");
             }
 
             if (numWrite != uncompressedSize)
             {
-                var msg = $"{compressionType} blockInfo decompression error. {errorMsg}\nWrite {numWrite} bytes but expected {uncompressedSize} bytes.";
+                var type = compressionType == CompressionType.None ? "Uncompressed" : compressionType.ToString();
+                var msg = $"{type} blockInfo decompression error. {errorMsg}\nWrite {numWrite} bytes but expected {uncompressedSize} bytes.";
                 var exMsg = compressionType > CompressionType.Lz4HC || customBlockInfoCompression != CompressionType.Auto
                     ? "Wrong compression type or blockInfo data might be encrypted."
                     : "BlockInfo data might be encrypted.";
@@ -491,7 +492,8 @@ namespace AssetStudio
 
                     if (numWrite != blockInfo.uncompressedSize)
                     {
-                        var msg = $"{compressionType} block decompression error. {errorMsg}\nWrite {numWrite} bytes but expected {blockInfo.uncompressedSize} bytes.";
+                        var type = compressionType == CompressionType.None ? "Uncompressed" : compressionType.ToString();
+                        var msg = $"{type} block decompression error. {errorMsg}\nWrite {numWrite} bytes but expected {blockInfo.uncompressedSize} bytes.";
                         var exMsg = compressionType > CompressionType.Lz4HC || customBlockCompression != CompressionType.Auto
                             ? "Wrong compression type or block data might be encrypted."
                             : "Block data might be encrypted.";

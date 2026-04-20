@@ -675,11 +675,11 @@ namespace AssetStudioGUI
                             if (GUILogger.ShowDebugMessage)
                             {
                                 Logger.Debug(debugLog);
-                                StatusStripUpdate($"[{exportedCount}/{toExportCount}] Exporting {asset.TypeString}: {asset.Text}");
+                                StatusStripUpdate($"[{exportedCount}/{toExportCount}] Exported {asset.TypeString}: {asset.Text}");
                             }
                             else
                             {
-                                Logger.Info($"[{exportedCount}/{toExportCount}] Exporting {asset.TypeString}: {asset.Text}");
+                                Logger.Info($"[{exportedCount}/{toExportCount}] Exported {asset.TypeString}: {asset.Text}");
                             }
                         }
                         Interlocked.Increment(ref i);

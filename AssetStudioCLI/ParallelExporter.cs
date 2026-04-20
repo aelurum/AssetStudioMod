@@ -96,6 +96,7 @@ namespace AssetStudioCLI
                     return true;
                 }
             }
+            Logger.Error($"Failed to convert sprite \"{item.Text}\" into image");
             return false;
         }
 

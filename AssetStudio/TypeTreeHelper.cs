@@ -41,7 +41,7 @@ namespace AssetStudio
             }
             if (readed != reader.byteSize)
             {
-                Logger.Info($"Failed to read type, read {readed} bytes but expected {reader.byteSize} bytes");
+                Logger.Info($"Failed to read type, read {reader.Position - reader.byteStart} bytes but expected {reader.byteSize} bytes");
             }
 
             return sb.ToString();

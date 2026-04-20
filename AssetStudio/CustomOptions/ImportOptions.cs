@@ -87,7 +87,7 @@ namespace AssetStudio.CustomOptions
             {
                 throw new NotSupportedException("Specified Unity version is not in a correct format.\n" +
                                                 "Specify full Unity version, including letters at the end.\n" +
-                                                "Example: 2017.4.39f1");
+                                                "Example: 2022.3.2f1");
             }
             _customUnityVer = value;
             UnityVersionChanged?.Invoke(this, EventArgs.Empty);

@@ -2544,7 +2544,6 @@ namespace AssetStudioGUI
             if (isDarkMode)
             {
                 assetListView.GridLines = false;
-                unityVersionStatusLabel.BorderStyle = Border3DStyle.SunkenInner;
             }
             else
             {

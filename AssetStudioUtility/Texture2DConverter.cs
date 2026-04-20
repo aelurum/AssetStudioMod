@@ -22,7 +22,7 @@ namespace AssetStudio
         private int gobsPerBlock;
         private Size blockSize;
 
-        public int OutputDataSize => outputDataSize;
+        public int GetImageDataSize() => outputDataSize;
 
         public Texture2DConverter(Texture2D m_Texture2D)
         {

@@ -25,7 +25,11 @@ namespace AssetStudioGUI
             Width = texture2D.m_Width;
             Height = texture2D.m_Height;
             var converter = new Texture2DConverter(texture2D);
-            Bits = BigArrayPool<byte>.Shared.Rent(converter.OutputDataSize);
+            var dataSize = converter.GetImageDataSize();
+            if (dataSize <= 0)
+                return;
+
+            Bits = BigArrayPool<byte>.Shared.Rent(dataSize);
             if (converter.GetBgra32RawImageData(Bits, flip))
             {
                 m_handle = GCHandle.Alloc(Bits, GCHandleType.Pinned);
@@ -42,7 +46,11 @@ namespace AssetStudioGUI
                     m_bitmap.Dispose();
                     m_handle.Free();
                 }
-                BigArrayPool<byte>.Shared.Return(Bits);
+                if (Bits != null)
+                {
+                    BigArrayPool<byte>.Shared.Return(Bits);
+                    Bits = null;
+                }
             }
             m_bitmap = null;
         }
@@ -55,7 +63,7 @@ namespace AssetStudioGUI
         public int Height { get; }
         public int Width { get; }
         public int Stride => Width * 4;
-        public byte[] Bits { get; }
+        public byte[] Bits { get; private set; }
         public Bitmap Bitmap => m_bitmap;
 
         private Bitmap m_bitmap;

@@ -28,8 +28,8 @@ namespace AssetStudio
         private float downscaleMultiplier;
         private SpriteSettings settingsRaw;
         private bool keepSpriteSize;
-        private int resultWidth;
-        private int resultHeight;
+        private int resultWidth = -1;
+        private int resultHeight = -1;
         private bool canConvert;
 
         public readonly Texture2D m_Texture2D;
@@ -51,11 +51,7 @@ namespace AssetStudio
                     textureRectOffset = spriteAtlasData.textureRectOffset;
                     downscaleMultiplier = spriteAtlasData.downscaleMultiplier;
                     settingsRaw = spriteAtlasData.settingsRaw;
-                    SetResultSpriteSize();
-                    if (resultWidth > 0 && resultHeight > 0)
-                    {
-                        canConvert = true;
-                    }
+                    canConvert = SetResultSpriteSize();
                 }
             }
             if (!canConvert && m_Sprite.m_RD.texture.TryGet(out m_Texture2D))
@@ -65,22 +61,26 @@ namespace AssetStudio
                 textureRectOffset = m_Sprite.m_RD.textureRectOffset;
                 downscaleMultiplier = m_Sprite.m_RD.downscaleMultiplier;
                 settingsRaw = m_Sprite.m_RD.settingsRaw;
-                SetResultSpriteSize();
-                if (resultWidth > 0 && resultHeight > 0)
-                {
-                    canConvert = true;
-                }
+                canConvert = SetResultSpriteSize();
             }
         }
 
-        private void SetResultSpriteSize()
+        private bool SetResultSpriteSize()
         {
+            if (sprite.m_Rect.width <= 0 || textureRect.width <= 0 || sprite.m_Rect.height <= 0 || textureRect.height <= 0)
+            {
+                (resultWidth, resultHeight) = (0, 0);
+                return false;
+            }
+
             resultWidth = keepSpriteSize
                 ? (int)MathF.Round(sprite.m_Rect.width)
                 : (int)MathF.Round(textureRect.width);
             resultHeight = keepSpriteSize
                 ? (int)MathF.Round(sprite.m_Rect.height)
                 : (int)MathF.Round(textureRect.height);
+            
+            return true;
         }
 
         public bool TryConvertToImage(out Image<Bgra32> spriteImage, SpriteMaskMode maskMode)

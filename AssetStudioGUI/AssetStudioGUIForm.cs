@@ -154,6 +154,8 @@ namespace AssetStudioGUI
             meshLazyLoadToolStripMenuItem.Checked = Properties.Settings.Default.meshLazyLoad;
             assetsManager.Options.BundleOptions.DecompressToDisk = Properties.Settings.Default.decompressToDisk;
             assetsManager.Options.BundleOptions.CustomCachePath = GetCachePath();
+            assetsManager.Options.UnityVersionChanged += OnUnityVersionChanged;
+            unityVersionStatusLabel.Visible = false;
             FMODinit();
             listSearchFilterMode.SelectedIndex = 0;
             FbxInitOptions(Properties.Settings.Default.fbxSettings);
@@ -2542,6 +2544,7 @@ namespace AssetStudioGUI
             if (isDarkMode)
             {
                 assetListView.GridLines = false;
+                unityVersionStatusLabel.BorderStyle = Border3DStyle.SunkenInner;
             }
             else
             {
@@ -2708,6 +2711,26 @@ namespace AssetStudioGUI
             {
                 importOptionsForm.Focus();
             }
+        }
+
+        private void OnUnityVersionChanged(object s, EventArgs e)
+        {
+            if (assetsManager.Options.CustomUnityVersion == null)
+            {
+                specifyUnityVersionTextBox.Text = "";
+                unityVersionStatusLabel.Text = "";
+                unityVersionStatusLabel.Visible = false;
+            }
+            else
+            {
+                unityVersionStatusLabel.Text = assetsManager.Options.CustomUnityVersion.FullVersion;
+                unityVersionStatusLabel.Visible = true;
+            }
+        }
+
+        private void unityVersionStatusLabel_DoubleClick(object sender, EventArgs e)
+        {
+            assetsManager.Options.CustomUnityVersion = null;
         }
 
         #region FMOD

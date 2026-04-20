@@ -152,6 +152,7 @@
             this.dumpTextBox = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.unityVersionStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.sceneContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.shShowRelatedAssetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.shToolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -1425,9 +1426,11 @@
             // 
             this.statusStrip1.BackColor = System.Drawing.SystemColors.MenuBar;
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
+            this.toolStripStatusLabel1,
+            this.unityVersionStatusLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 633);
             this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.ShowItemToolTips = true;
             this.statusStrip1.Size = new System.Drawing.Size(776, 22);
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
@@ -1437,10 +1440,27 @@
             this.toolStripStatusLabel1.BackColor = System.Drawing.Color.Transparent;
             this.toolStripStatusLabel1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(761, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(715, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Ready to go";
             this.toolStripStatusLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // unityVersionStatusLabel
+            // 
+            this.unityVersionStatusLabel.BackColor = System.Drawing.Color.Transparent;
+            this.unityVersionStatusLabel.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.unityVersionStatusLabel.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
+            this.unityVersionStatusLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.unityVersionStatusLabel.DoubleClickEnabled = true;
+            this.unityVersionStatusLabel.Margin = new System.Windows.Forms.Padding(0, 3, 6, 0);
+            this.unityVersionStatusLabel.Name = "unityVersionStatusLabel";
+            this.unityVersionStatusLabel.Size = new System.Drawing.Size(40, 19);
+            this.unityVersionStatusLabel.Text = "None";
+            this.unityVersionStatusLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.unityVersionStatusLabel.ToolTipText = "Custom Unity version\r\n- Double click to reset";
+            this.unityVersionStatusLabel.DoubleClick += new System.EventHandler(this.unityVersionStatusLabel_DoubleClick);
             // 
             // sceneContextMenuStrip
             // 
@@ -1861,6 +1881,7 @@
         private System.Windows.Forms.ToolStripMenuItem tvCopyNameToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator importOptionsToolStripSeparator;
         private System.Windows.Forms.ToolStripMenuItem moreOptionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel unityVersionStatusLabel;
     }
 }
 

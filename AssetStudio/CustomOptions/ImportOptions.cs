@@ -14,6 +14,8 @@ namespace AssetStudio.CustomOptions
         private static string fileName = "ImportOptions";
         private UnityVersion _customUnityVer;
 
+        public event EventHandler UnityVersionChanged;
+
         public CustomBundleOptions BundleOptions { get; set; }
         public UnityVersion CustomUnityVersion { get => _customUnityVer; set => SetUnityVersion(value); }
 
@@ -77,6 +79,7 @@ namespace AssetStudio.CustomOptions
             if (value == null)
             {
                 _customUnityVer = null;
+                UnityVersionChanged?.Invoke(this, EventArgs.Empty);
                 Logger.Info("- Specified Unity version: None");
                 return;
             }
@@ -87,6 +90,7 @@ namespace AssetStudio.CustomOptions
                                                 "Example: 2017.4.39f1");
             }
             _customUnityVer = value;
+            UnityVersionChanged?.Invoke(this, EventArgs.Empty);
 
             Logger.Info($"- Specified Unity version: {_customUnityVer}");
         }

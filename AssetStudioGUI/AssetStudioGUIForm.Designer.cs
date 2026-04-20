@@ -406,6 +406,7 @@
             this.specifyUnityVersionTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.specifyUnityVersionTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.specifyUnityVersionTextBox.Name = "specifyUnityVersionTextBox";
+            this.specifyUnityVersionTextBox.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
             this.specifyUnityVersionTextBox.Size = new System.Drawing.Size(100, 23);
             this.specifyUnityVersionTextBox.ToolTipText = "Specify full Unity version, including letters at the end\r\nExample: 2022.3.2f1";
             // 
@@ -430,6 +431,7 @@
             // importOptionsToolStripSeparator
             // 
             this.importOptionsToolStripSeparator.Name = "importOptionsToolStripSeparator";
+            this.importOptionsToolStripSeparator.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
             this.importOptionsToolStripSeparator.Size = new System.Drawing.Size(210, 6);
             // 
             // saveOptionsToDiskToolStripMenuItem
@@ -443,6 +445,7 @@
             // importOptionsToolStripSeparator2
             // 
             this.importOptionsToolStripSeparator2.Name = "importOptionsToolStripSeparator2";
+            this.importOptionsToolStripSeparator2.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
             this.importOptionsToolStripSeparator2.Size = new System.Drawing.Size(210, 6);
             // 
             // moreOptionsToolStripMenuItem
@@ -1122,13 +1125,14 @@
             // 
             // tabPage4
             // 
+            this.tabPage4.BackColor = System.Drawing.SystemColors.Window;
+            this.tabPage4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tabPage4.Controls.Add(this.previewPanel);
             this.tabPage4.Location = new System.Drawing.Point(4, 24);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(768, 605);
             this.tabPage4.TabIndex = 0;
             this.tabPage4.Text = "Preview";
-            this.tabPage4.UseVisualStyleBackColor = true;
             // 
             // previewPanel
             // 
@@ -1143,7 +1147,7 @@
             this.previewPanel.Image = global::AssetStudioGUI.Properties.Resources.preview;
             this.previewPanel.Location = new System.Drawing.Point(0, 0);
             this.previewPanel.Name = "previewPanel";
-            this.previewPanel.Size = new System.Drawing.Size(768, 605);
+            this.previewPanel.Size = new System.Drawing.Size(766, 603);
             this.previewPanel.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.previewPanel.TabIndex = 1;
             this.previewPanel.TabStop = false;
@@ -1177,7 +1181,7 @@
             this.FMODpanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.FMODpanel.Location = new System.Drawing.Point(0, 0);
             this.FMODpanel.Name = "FMODpanel";
-            this.FMODpanel.Size = new System.Drawing.Size(768, 605);
+            this.FMODpanel.Size = new System.Drawing.Size(766, 603);
             this.FMODpanel.TabIndex = 2;
             this.FMODpanel.Visible = false;
             // 
@@ -1188,7 +1192,7 @@
             this.FMODaudioChannelsLabel.BackColor = System.Drawing.Color.Transparent;
             this.FMODaudioChannelsLabel.ForeColor = System.Drawing.Color.White;
             this.FMODaudioChannelsLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODaudioChannelsLabel.Location = new System.Drawing.Point(384, 255);
+            this.FMODaudioChannelsLabel.Location = new System.Drawing.Point(383, 255);
             this.FMODaudioChannelsLabel.Name = "FMODaudioChannelsLabel";
             this.FMODaudioChannelsLabel.Size = new System.Drawing.Size(40, 15);
             this.FMODaudioChannelsLabel.TabIndex = 10;
@@ -1201,7 +1205,7 @@
             this.FMODcopyrightLabel.BackColor = System.Drawing.Color.Transparent;
             this.FMODcopyrightLabel.ForeColor = System.Drawing.Color.White;
             this.FMODcopyrightLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODcopyrightLabel.Location = new System.Drawing.Point(214, 365);
+            this.FMODcopyrightLabel.Location = new System.Drawing.Point(213, 365);
             this.FMODcopyrightLabel.Name = "FMODcopyrightLabel";
             this.FMODcopyrightLabel.Size = new System.Drawing.Size(316, 15);
             this.FMODcopyrightLabel.TabIndex = 9;
@@ -1214,7 +1218,7 @@
             this.FMODinfoLabel.BackColor = System.Drawing.Color.Transparent;
             this.FMODinfoLabel.ForeColor = System.Drawing.Color.White;
             this.FMODinfoLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODinfoLabel.Location = new System.Drawing.Point(285, 255);
+            this.FMODinfoLabel.Location = new System.Drawing.Point(284, 255);
             this.FMODinfoLabel.Name = "FMODinfoLabel";
             this.FMODinfoLabel.Size = new System.Drawing.Size(0, 15);
             this.FMODinfoLabel.TabIndex = 8;
@@ -1226,7 +1230,7 @@
             this.FMODtimerLabel.BackColor = System.Drawing.Color.Transparent;
             this.FMODtimerLabel.ForeColor = System.Drawing.Color.White;
             this.FMODtimerLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODtimerLabel.Location = new System.Drawing.Point(477, 255);
+            this.FMODtimerLabel.Location = new System.Drawing.Point(476, 255);
             this.FMODtimerLabel.Name = "FMODtimerLabel";
             this.FMODtimerLabel.Size = new System.Drawing.Size(102, 15);
             this.FMODtimerLabel.TabIndex = 7;
@@ -1239,7 +1243,7 @@
             this.FMODstatusLabel.BackColor = System.Drawing.Color.Transparent;
             this.FMODstatusLabel.ForeColor = System.Drawing.Color.White;
             this.FMODstatusLabel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODstatusLabel.Location = new System.Drawing.Point(214, 255);
+            this.FMODstatusLabel.Location = new System.Drawing.Point(213, 255);
             this.FMODstatusLabel.Name = "FMODstatusLabel";
             this.FMODstatusLabel.Size = new System.Drawing.Size(51, 15);
             this.FMODstatusLabel.TabIndex = 6;
@@ -1250,7 +1254,7 @@
             this.FMODprogressBar.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.FMODprogressBar.AutoSize = false;
             this.FMODprogressBar.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODprogressBar.Location = new System.Drawing.Point(213, 274);
+            this.FMODprogressBar.Location = new System.Drawing.Point(212, 274);
             this.FMODprogressBar.Maximum = 1000;
             this.FMODprogressBar.Name = "FMODprogressBar";
             this.FMODprogressBar.Size = new System.Drawing.Size(370, 24);
@@ -1265,7 +1269,7 @@
             this.FMODvolumeBar.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.FMODvolumeBar.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.FMODvolumeBar.LargeChange = 2;
-            this.FMODvolumeBar.Location = new System.Drawing.Point(480, 303);
+            this.FMODvolumeBar.Location = new System.Drawing.Point(479, 303);
             this.FMODvolumeBar.Name = "FMODvolumeBar";
             this.FMODvolumeBar.Size = new System.Drawing.Size(103, 45);
             this.FMODvolumeBar.TabIndex = 4;
@@ -1280,7 +1284,7 @@
             this.FMODloopButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.FMODloopButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.FMODloopButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODloopButton.Location = new System.Drawing.Point(414, 303);
+            this.FMODloopButton.Location = new System.Drawing.Point(413, 303);
             this.FMODloopButton.Name = "FMODloopButton";
             this.FMODloopButton.Size = new System.Drawing.Size(60, 46);
             this.FMODloopButton.TabIndex = 3;
@@ -1294,7 +1298,7 @@
             this.FMODstopButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.FMODstopButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.FMODstopButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODstopButton.Location = new System.Drawing.Point(348, 303);
+            this.FMODstopButton.Location = new System.Drawing.Point(347, 303);
             this.FMODstopButton.Name = "FMODstopButton";
             this.FMODstopButton.Size = new System.Drawing.Size(60, 46);
             this.FMODstopButton.TabIndex = 2;
@@ -1307,7 +1311,7 @@
             this.FMODpauseButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.FMODpauseButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.FMODpauseButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODpauseButton.Location = new System.Drawing.Point(282, 303);
+            this.FMODpauseButton.Location = new System.Drawing.Point(281, 303);
             this.FMODpauseButton.Name = "FMODpauseButton";
             this.FMODpauseButton.Size = new System.Drawing.Size(60, 46);
             this.FMODpauseButton.TabIndex = 1;
@@ -1320,7 +1324,7 @@
             this.FMODplayButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.FMODplayButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.FMODplayButton.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.FMODplayButton.Location = new System.Drawing.Point(216, 303);
+            this.FMODplayButton.Location = new System.Drawing.Point(215, 303);
             this.FMODplayButton.Name = "FMODplayButton";
             this.FMODplayButton.Size = new System.Drawing.Size(60, 46);
             this.FMODplayButton.TabIndex = 0;
@@ -1331,11 +1335,12 @@
             // fontPreviewBox
             // 
             this.fontPreviewBox.BackColor = System.Drawing.SystemColors.Window;
+            this.fontPreviewBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.fontPreviewBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fontPreviewBox.Location = new System.Drawing.Point(0, 0);
             this.fontPreviewBox.Name = "fontPreviewBox";
             this.fontPreviewBox.ReadOnly = true;
-            this.fontPreviewBox.Size = new System.Drawing.Size(768, 605);
+            this.fontPreviewBox.Size = new System.Drawing.Size(766, 603);
             this.fontPreviewBox.TabIndex = 0;
             this.fontPreviewBox.Text = resources.GetString("fontPreviewBox.Text");
             this.fontPreviewBox.Visible = false;
@@ -1347,7 +1352,7 @@
             this.glControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.glControl1.Location = new System.Drawing.Point(0, 0);
             this.glControl1.Name = "glControl1";
-            this.glControl1.Size = new System.Drawing.Size(768, 605);
+            this.glControl1.Size = new System.Drawing.Size(766, 603);
             this.glControl1.TabIndex = 4;
             this.glControl1.Visible = false;
             this.glControl1.VSync = false;
@@ -1361,6 +1366,7 @@
             // textPreviewBox
             // 
             this.textPreviewBox.BackColor = System.Drawing.SystemColors.Window;
+            this.textPreviewBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textPreviewBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textPreviewBox.Font = new System.Drawing.Font("Consolas", 9.75F);
             this.textPreviewBox.Location = new System.Drawing.Point(0, 0);
@@ -1368,7 +1374,7 @@
             this.textPreviewBox.Name = "textPreviewBox";
             this.textPreviewBox.ReadOnly = true;
             this.textPreviewBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textPreviewBox.Size = new System.Drawing.Size(768, 605);
+            this.textPreviewBox.Size = new System.Drawing.Size(766, 603);
             this.textPreviewBox.TabIndex = 2;
             this.textPreviewBox.Visible = false;
             this.textPreviewBox.WordWrap = false;
@@ -1382,13 +1388,15 @@
             this.classTextBox.Name = "classTextBox";
             this.classTextBox.ReadOnly = true;
             this.classTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.classTextBox.Size = new System.Drawing.Size(768, 605);
+            this.classTextBox.Size = new System.Drawing.Size(766, 603);
             this.classTextBox.TabIndex = 3;
             this.classTextBox.Visible = false;
             this.classTextBox.WordWrap = false;
             // 
             // tabPage5
             // 
+            this.tabPage5.BackColor = System.Drawing.SystemColors.Window;
+            this.tabPage5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.tabPage5.Controls.Add(this.dumpTreeView);
             this.tabPage5.Controls.Add(this.dumpTextBox);
             this.tabPage5.Location = new System.Drawing.Point(4, 24);
@@ -1396,15 +1404,15 @@
             this.tabPage5.Size = new System.Drawing.Size(768, 605);
             this.tabPage5.TabIndex = 1;
             this.tabPage5.Text = "Dump";
-            this.tabPage5.UseVisualStyleBackColor = true;
             // 
             // dumpTreeView
             // 
+            this.dumpTreeView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dumpTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dumpTreeView.Location = new System.Drawing.Point(0, 0);
             this.dumpTreeView.Name = "dumpTreeView";
             this.dumpTreeView.PathSeparator = "/";
-            this.dumpTreeView.Size = new System.Drawing.Size(768, 605);
+            this.dumpTreeView.Size = new System.Drawing.Size(766, 603);
             this.dumpTreeView.TabIndex = 1;
             this.dumpTreeView.Visible = false;
             this.dumpTreeView.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.DumpTreeView_NodeMouseClick);
@@ -1412,13 +1420,14 @@
             // dumpTextBox
             // 
             this.dumpTextBox.BackColor = System.Drawing.SystemColors.Window;
+            this.dumpTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dumpTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dumpTextBox.Location = new System.Drawing.Point(0, 0);
             this.dumpTextBox.Multiline = true;
             this.dumpTextBox.Name = "dumpTextBox";
             this.dumpTextBox.ReadOnly = true;
             this.dumpTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.dumpTextBox.Size = new System.Drawing.Size(768, 605);
+            this.dumpTextBox.Size = new System.Drawing.Size(766, 603);
             this.dumpTextBox.TabIndex = 0;
             this.dumpTextBox.WordWrap = false;
             // 

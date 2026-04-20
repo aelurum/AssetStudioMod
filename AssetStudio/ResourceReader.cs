@@ -82,7 +82,7 @@ namespace AssetStudio
         public byte[] GetData()
         {
             var binaryReader = GetReader();
-            lock (binaryReader)
+            lock (binaryReader.BaseStream)
             {
                 binaryReader.BaseStream.Position = Offset;
                 return binaryReader.ReadBytes((int)size);
@@ -93,7 +93,7 @@ namespace AssetStudio
         {
             int dataLen;
             var binaryReader = GetReader();
-            lock (binaryReader)
+            lock (binaryReader.BaseStream)
             {
                 binaryReader.BaseStream.Position = Offset;
                 dataLen = binaryReader.Read(buff, startIndex, (int)size);

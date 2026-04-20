@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 
 namespace AssetStudio
 {
@@ -8,7 +9,7 @@ namespace AssetStudio
 
         static BigArrayPool()
         {
-            Shared = ArrayPool<T>.Create(256 * 1024 * 1024, 5);
+            Shared = ArrayPool<T>.Create(256 * 1024 * 1024, (int)MathF.Max(5, Environment.ProcessorCount / 2f));
         }
     }
 }

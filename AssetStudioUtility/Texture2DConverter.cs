@@ -802,10 +802,11 @@ namespace AssetStudio
         {
             for (var i = 0; i < outputDataSize; i += 4)
             {
-                destSpan[i] = DownScaleFrom16BitTo8Bit(BinaryPrimitives.ReadUInt16LittleEndian(buff.Slice(i * 2 + 4))); //B
-                destSpan[i + 1] = DownScaleFrom16BitTo8Bit(BinaryPrimitives.ReadUInt16LittleEndian(buff.Slice(i * 2 + 2))); //G
-                destSpan[i + 2] = DownScaleFrom16BitTo8Bit(BinaryPrimitives.ReadUInt16LittleEndian(buff.Slice(i * 2))); //R
-                destSpan[i + 3] = DownScaleFrom16BitTo8Bit(BinaryPrimitives.ReadUInt16LittleEndian(buff.Slice(i * 2 + 6))); //A
+                var val = BinaryPrimitives.ReadUInt64LittleEndian(buff.Slice(i * 2));
+                destSpan[i] = DownScaleFrom16BitTo8Bit((ushort)((val >> 32) & 0xffff)); //B
+                destSpan[i + 1] = DownScaleFrom16BitTo8Bit((ushort)((val >> 16) & 0xffff)); //G
+                destSpan[i + 2] = DownScaleFrom16BitTo8Bit((ushort)(val & 0xffff)); //R
+                destSpan[i + 3] = DownScaleFrom16BitTo8Bit((ushort)((val >> 48) & 0xffff)); //A
             }
             return true;
         }

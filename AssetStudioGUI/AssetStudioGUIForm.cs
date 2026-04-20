@@ -1047,91 +1047,13 @@ namespace AssetStudioGUI
         private void PreviewAudioClip(AssetItem assetItem, AudioClip m_AudioClip)
         {
             //Info
-            assetItem.InfoText = "Compression format: ";
-            if (m_AudioClip.version < 5)
+            assetItem.InfoText = $"Compression format: {m_AudioClip.GetCompressionFormatString()}";
+            if (m_AudioClip.m_AudioData.Size <= 0)
             {
-                switch (m_AudioClip.m_Type)
-                {
-                    case FMODSoundType.AAC:
-                        assetItem.InfoText += "AAC";
-                        break;
-                    case FMODSoundType.AIFF:
-                        assetItem.InfoText += "AIFF";
-                        break;
-                    case FMODSoundType.IT:
-                        assetItem.InfoText += "Impulse tracker";
-                        break;
-                    case FMODSoundType.MOD:
-                        assetItem.InfoText += "Protracker / Fasttracker MOD";
-                        break;
-                    case FMODSoundType.MPEG:
-                        assetItem.InfoText += "MP2/MP3 MPEG";
-                        break;
-                    case FMODSoundType.OGGVORBIS:
-                        assetItem.InfoText += "Ogg vorbis";
-                        break;
-                    case FMODSoundType.S3M:
-                        assetItem.InfoText += "ScreamTracker 3";
-                        break;
-                    case FMODSoundType.WAV:
-                        assetItem.InfoText += "Microsoft WAV";
-                        break;
-                    case FMODSoundType.XM:
-                        assetItem.InfoText += "FastTracker 2 XM";
-                        break;
-                    case FMODSoundType.XMA:
-                        assetItem.InfoText += "Xbox360 XMA";
-                        break;
-                    case FMODSoundType.VAG:
-                        assetItem.InfoText += "PlayStation Portable ADPCM";
-                        break;
-                    case FMODSoundType.AUDIOQUEUE:
-                        assetItem.InfoText += "iPhone";
-                        break;
-                    default:
-                        assetItem.InfoText += $"Unknown ({m_AudioClip.m_Type})";
-                        break;
-                }
+                Logger.Warning("AudioData size shouldn't be 0");
+                return;
             }
-            else
-            {
-                switch (m_AudioClip.m_CompressionFormat)
-                {
-                    case AudioCompressionFormat.PCM:
-                        assetItem.InfoText += "PCM";
-                        break;
-                    case AudioCompressionFormat.Vorbis:
-                        assetItem.InfoText += "Vorbis";
-                        break;
-                    case AudioCompressionFormat.ADPCM:
-                        assetItem.InfoText += "ADPCM";
-                        break;
-                    case AudioCompressionFormat.MP3:
-                        assetItem.InfoText += "MP3";
-                        break;
-                    case AudioCompressionFormat.PSMVAG:
-                        assetItem.InfoText += "PlayStation Portable ADPCM";
-                        break;
-                    case AudioCompressionFormat.HEVAG:
-                        assetItem.InfoText += "PSVita ADPCM";
-                        break;
-                    case AudioCompressionFormat.XMA:
-                        assetItem.InfoText += "Xbox360 XMA";
-                        break;
-                    case AudioCompressionFormat.AAC:
-                        assetItem.InfoText += "AAC";
-                        break;
-                    case AudioCompressionFormat.GCADPCM:
-                        assetItem.InfoText += "Nintendo 3DS/Wii DSP";
-                        break;
-                    case AudioCompressionFormat.ATRAC9:
-                        assetItem.InfoText += "PSVita ATRAC9";
-                        break;
-                    default:
-                        assetItem.InfoText += "Unknown";
-                        break;
-                }
-            }
+
             soundBuff = BigArrayPool<byte>.Shared.Rent(m_AudioClip.m_AudioData.Size);
             var dataLen = m_AudioClip.m_AudioData.GetData(soundBuff);
             if (dataLen <= 0)
@@ -1140,30 +1062,33 @@ namespace AssetStudioGUI
             var exinfo = new FMOD.CREATESOUNDEXINFO();
             exinfo.cbsize = Marshal.SizeOf(exinfo);
             exinfo.length = (uint)m_AudioClip.m_Size;
+            var mode = FMOD.MODE.OPENMEMORY | FMOD.MODE.LOWMEM | FMOD.MODE.IGNORETAGS | FMOD.MODE.ACCURATETIME | FMOD.MODE.MPEGSEARCH | loopMode;
+            if (m_AudioClip.IsLegacyRawWav())
+            {
+                exinfo.format = (LegacyAudioType)m_AudioClip.m_Format == LegacyAudioType.RawWavU8Mono ? FMOD.SOUND_FORMAT.PCM8 : FMOD.SOUND_FORMAT.PCM16;
+                exinfo.numchannels = m_AudioClip.m_Channels;
+                exinfo.defaultfrequency = m_AudioClip.m_Frequency;
+                mode |= FMOD.MODE.OPENRAW;
+                if (m_AudioClip.m_AudioData.Endian == EndianType.BigEndian && exinfo.format == FMOD.SOUND_FORMAT.PCM16)
+                {
+                    AudioClipConverter.SwapPcm16Endian(soundBuff.AsSpan(0, m_AudioClip.m_AudioData.Size));
+                }
+            }
 
-            var result = system.createStream(soundBuff, FMOD.MODE.OPENMEMORY | FMOD.MODE.LOWMEM | FMOD.MODE.IGNORETAGS | FMOD.MODE.ACCURATETIME | loopMode, ref exinfo, out sound);
+            var result = system.createStream(soundBuff, mode, ref exinfo, out sound);
             if (result != FMOD.RESULT.OK)
             {
-                if (m_AudioClip.version < (2, 6) || m_AudioClip.version >= 5)
-                {
-                    var legacyFormat = m_AudioClip.IsLegacyConvertSupport()
-                        ? "\nLegacy audio format: Raw wav data"
-                        : "";
-                    var channels = m_AudioClip.m_Channels > 0
-                        ? $"\nChannel count: {m_AudioClip.m_Channels}"
-                        : "";
-                    var bits = m_AudioClip.version >= 5
-                        ? $"\nBit depth: {m_AudioClip.m_BitsPerSample}"
-                        : "";
-                    assetItem.InfoText +=
-                        legacyFormat +
-                        $"\nLength: {m_AudioClip.m_Length:0.0##}" +
-                        $"\nSample rate: {m_AudioClip.m_Frequency}" +
-                        channels +
-                        bits;
-                }
+                if (m_AudioClip.m_Length > 0)
+                    assetItem.InfoText += $"\nLength: {m_AudioClip.m_Length:0.0##}";
+                if (m_AudioClip.m_Frequency > 0)
+                    assetItem.InfoText += $"\nSample rate: {m_AudioClip.m_Frequency}";
+                if (m_AudioClip.m_Channels > 0)
+                    assetItem.InfoText += $"\nChannel count: {m_AudioClip.m_Channels}";
+                if (m_AudioClip.version >= 5)
+                    assetItem.InfoText += $"\nBit depth: {m_AudioClip.m_BitsPerSample}";
+
                 var errorMsg = result == FMOD.RESULT.ERR_VERSION
-                    ? "Unsupported version of fmod sound. Try to export raw and convert with an external tool instead."
+                    ? "Unsupported version of FMOD sound. Try to export and convert with an external tool instead."
                     : $"Preview not available, try to export instead. {FMOD.Error.String(result)}";
                 StatusStripUpdate(errorMsg);
                 FMODreset();

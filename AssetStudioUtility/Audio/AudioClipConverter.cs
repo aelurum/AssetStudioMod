@@ -1,16 +1,24 @@
-﻿using System;
+﻿using FMOD;
+using System;
 using System.Runtime.InteropServices;
-using FMOD;
 using WavHelper;
 
 namespace AssetStudio
 {
     public sealed class AudioClipConverter
     {
-        private AudioClip m_AudioClip;
         private static FMOD.System system;
-        public bool IsSupport => m_AudioClip.IsConvertSupport();
-        public bool IsLegacy => m_AudioClip.IsLegacyConvertSupport();
+        private static byte[] oggMagic = { 0x4F, 0x67, 0x67, 0x53 }; //OggS
+        private static byte[] fsb5Magic = { 0x46, 0x53, 0x42, 0x35 }; //FSB5
+        private static byte[] fsb4Magic = { 0x46, 0x53, 0x42, 0x34 }; //FSB4
+
+        private readonly AudioClip m_AudioClip;
+        private byte[] audioBuff;
+        private CREATESOUNDEXINFO exinfo;
+        private readonly SOUND_TYPE fmodSoundType;
+        private readonly bool isLegacyRawWav;
+
+        public bool IsSupport { get; }
 
         static AudioClipConverter()
         {
@@ -26,42 +34,71 @@ namespace AssetStudio
             }
         }
 
-        public AudioClipConverter(AudioClip audioClip)
+        public AudioClipConverter(AudioClip audioClip, byte[] audioBuff)
         {
             m_AudioClip = audioClip;
-        }
+            this.audioBuff = audioBuff;
 
-        public byte[] ConvertToWav(byte[] m_AudioData, ref string debugLog)
-        {
-            var exinfo = new CREATESOUNDEXINFO();
+            exinfo = new CREATESOUNDEXINFO();
             exinfo.cbsize = Marshal.SizeOf(exinfo);
             exinfo.length = (uint)m_AudioClip.m_Size;
-            var result = system.createSound(m_AudioData, MODE.OPENMEMORY | MODE.LOWMEM | MODE.ACCURATETIME, ref exinfo, out var sound);
-            if (ErrorCheck(result, ref debugLog))
-                return null;
+            var mode = MODE.OPENMEMORY | MODE.LOWMEM | MODE.MPEGSEARCH;
+            if (m_AudioClip.IsLegacyRawWav())
+            {
+                exinfo.format = (LegacyAudioType)m_AudioClip.m_Format == LegacyAudioType.RawWavU8Mono ? SOUND_FORMAT.PCM8 : SOUND_FORMAT.PCM16;
+                exinfo.numchannels = m_AudioClip.m_Channels;
+                exinfo.defaultfrequency = m_AudioClip.m_Frequency;
+                mode |= MODE.OPENRAW;
+                isLegacyRawWav = true;
+            }
+            var result = system.createStream(audioBuff, mode, ref exinfo, out var sound);
+            if (result != RESULT.OK)
+                return;
 
+            _ = sound.getFormat(out fmodSoundType, out var soundFormat, out _, out _);
+            sound.release();
+            sound.clearHandle();
+            IsSupport = soundFormat > SOUND_FORMAT.NONE && soundFormat < SOUND_FORMAT.BITSTREAM;
+        }
+
+        public bool TryConvertToWav(out byte[] wavBuffer, ref string debugLog)
+        {
+            wavBuffer = null;
+            if (!IsSupport)
+                return false;
+
+            var mode = MODE.OPENMEMORY | MODE.LOWMEM | MODE.ACCURATETIME | MODE.MPEGSEARCH;
+            if (isLegacyRawWav)
+            {
+                mode |= MODE.OPENRAW;
+                if (m_AudioClip.m_AudioData.Endian == EndianType.BigEndian && exinfo.format == SOUND_FORMAT.PCM16)
+                {
+                    SwapPcm16Endian(audioBuff.AsSpan(0, (int)m_AudioClip.m_Size));
+                }
+            }
+            var result = system.createSound(audioBuff, mode, ref exinfo, out var sound);
+            if (ErrorCheck(result, ref debugLog))
+                return false;
             result = sound.getNumSubSounds(out var numsubsounds);
             if (ErrorCheck(result, ref debugLog))
-                return null;
-
-            byte[] buff;
+                return false;
             if (numsubsounds > 0)
             {
                 result = sound.getSubSound(0, out var subsound);
                 if (ErrorCheck(result, ref debugLog))
-                    return null;
-                buff = SoundToWav(subsound, ref debugLog);
+                    return false;
+                wavBuffer = SoundToWav(subsound, ref debugLog);
                 subsound.release();
                 subsound.clearHandle();
             }
             else
             {
-                buff = SoundToWav(sound, ref debugLog);
+                wavBuffer = SoundToWav(sound, ref debugLog);
             }
-
             sound.release();
             sound.clearHandle();
-            return buff;
+
+            return true;
         }
 
         private byte[] SoundToWav(Sound sound, ref string debugLog)
@@ -99,47 +136,39 @@ namespace AssetStudio
             result = sound.@lock(0, length, out var ptr1, out var ptr2, out var len1, out var len2);
             if (ErrorCheck(result, ref debugLog))
                 return null;
-            var wavDataLength = convertToPcm16
-                ? len1 / 2
-                : len1;
-            var buffer = new byte[wavDataLength + 44];
-            if (convertToPcm16)
+            var wavDataLength = convertToPcm16 ? len1 / 2 : len1;
+            var wavBuffer = new byte[wavDataLength + 44];
+            if (bits == 8)
             {
-                ReadAsPcm16(ptr1, buffer, 44, len1, ref debugLog);
+                ReadAsPcm8U(ptr1, wavBuffer, 44, len1, ref debugLog);
+            }
+            else if (convertToPcm16)
+            {
+                ReadAsPcm16(ptr1, wavBuffer, 44, len1, ref debugLog);
             }
             else
             {
-                Marshal.Copy(ptr1, buffer, 44, (int)len1);
+                Marshal.Copy(ptr1, wavBuffer, 44, (int)len1);
             }
             result = sound.unlock(ptr1, ptr2, len1, len2);
             if (ErrorCheck(result, ref debugLog))
                 return null;
             //添加wav头
             var wavHeader = new WavHeader(wavDataLength, audioFormat, channels, (uint)frequency, bits);
-            wavHeader.WriteToArray(buffer);
-            return buffer;
+            wavHeader.WriteToArray(wavBuffer);
+            return wavBuffer;
         }
 
-        public byte[] RawAudioClipToWav(ref string debugLog)
+        private static void ReadAsPcm8U(IntPtr srcPtr, byte[] wavBuffer, int offset, uint pcmDataLen, ref string debugLog)
         {
-            var audioSize = (uint)m_AudioClip.m_Size;
-            var channels = m_AudioClip.m_Channels;
-            var sampleRate = m_AudioClip.m_Frequency;
-            var audioFormat = WavAudioFormat.PCM;
-            var bits = 16;
-
-            debugLog += "[Legacy wav converter] Generating wav header..\n";
-            var buffer = new byte[audioSize + 44];
-            var dataLen = m_AudioClip.m_AudioData.GetData(buffer, 44);
-            if (dataLen > 0)
+            for (var i = 0; i < pcmDataLen; i++)
             {
-                var wavHeader = new WavHeader(audioSize, audioFormat, channels, (uint)sampleRate, bits);
-                wavHeader.WriteToArray(buffer);
+                wavBuffer[offset++] = (byte)(Marshal.ReadByte(srcPtr, i) - 0x80);
             }
-            return buffer;
+            debugLog += "Finished FMOD_PCM8_SIGNED -> PCM8_UNSIGNED converting\n";
         }
 
-        private static void ReadAsPcm16(IntPtr srcPtr, byte[] destBuffer, int offset, uint pcmDataLen, ref string debugLog)
+        private static void ReadAsPcm16(IntPtr srcPtr, byte[] wavBuffer, int offset, uint pcmDataLen, ref string debugLog)
         {
             var pcmFloatVal = new byte[4];
             for (var i = 0; i < pcmDataLen; i += 4)
@@ -149,11 +178,46 @@ namespace AssetStudio
                     pcmFloatVal[j] = Marshal.ReadByte(srcPtr, i + j);
                 }
                 var pcm16Val = (short)MathHelper.Clamp(BitConverter.ToSingle(pcmFloatVal, 0) * short.MaxValue, short.MinValue, short.MaxValue);
-                destBuffer[offset] = (byte)(pcm16Val & 255);
-                destBuffer[offset + 1] = (byte)(pcm16Val >> 8);
+                wavBuffer[offset] = (byte)(pcm16Val & 255);
+                wavBuffer[offset + 1] = (byte)(pcm16Val >> 8);
                 offset += 2;
             }
-            debugLog += "Finished PCMFLOAT -> PCM16 converting\n";
+            debugLog += "Finished FMOD_PCMFLOAT -> PCM16 converting\n";
+        }
+
+        //For raw wav data in unity 1.x - 2.5
+        //we can handle it with fmod as well, but this way should be better, I guess
+        public byte[] WrapWavData(ref string debugLog)
+        {
+            if (!isLegacyRawWav)
+                return null;
+
+            var legacyType = (LegacyAudioType)m_AudioClip.m_Format;
+            var audioSize = (int)m_AudioClip.m_Size;
+            var channels = m_AudioClip.m_Channels;
+            var sampleRate = m_AudioClip.m_Frequency;
+            var audioFormat = WavAudioFormat.PCM;
+            var bits = legacyType == LegacyAudioType.RawWavU8Mono ? 8 : 16;
+
+            debugLog += "[Legacy AudioClip] Generating wav header..\n";
+            if (m_AudioClip.m_AudioData.Endian == EndianType.BigEndian && bits == 16)
+            {
+                SwapPcm16Endian(audioBuff.AsSpan(0, audioSize));
+            }
+            var wavBuffer = new byte[audioSize + 44];
+            var wavHeader = new WavHeader((uint)audioSize, audioFormat, channels, (uint)sampleRate, bits);
+            wavHeader.WriteToArray(wavBuffer);
+            audioBuff.AsSpan(0, audioSize).CopyTo(wavBuffer.AsSpan(44));
+
+            return wavBuffer;
+        }
+
+        public static void SwapPcm16Endian(Span<byte> buffer)
+        {
+            for (var i = 0; i < buffer.Length; i += 2)
+            {
+                buffer.Slice(i, 2).Reverse();
+            }
         }
 
         private static bool ErrorCheck(RESULT result, ref string log)
@@ -168,34 +232,46 @@ namespace AssetStudio
 
         public string GetExtensionName()
         {
+            //version based
+            if (isLegacyRawWav)
+                return ".wav";
+
+            //signature based
+            var magic = audioBuff.AsSpan(0, 4);
+            if (magic.SequenceEqual(fsb5Magic) || magic.SequenceEqual(fsb4Magic))
+                return ".fsb";
+            if (magic.SequenceEqual(oggMagic))
+                return ".ogg";
+
+            //audioClip based
             if (m_AudioClip.version < 5)
             {
+                if (m_AudioClip.version < (2, 6))
+                {
+                    switch (fmodSoundType) //fmod based
+                    {
+                        case SOUND_TYPE.MPEG: return ".mp3";
+                        case SOUND_TYPE.OGGVORBIS: return ".ogg";
+                    }
+                }
+
                 switch (m_AudioClip.m_Type)
                 {
-                    case FMODSoundType.AAC:
-                        return ".m4a";
-                    case FMODSoundType.AIFF:
-                        return ".aif";
-                    case FMODSoundType.IT:
-                        return ".it";
-                    case FMODSoundType.MOD:
-                        return ".mod";
-                    case FMODSoundType.MPEG:
-                        return ".mp3";
-                    case FMODSoundType.OGGVORBIS:
-                        return ".ogg";
-                    case FMODSoundType.S3M:
-                        return ".s3m";
-                    case FMODSoundType.WAV:
-                        return ".wav";
-                    case FMODSoundType.XM:
-                        return ".xm";
-                    case FMODSoundType.XMA:
-                        return ".wav";
-                    case FMODSoundType.VAG:
-                        return ".vag";
-                    case FMODSoundType.AUDIOQUEUE:
-                        return ".fsb";
+                    case FMODSoundType.AAC: return ".m4a";
+                    case FMODSoundType.AIFF: return ".aif";
+                    case FMODSoundType.ASF: return ".wma";
+                    case FMODSoundType.FLAC: return ".flac";
+                    case FMODSoundType.FSB: return ".fsb";
+                    case FMODSoundType.IT: return ".it";
+                    case FMODSoundType.MOD: return ".mod";
+                    case FMODSoundType.MPEG: return ".mp3";
+                    case FMODSoundType.OGGVORBIS: return ".ogg";
+                    case FMODSoundType.S3M: return ".s3m";
+                    case FMODSoundType.WAV: return ".wav";
+                    case FMODSoundType.XM: return ".xm";
+                    case FMODSoundType.XMA: return ".xma";
+                    case FMODSoundType.VAG: return ".vag";
+                    case FMODSoundType.AUDIOQUEUE: return ".fsb";
                 }
 
             }
@@ -203,28 +279,10 @@ namespace AssetStudio
             {
                 switch (m_AudioClip.m_CompressionFormat)
                 {
-                    case AudioCompressionFormat.PCM:
-                        return ".fsb";
-                    case AudioCompressionFormat.Vorbis:
-                        return ".fsb";
-                    case AudioCompressionFormat.ADPCM:
-                        return ".fsb";
-                    case AudioCompressionFormat.MP3:
-                        return ".fsb";
-                    case AudioCompressionFormat.PSMVAG:
-                        return ".fsb";
-                    case AudioCompressionFormat.HEVAG:
-                        return ".fsb";
-                    case AudioCompressionFormat.XMA:
-                        return ".fsb";
-                    case AudioCompressionFormat.AAC:
-                        return ".m4a";
-                    case AudioCompressionFormat.GCADPCM:
-                        return ".fsb";
-                    case AudioCompressionFormat.ATRAC9:
-                        return ".fsb";
+                    case AudioCompressionFormat.AAC: return ".m4a";
                 }
             }
+
             return ".AudioClip";
         }
     }

@@ -102,18 +102,19 @@ namespace AssetStudioGUI
         {
             debugLog = string.Empty;
             var m_AudioClip = (AudioClip)item.Asset;
-            var m_AudioData = BigArrayPool<byte>.Shared.Rent(m_AudioClip.m_AudioData.Size);
+            var audioBuff = BigArrayPool<byte>.Shared.Rent(m_AudioClip.m_AudioData.Size);
             try
             {
                 string exportFullPath;
-                var dataLen = m_AudioClip.m_AudioData.GetData(m_AudioData);
+                var dataLen = m_AudioClip.m_AudioData.GetData(audioBuff);
                 if (dataLen <= 0)
                 {
                     Logger.Warning($"Failed to export \"{item.Text}\": AudioData was not found");
                     return false;
                 }
-                var converter = new AudioClipConverter(m_AudioClip);
-                if (Properties.Settings.Default.convertAudio && (converter.IsSupport || converter.IsLegacy))
+                var isWav = m_AudioClip.m_Type == FMODSoundType.WAV || m_AudioClip.IsLegacyRawWav();
+                var converter = new AudioClipConverter(m_AudioClip, audioBuff);
+                if (Properties.Settings.Default.convertAudio && !isWav && converter.IsSupport)
                 {
                     if (!TryExportFile(exportPath, item, ".wav", out exportFullPath))
                         return false;
@@ -124,12 +125,9 @@ namespace AssetStudioGUI
                         debugLog += GenerateAudioClipInfo(m_AudioClip);
                     }
 
-                    var buffer = converter.IsLegacy
-                        ? converter.RawAudioClipToWav(ref debugLog)
-                        : converter.ConvertToWav(m_AudioData, ref debugLog);
-                    if (buffer == null)
+                    if (!converter.TryConvertToWav(out var buffer, ref debugLog))
                     {
-                        Logger.Warning($"{debugLog}Failed to export \"{item.Text}\": Failed to convert fmod audio to Wav");
+                        Logger.Warning($"{debugLog}Failed to export \"{item.Text}\": Failed to convert audio to wav");
                         return false;
                     }
                     File.WriteAllBytes(exportFullPath, buffer);
@@ -141,12 +139,21 @@ namespace AssetStudioGUI
 
                     if (GUILogger.ShowDebugMessage)
                     {
-                        debugLog += $"Exporting non-fmod {item.TypeString} \"{m_AudioClip.m_Name}\"..\n";
+                        debugLog += $"Exporting {item.TypeString} \"{m_AudioClip.m_Name}\"..\n";
                         debugLog += GenerateAudioClipInfo(m_AudioClip);
                     }
+
                     using (var file = File.OpenWrite(exportFullPath))
                     {
-                        file.Write(m_AudioData, 0, m_AudioClip.m_AudioData.Size);
+                        if (m_AudioClip.IsLegacyRawWav())
+                        {
+                            var buffer = converter.WrapWavData(ref debugLog);
+                            file.Write(buffer, 0, buffer.Length);
+                        }
+                        else
+                        {
+                            file.Write(audioBuff, 0, m_AudioClip.m_AudioData.Size);
+                        }
                     }
                 }
                 debugLog += $"{item.TypeString} \"{item.Text}\" exported to \"{exportFullPath}\"";
@@ -154,33 +161,23 @@ namespace AssetStudioGUI
             }
             finally
             {
-                BigArrayPool<byte>.Shared.Return(m_AudioData, clearArray: true);
+                BigArrayPool<byte>.Shared.Return(audioBuff, clearArray: true);
             }
         }
 
         private static string GenerateAudioClipInfo(AudioClip m_AudioClip)
         {
             var sb = new StringBuilder();
-            if (m_AudioClip.version >= (2, 6))
-            {
-                sb.AppendLine(m_AudioClip.version < 5
-                    ? $"AudioClip type: {m_AudioClip.m_Type}"
-                    : $"AudioClip compression format: {m_AudioClip.m_CompressionFormat}");
-                if (m_AudioClip.version >= 5)
-                {
-                    sb.AppendLine($"AudioClip channel count: {m_AudioClip.m_Channels}");
-                    sb.AppendLine($"AudioClip sample rate: {m_AudioClip.m_Frequency}");
-                    sb.AppendLine($"AudioClip bit depth: {m_AudioClip.m_BitsPerSample}");
-                }
-            }
-            else
-            {
-                var isRawWav = m_AudioClip.m_Format != 0x05;
-                sb.AppendLine($"Is raw wav data: {isRawWav}");
-                if (isRawWav)
-                    sb.AppendLine($"AudioClip channel count: {m_AudioClip.m_Channels}");
+            sb.AppendLine($"AudioClip compression format: {m_AudioClip.GetCompressionFormatString()}");
+            if (m_AudioClip.m_Length > 0)
+                sb.AppendLine($"AudioClip length: {m_AudioClip.m_Length:0.0##}");
+            if (m_AudioClip.m_Frequency > 0)
                 sb.AppendLine($"AudioClip sample rate: {m_AudioClip.m_Frequency}");
-            }
+            if (m_AudioClip.m_Channels > 0)
+                sb.AppendLine($"AudioClip channel count: {m_AudioClip.m_Channels}");
+            if (m_AudioClip.version >= 5)
+                sb.AppendLine($"AudioClip bit depth: {m_AudioClip.m_BitsPerSample}");
+
             return sb.ToString();
         }
 

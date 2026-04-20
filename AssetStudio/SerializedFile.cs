@@ -460,19 +460,21 @@ namespace AssetStudio
 
         public void ReadExtractedTypeTree()
         {
-            foreach (var kv in ExtractedTypeTreeHashes)
+            var hashes = ExtractedTypeTreeHashes.Keys.ToArray();
+            foreach (var hashStr in hashes)
             {
-                if (assetsManager.resourceFileReaders.TryGetValue(kv.Key, out var binaryReader))
+                var serializedType = ExtractedTypeTreeHashes[hashStr];
+                if (assetsManager.resourceFileReaders.TryGetValue(hashStr, out var binaryReader))
                 {
                     var fileReader = (FileReader)binaryReader;
                     fileReader.Endian = EndianType.LittleEndian;
                     fileReader.Position = 0;
 
-                    kv.Value.m_Type = new TypeTree();
-                    kv.Value.m_Type.m_Nodes = new List<TypeTreeNode>();
-                    TypeTreeBlobRead(kv.Value.m_Type, fileReader);
+                    serializedType.m_Type = new TypeTree();
+                    serializedType.m_Type.m_Nodes = new List<TypeTreeNode>();
+                    TypeTreeBlobRead(serializedType.m_Type, fileReader);
 
-                    ExtractedTypeTreeHashes[kv.Key] = null;
+                    ExtractedTypeTreeHashes[hashStr] = null;
                 }
             }
             var notFound = ExtractedTypeTreeHashes.Where(x=> x.Value != null).ToArray();

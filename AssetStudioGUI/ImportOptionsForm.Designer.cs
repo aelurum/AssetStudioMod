@@ -52,12 +52,22 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.cacheGroupBox = new System.Windows.Forms.GroupBox();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.tMeshModeUnityRadioButton = new System.Windows.Forms.RadioButton();
+            this.tMeshModeTuanjieRadioButton = new System.Windows.Forms.RadioButton();
+            this.tMeshModeAutoRadioButton = new System.Windows.Forms.RadioButton();
+            this.label1 = new System.Windows.Forms.Label();
             this.unityVersionGroupBox.SuspendLayout();
             this.decompressionGroupBox.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.cacheGroupBox.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // cachePathLabel
@@ -106,7 +116,6 @@
             // legacyUnityVersionComboBox
             // 
             this.legacyUnityVersionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.legacyUnityVersionComboBox.FormattingEnabled = true;
             this.legacyUnityVersionComboBox.Items.AddRange(new object[] {
             "None",
             "1.2 mac",
@@ -167,7 +176,6 @@
             // customBlockCompressionComboBox
             // 
             this.customBlockCompressionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.customBlockCompressionComboBox.FormattingEnabled = true;
             this.customBlockCompressionComboBox.Items.AddRange(new object[] {
             "Auto",
             "Zstd",
@@ -192,7 +200,6 @@
             // customBlockInfoCompressionComboBox
             // 
             this.customBlockInfoCompressionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.customBlockInfoCompressionComboBox.FormattingEnabled = true;
             this.customBlockInfoCompressionComboBox.Items.AddRange(new object[] {
             "Auto",
             "Zstd",
@@ -280,6 +287,7 @@
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(12);
             this.tabControl1.Name = "tabControl1";
@@ -326,6 +334,87 @@
             this.cacheGroupBox.TabStop = false;
             this.cacheGroupBox.Text = "Disk cache";
             // 
+            // tabPage3
+            // 
+            this.tabPage3.AutoScroll = true;
+            this.tabPage3.BackColor = System.Drawing.SystemColors.Menu;
+            this.tabPage3.Controls.Add(this.groupBox1);
+            this.tabPage3.Location = new System.Drawing.Point(4, 24);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(363, 291);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Meshes";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.AutoSize = true;
+            this.groupBox1.Controls.Add(this.panel1);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Location = new System.Drawing.Point(3, 3);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(357, 82);
+            this.groupBox1.TabIndex = 0;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Tuanjie";
+            // 
+            // panel1
+            // 
+            this.panel1.AutoSize = true;
+            this.panel1.Controls.Add(this.tMeshModeUnityRadioButton);
+            this.panel1.Controls.Add(this.tMeshModeTuanjieRadioButton);
+            this.panel1.Controls.Add(this.tMeshModeAutoRadioButton);
+            this.panel1.Location = new System.Drawing.Point(32, 37);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(288, 23);
+            this.panel1.TabIndex = 1;
+            // 
+            // tMeshModeUnityRadioButton
+            // 
+            this.tMeshModeUnityRadioButton.AutoSize = true;
+            this.tMeshModeUnityRadioButton.Dock = System.Windows.Forms.DockStyle.Left;
+            this.tMeshModeUnityRadioButton.Location = new System.Drawing.Point(156, 0);
+            this.tMeshModeUnityRadioButton.Name = "tMeshModeUnityRadioButton";
+            this.tMeshModeUnityRadioButton.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
+            this.tMeshModeUnityRadioButton.Size = new System.Drawing.Size(90, 23);
+            this.tMeshModeUnityRadioButton.TabIndex = 2;
+            this.tMeshModeUnityRadioButton.Text = "Unity mesh";
+            this.tMeshModeUnityRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // tMeshModeTuanjieRadioButton
+            // 
+            this.tMeshModeTuanjieRadioButton.AutoSize = true;
+            this.tMeshModeTuanjieRadioButton.Dock = System.Windows.Forms.DockStyle.Left;
+            this.tMeshModeTuanjieRadioButton.Location = new System.Drawing.Point(56, 0);
+            this.tMeshModeTuanjieRadioButton.Name = "tMeshModeTuanjieRadioButton";
+            this.tMeshModeTuanjieRadioButton.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
+            this.tMeshModeTuanjieRadioButton.Size = new System.Drawing.Size(100, 23);
+            this.tMeshModeTuanjieRadioButton.TabIndex = 1;
+            this.tMeshModeTuanjieRadioButton.Text = "Tuanjie mesh";
+            this.tMeshModeTuanjieRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // tMeshModeAutoRadioButton
+            // 
+            this.tMeshModeAutoRadioButton.AutoSize = true;
+            this.tMeshModeAutoRadioButton.Checked = true;
+            this.tMeshModeAutoRadioButton.Dock = System.Windows.Forms.DockStyle.Left;
+            this.tMeshModeAutoRadioButton.Location = new System.Drawing.Point(0, 0);
+            this.tMeshModeAutoRadioButton.Name = "tMeshModeAutoRadioButton";
+            this.tMeshModeAutoRadioButton.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
+            this.tMeshModeAutoRadioButton.Size = new System.Drawing.Size(56, 23);
+            this.tMeshModeAutoRadioButton.TabIndex = 0;
+            this.tMeshModeAutoRadioButton.TabStop = true;
+            this.tMeshModeAutoRadioButton.Text = "Auto";
+            this.tMeshModeAutoRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 19);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(80, 15);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Parsing mode";
+            // 
             // ImportOptionsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -357,6 +446,12 @@
             this.tabPage2.PerformLayout();
             this.cacheGroupBox.ResumeLayout(false);
             this.cacheGroupBox.PerformLayout();
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -387,5 +482,12 @@
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.GroupBox cacheGroupBox;
         private System.Windows.Forms.ComboBox legacyUnityVersionComboBox;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.RadioButton tMeshModeUnityRadioButton;
+        private System.Windows.Forms.RadioButton tMeshModeTuanjieRadioButton;
+        private System.Windows.Forms.RadioButton tMeshModeAutoRadioButton;
     }
 }

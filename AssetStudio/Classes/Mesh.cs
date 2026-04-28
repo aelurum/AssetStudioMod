@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AssetStudio.CustomOptions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -744,13 +745,16 @@ namespace AssetStudio
                     var m_KeepIndices = reader.ReadBoolean();
                 }
 
-                if (version.IsTuanjie)
+                var tuanjieParsingMode = reader.assetsFile.assetsManager.Options.MeshOptions.TuanjieMeshParsingMode;
+                var useSharedClusterData = tuanjieParsingMode == ImportOptions.CustomMeshOptions.MeshParsingMode.Tuanjie 
+                                           || (tuanjieParsingMode == ImportOptions.CustomMeshOptions.MeshParsingMode.Auto && reader.version < (2022, 3, 61, 2));
+                if (version.IsTuanjie && useSharedClusterData)
                 {
-                    if (version < (2022, 3, 48) || (version == (2022, 3, 48) && version.Build < 3)) //2022.3.48t3(1.4.0) down
+                    if (version < (2022, 3, 48, 3)) //2022.3.48t3(1.4.0) down
                     {
                         _ = new SharedClusterData(reader, rev: 1);
                     }
-                    else if (version < (2022, 3, 61) || (version == (2022, 3, 61) && version.Build < 2)) //2022.3.48t3(1.4.0) - 2022.3.61t1(1.6.0)
+                    else if (version < (2022, 3, 61, 2)) //2022.3.48t3(1.4.0) - 2022.3.61t1(1.6.0)
                     {
                         _ = new SharedClusterData(reader, rev: 2);
                     }

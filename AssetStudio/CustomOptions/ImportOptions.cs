@@ -17,6 +17,7 @@ namespace AssetStudio.CustomOptions
         public event EventHandler UnityVersionChanged;
 
         public CustomBundleOptions BundleOptions { get; set; }
+        public CustomMeshOptions MeshOptions { get; set; }
         public UnityVersion CustomUnityVersion { get => _customUnityVer; set => SetUnityVersion(value); }
 
         static ImportOptions()
@@ -31,6 +32,7 @@ namespace AssetStudio.CustomOptions
         public ImportOptions()
         {
             BundleOptions = new CustomBundleOptions();
+            MeshOptions = new CustomMeshOptions();
             CustomUnityVersion = null;
         }
 
@@ -93,6 +95,18 @@ namespace AssetStudio.CustomOptions
             UnityVersionChanged?.Invoke(this, EventArgs.Empty);
 
             Logger.Info($"- Specified Unity version: {_customUnityVer}");
+        }
+
+        private static T SetOption<T>(string option, T value, T curValue)
+        {
+            if (value.Equals(curValue))
+                return curValue;
+
+            var val = string.IsNullOrEmpty(value.ToString())
+                ? "None"
+                : value.ToString();
+            Logger.Info($"- {option}: {val}");
+            return value;
         }
     }
 }

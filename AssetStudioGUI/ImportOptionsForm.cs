@@ -1,7 +1,9 @@
 ﻿using AssetStudio;
+using AssetStudio.CustomOptions;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace AssetStudioGUI
@@ -31,6 +33,8 @@ namespace AssetStudioGUI
             alwaysDecompressToDiskCheckBox.Checked = assetsManager.Options.BundleOptions.DecompressToDisk;
             customBlockInfoCompressionComboBox.SelectedIndex = SetCompressionComboBoxIndex(assetsManager.Options.BundleOptions.CustomBlockInfoCompression);
             customBlockCompressionComboBox.SelectedIndex = SetCompressionComboBoxIndex(assetsManager.Options.BundleOptions.CustomBlockCompression);
+            var tMeshMode = assetsManager.Options.MeshOptions.TuanjieMeshParsingMode;
+            ((RadioButton)panel1.Controls.Cast<Control>().First(x => x.TabIndex == (int)tMeshMode)).Checked = true;
         }
 
         private void ApplyOptions()
@@ -63,6 +67,9 @@ namespace AssetStudioGUI
             var decompressToDisk = alwaysDecompressToDiskCheckBox.Checked;
             _assetsManager.Options.BundleOptions.DecompressToDisk = decompressToDisk;
             Properties.Settings.Default.decompressToDisk = decompressToDisk;
+
+            var tMeshModeIndex = ((RadioButton)panel1.Controls.Cast<Control>().First(x => ((RadioButton)x).Checked)).TabIndex;
+            _assetsManager.Options.MeshOptions.TuanjieMeshParsingMode = (ImportOptions.CustomMeshOptions.MeshParsingMode)tMeshModeIndex;
 
             Properties.Settings.Default.Save();
         }
@@ -193,6 +200,7 @@ namespace AssetStudioGUI
                 Directory.CreateDirectory(_cachePath);
             DisplayCachePath();
         }
+        #endregion
 
         private void saveToDiskButton_Click(object sender, EventArgs e)
         {
@@ -205,7 +213,6 @@ namespace AssetStudioGUI
                 _assetsManager.Options.SaveToFile(savePath);
             }
         }
-        #endregion
 
         private void closeButton_Click(object sender, EventArgs e)
         {

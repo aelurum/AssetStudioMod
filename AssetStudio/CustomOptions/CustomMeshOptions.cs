@@ -1,6 +1,6 @@
 ﻿namespace AssetStudio.CustomOptions
 {
-    public partial class ImportOptions
+    public partial class GameSpecificOptions
     {
         public sealed class CustomMeshOptions
         {

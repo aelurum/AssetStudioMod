@@ -40,7 +40,7 @@ namespace AssetStudio
             {
                 var assetsManager = _assetsFile.assetsManager;
                 var assetsFileList = assetsManager.AssetsFileList;
-                var assetsFileIndexCache = assetsManager.assetsFileIndexCache;
+                var assetsFileIndexCache = assetsManager.AssetsFileIndexCache;
 
                 if (_index == -2)
                 {
@@ -127,7 +127,7 @@ namespace AssetStudio
 
             var assetsManager = _assetsFile.assetsManager;
             var assetsFileList = assetsManager.AssetsFileList;
-            var assetsFileIndexCache = assetsManager.assetsFileIndexCache;
+            var assetsFileIndexCache = assetsManager.AssetsFileIndexCache;
 
             if (!assetsFileIndexCache.TryGetValue(name, out _index))
             {

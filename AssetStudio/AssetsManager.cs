@@ -1,5 +1,4 @@
 ﻿using AssetStudio.Addons.CubismLive2D;
-using AssetStudio.CustomOptions;
 using AssetStudio.CustomOptions.Asmo;
 using System;
 using System.Collections.Concurrent;
@@ -16,16 +15,14 @@ namespace AssetStudio
 {
     public class AssetsManager
     {
-        public bool LoadViaTypeTree = true;
-        public bool MeshLazyLoad = true;
-        public UnityVersion AutoLegacyVersion = null;
-        public ImportOptions Options = new ImportOptions();
-        public readonly List<Action<OptionsFile>> OptionLoaders = new List<Action<OptionsFile>>();
+        public readonly AssetsManagerOptions Options = new AssetsManagerOptions();
         public readonly List<SerializedFile> AssetsFileList = new List<SerializedFile>();
 
-        internal Dictionary<string, int> assetsFileIndexCache = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        internal ConcurrentDictionary<string, BinaryReader> resourceFileReaders = new ConcurrentDictionary<string, BinaryReader>(StringComparer.OrdinalIgnoreCase);
+        internal UnityVersion AutoLegacyVersion = null;
+        internal Dictionary<string, int> AssetsFileIndexCache = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        internal ConcurrentDictionary<string, BinaryReader> ResourceFileReaders = new ConcurrentDictionary<string, BinaryReader>(StringComparer.OrdinalIgnoreCase);
 
+        private readonly List<Action<OptionsFile>> optionLoaders = new List<Action<OptionsFile>>();
         private readonly List<string> importFiles = new List<string>();
         private readonly HashSet<ClassIDType> filteredAssetTypesList = new HashSet<ClassIDType>();
         private readonly HashSet<string> importFilesHash = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -34,7 +31,17 @@ namespace AssetStudio
 
         public AssetsManager()
         {
-            OptionLoaders.Add(LoadImportOptions);
+            AddOptionsLoader(Options.LoadGameSpecificOptionsFromFile);
+        }
+
+        public void AddOptionsLoader(Action<OptionsFile> loader)
+        {
+            optionLoaders.Add(loader);
+        }
+
+        public void ClearOptionLoaders()
+        {
+            optionLoaders.Clear();
         }
 
         public void SetAssetFilter(params ClassIDType[] classIDTypes)
@@ -291,7 +298,7 @@ namespace AssetStudio
                 catch (Exception e)
                 {
                     Logger.Warning($"Failed to read assets file \"{reader.FullPath}\" from {Path.GetFileName(originalPath)}\n{e}");
-                    resourceFileReaders.TryAdd(reader.FileName, reader);
+                    ResourceFileReaders.TryAdd(reader.FileName, reader);
                 }
             }
             else
@@ -375,7 +382,7 @@ namespace AssetStudio
                 }
                 else
                 {
-                    resourceFileReaders.TryAdd(file.fileName, subReader);
+                    ResourceFileReaders.TryAdd(file.fileName, subReader);
                 }
             }
             return true;
@@ -403,7 +410,7 @@ namespace AssetStudio
                             LoadWebFile(subReader);
                             break;
                         case FileType.ResourceFile:
-                            resourceFileReaders.TryAdd(file.fileName, subReader);
+                            ResourceFileReaders.TryAdd(file.fileName, subReader);
                             break;
                     }
                 }
@@ -504,7 +511,7 @@ namespace AssetStudio
                             if (entryReader.FileType == FileType.ResourceFile)
                             {
                                 entryReader.Position = 0;
-                                resourceFileReaders.TryAdd(entry.Name, entryReader);
+                                ResourceFileReaders.TryAdd(entry.Name, entryReader);
                             }
                             Progress.Report(++k, progressCount);
                         }
@@ -542,7 +549,7 @@ namespace AssetStudio
                 if (optionsFile == null)
                     continue;
 
-                foreach (var optionsLoader in OptionLoaders)
+                foreach (var optionsLoader in optionLoaders)
                 {
                     optionsLoader(optionsFile);
                 }
@@ -572,34 +579,18 @@ namespace AssetStudio
             }
         }
 
-        private void LoadImportOptions(OptionsFile optionsFile)
+        private void CheckStrippedVersion(SerializedFile assetsFile, UnityVersion bundleUnityVer = null)
         {
-            try
-            {
-                var importOptions = ImportOptions.FromOptionsFile(optionsFile);
-                if (importOptions == null)
-                    return;
-                Options = importOptions;
-                Logger.Info("Import options successfully loaded.");
-            }
-            catch (Exception e)
-            {
-                Logger.Warning($"Error while reading import options\n{e}");
-            }
-        }
-
-        public void CheckStrippedVersion(SerializedFile assetsFile, UnityVersion bundleUnityVer = null)
-        {
-            if (assetsFile.version.IsStripped && Options.CustomUnityVersion == null)
+            if (assetsFile.version.IsStripped && Options.GameSpecific.CustomUnityVersion == null)
             {
                 var msg = "The asset's Unity version has been stripped, please set the version in the options.";
                 if (bundleUnityVer != null && !bundleUnityVer.IsStripped)
                     msg += $"\n\nAssumed Unity version based on asset bundle: {bundleUnityVer}";
                 throw new NotSupportedException(msg);
             }
-            if (Options.CustomUnityVersion != null)
+            if (Options.GameSpecific.CustomUnityVersion != null)
             {
-                assetsFile.version = Options.CustomUnityVersion;
+                assetsFile.version = Options.GameSpecific.CustomUnityVersion;
             }
         }
 
@@ -612,19 +603,19 @@ namespace AssetStudio
             }
             AssetsFileList.Clear();
 
-            foreach (var resourceFileReader in resourceFileReaders)
+            foreach (var resourceFileReader in ResourceFileReaders)
             {
                 resourceFileReader.Value.Close();
             }
-            resourceFileReaders.Clear();
+            ResourceFileReaders.Clear();
 
-            assetsFileIndexCache.Clear();
+            AssetsFileIndexCache.Clear();
         }
 
         private void ReadAssets()
         {
             var serializedVer = AssetsFileList[0].header.m_Version;
-            if (serializedVer <= SerializedFileFormatVersion.Unknown_6 && serializedVer >= SerializedFileFormatVersion.Unknown_5 && AutoLegacyVersion == null && Options.CustomUnityVersion == null)
+            if (serializedVer <= SerializedFileFormatVersion.Unknown_6 && serializedVer >= SerializedFileFormatVersion.Unknown_5 && AutoLegacyVersion == null && Options.GameSpecific.CustomUnityVersion == null)
             {
                 var versions = serializedVer == SerializedFileFormatVersion.Unknown_6
                     ? "'2.1.0f1', '2.5.0f1', '2.6.0f1'"
@@ -650,8 +641,10 @@ namespace AssetStudio
             Progress.Reset();
             foreach (var assetsFile in AssetsFileList)
             {
-                if (AutoLegacyVersion != null && Options.CustomUnityVersion == null)
+                if (AutoLegacyVersion != null && Options.GameSpecific.CustomUnityVersion == null)
+                {
                     assetsFile.version = AutoLegacyVersion;
+                }
 
                 JsonConverterHelper.AssetsFile = assetsFile;
                 foreach (var objectInfo in assetsFile.m_Objects)
@@ -664,14 +657,14 @@ namespace AssetStudio
                     try
                     {
                         Object obj = null;
-                        var loadViaTypeTree = objectReader.serializedType?.m_Type != null && LoadViaTypeTree;
+                        var parseByTypeTree = objectReader.serializedType?.m_Type != null && Options.ParseByTypeTree;
                         switch (objectReader.type)
                         {
                             case ClassIDType.Animation:
                                 obj = new Animation(objectReader);
                                 break;
                             case ClassIDType.AnimationClip when objectReader.version >= (1, 5):
-                                obj = loadViaTypeTree
+                                obj = parseByTypeTree
                                     ? new AnimationClip(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions, objectInfo)
                                     : new AnimationClip(objectReader);
                                 break;
@@ -703,7 +696,7 @@ namespace AssetStudio
                                 obj = new GameObject(objectReader);
                                 break;
                             case ClassIDType.Material:
-                                obj = loadViaTypeTree
+                                obj = parseByTypeTree
                                     ? new Material(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
                                     : new Material(objectReader);
                                 break;
@@ -752,12 +745,12 @@ namespace AssetStudio
                                 obj = new TextAsset(objectReader);
                                 break;
                             case ClassIDType.Texture2D:
-                                obj = loadViaTypeTree
+                                obj = parseByTypeTree
                                     ? new Texture2D(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
                                     : new Texture2D(objectReader);
                                 break;
                             case ClassIDType.Texture2DArray:
-                                obj = loadViaTypeTree
+                                obj = parseByTypeTree
                                     ? new Texture2DArray(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
                                     : new Texture2DArray(objectReader);
                                 break;

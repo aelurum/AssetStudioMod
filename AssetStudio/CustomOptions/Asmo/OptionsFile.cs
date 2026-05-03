@@ -5,7 +5,7 @@ namespace AssetStudio.CustomOptions.Asmo
 {
     public class OptionsFile
     {
-        private static readonly byte[] OptionsFileSign = new byte[] { 0x41, 0x53, 0x4D, 0x4F }; //ASMO
+        private static readonly byte[] OptionsFileSign = { 0x41, 0x53, 0x4D, 0x4F }; //ASMO
         public static readonly string Extension = ".asmo";
 
         public byte[] Signature { get; private set; } = OptionsFileSign;

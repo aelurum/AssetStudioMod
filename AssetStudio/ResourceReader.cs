@@ -45,7 +45,7 @@ namespace AssetStudio
             if (needSearch)
             {
                 var resourceFileName = Path.GetFileName(path);
-                if (assetsFile.assetsManager.resourceFileReaders.TryGetValue(resourceFileName, out reader))
+                if (assetsFile.assetsManager.ResourceFileReaders.TryGetValue(resourceFileName, out reader))
                 {
                     needSearch = false;
                     return reader;
@@ -63,12 +63,12 @@ namespace AssetStudio
                 if (File.Exists(resourceFilePath))
                 {
                     needSearch = false;
-                    if (assetsFile.assetsManager.resourceFileReaders.TryGetValue(resourceFileName, out reader))
+                    if (assetsFile.assetsManager.ResourceFileReaders.TryGetValue(resourceFileName, out reader))
                     {
                         return reader;
                     }
                     reader = new BinaryReader(File.OpenRead(resourceFilePath));
-                    assetsFile.assetsManager.resourceFileReaders.TryAdd(resourceFileName, reader);
+                    assetsFile.assetsManager.ResourceFileReaders.TryAdd(resourceFileName, reader);
                     return reader;
                 }
                 throw new FileNotFoundException($"Can't find the resource file {resourceFileName}");

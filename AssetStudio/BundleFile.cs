@@ -1,5 +1,4 @@
-﻿using AssetStudio.CustomOptions;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 
@@ -45,7 +44,7 @@ namespace AssetStudio
     {
         public readonly bool IsDataAfterBundle;
         private static TempFileStream _sharedTempFileStream;
-        private readonly ImportOptions.CustomBundleOptions _bundleOptions;
+        private readonly AssetsManagerOptions _studioOptions;
 
         public class Header
         {
@@ -78,9 +77,9 @@ namespace AssetStudio
         private StorageBlock[] m_BlocksInfo;
         private Node[] m_DirectoryInfo;
 
-        public BundleFile(FileReader reader, ImportOptions importOptions, bool isMultiBundle = false)
+        public BundleFile(FileReader reader, AssetsManagerOptions studioOptions, bool isMultiBundle = false)
         {
-            _bundleOptions = importOptions.BundleOptions;
+            _studioOptions = studioOptions;
             m_Header = new Header();
             m_Header.signature = reader.ReadStringToNull();
             m_Header.version = reader.ReadUInt32();
@@ -113,7 +112,7 @@ namespace AssetStudio
                     IsDataAfterBundle = streamSize - bundleSize > 200;
                     
                     var unityVer = m_Header.unityRevision;
-                    var customUnityVer = importOptions.CustomUnityVersion;
+                    var customUnityVer = studioOptions.GameSpecific.CustomUnityVersion;
                     if (customUnityVer != null)
                     {
                         if (!unityVer.IsStripped && customUnityVer != unityVer)
@@ -181,12 +180,12 @@ namespace AssetStudio
         private Stream CreateBlocksStream()
         {
             var uncompressedSizeSum = m_BlocksInfo.Sum(x => x.uncompressedSize);
-            if (uncompressedSizeSum < int.MaxValue && !_bundleOptions.DecompressToDisk)
+            if (uncompressedSizeSum < int.MaxValue && !_studioOptions.DecompressToDisk)
                 return new MemoryStream((int)uncompressedSizeSum);
 
             if (_sharedTempFileStream == null || !_sharedTempFileStream.CanRead)
             {
-                var cachePath = _bundleOptions.CustomCachePath;
+                var cachePath = _studioOptions.CustomCachePath;
                 if (string.IsNullOrEmpty(cachePath) || !Directory.Exists(cachePath))
                 {
                     throw new NotSupportedException("Cache directory wasn't found. Make sure that the specified path is correct.");
@@ -306,7 +305,7 @@ namespace AssetStudio
                 blocksInfoBytes = reader.ReadBytes(compressedSize);
             }
             
-            var customBlockInfoCompression = _bundleOptions.CustomBlockInfoCompression;
+            var customBlockInfoCompression = _studioOptions.GameSpecific.Bundles.CustomBlockInfoCompression;
             var compressionType = (CompressionType)(m_Header.flags & ArchiveFlags.CompressionTypeMask);
             if (customBlockInfoCompression == CompressionType.Auto)
             {
@@ -408,7 +407,7 @@ namespace AssetStudio
 
         private Stream ReadBlocks(FileReader reader)
         {
-            var customBlockCompression = _bundleOptions.CustomBlockCompression;
+            var customBlockCompression = _studioOptions.GameSpecific.Bundles.CustomBlockCompression;
             var blocksStream = CreateBlocksStream();
             var blocksCompression = m_BlocksInfo.Max(x => (CompressionType)(x.flags & StorageBlockFlags.CompressionTypeMask));
             var blockSize = (int)m_BlocksInfo.Max(x => x.uncompressedSize);

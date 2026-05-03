@@ -91,13 +91,13 @@ namespace AssetStudio
                 var verStr = reader.ReadStringToNull();
                 if (!UnityVersion.TryParse(verStr, out version))
                 {
-                    if (assetsManager.Options.CustomUnityVersion == null)
+                    if (assetsManager.Options.GameSpecific.CustomUnityVersion == null)
                     {
                         Logger.Warning($"Failed to parse Unity version: \"{verStr}\"");
                         version = new UnityVersion();
                         return;
                     }
-                    version = assetsManager.Options.CustomUnityVersion;
+                    version = assetsManager.Options.GameSpecific.CustomUnityVersion;
                     reader.Position = versionPos + version.ToString().Length + 1;
                 }
             }
@@ -463,7 +463,7 @@ namespace AssetStudio
             foreach (var hashStr in hashes)
             {
                 var serializedType = ExtractedTypeTreeHashes[hashStr];
-                if (assetsManager.resourceFileReaders.TryGetValue(hashStr, out var binaryReader))
+                if (assetsManager.ResourceFileReaders.TryGetValue(hashStr, out var binaryReader))
                 {
                     var fileReader = (FileReader)binaryReader;
                     fileReader.Endian = EndianType.LittleEndian;

@@ -37,7 +37,7 @@ namespace AssetStudioGUI
         private DirectBitmap imageTexture;
         private string tempClipboard;
         private bool isDarkMode;
-        private ImportOptionsForm importOptionsForm;
+        private GameOptionsForm gameOptionsForm;
 
         #region FMODControl
         private FMOD.System system;
@@ -135,7 +135,7 @@ namespace AssetStudioGUI
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             ConsoleWindow.RunConsole(Properties.Settings.Default.showConsole);
             InitializeComponent();
-            ApplyColorTheme(out isDarkMode);
+            ApplyColorTheme();
 
             var appAssembly = typeof(Program).Assembly.GetName();
             guiTitle = $"{appAssembly.Name} v{appAssembly.Version}";
@@ -143,25 +143,27 @@ namespace AssetStudioGUI
 
             delayTimer = new System.Timers.Timer(800);
             delayTimer.Elapsed += delayTimer_Elapsed;
+
             displayAll.Checked = Properties.Settings.Default.displayAll;
-            displayInfo.Checked = Properties.Settings.Default.displayInfo;
+            parseByTypetreeToolStripMenuItem.Checked = Properties.Settings.Default.useTypetreeLoading;
+            decompressBundlesToDiskToolStripMenuItem.Checked = Properties.Settings.Default.decompressToDisk;
+            buildSceneHierarchyToolStripMenuItem.Checked = Properties.Settings.Default.buildTreeStructure;
             enablePreview.Checked = Properties.Settings.Default.enablePreview;
-            showConsoleToolStripMenuItem.Checked = Properties.Settings.Default.showConsole;
-            buildTreeStructureToolStripMenuItem.Checked = Properties.Settings.Default.buildTreeStructure;
-            useAssetLoadingViaTypetreeToolStripMenuItem.Checked = Properties.Settings.Default.useTypetreeLoading;
-            useDumpTreeViewToolStripMenuItem.Checked = Properties.Settings.Default.useDumpTreeView;
+            displayInfo.Checked = Properties.Settings.Default.displayInfo;
             autoPlayAudioAssetsToolStripMenuItem.Checked = Properties.Settings.Default.autoplayAudio;
-            meshLazyLoadToolStripMenuItem.Checked = Properties.Settings.Default.meshLazyLoad;
-            assetsManager.Options.BundleOptions.DecompressToDisk = Properties.Settings.Default.decompressToDisk;
-            assetsManager.Options.BundleOptions.CustomCachePath = GetCachePath();
-            assetsManager.Options.UnityVersionChanged += OnUnityVersionChanged;
-            unityVersionStatusLabel.Visible = false;
+            useDumpTreeViewToolStripMenuItem.Checked = Properties.Settings.Default.useDumpTreeView;
+
+            assetsManager.Options.CustomCachePath = GetCachePath();
+            assetsManager.Options.MeshPreProcessing = Properties.Settings.Default.meshPreProcessing;
+            assetsManager.Options.GameSpecific.UnityVersionChanged += OnUnityVersionChanged;
+            FbxInitOrLoadOptions(Properties.Settings.Default.fbxSettings);
+            
             FMODinit();
             listSearchFilterMode.SelectedIndex = 0;
-            FbxInitOptions(Properties.Settings.Default.fbxSettings);
 
             logger = new GUILogger(StatusStripUpdate);
             Logger.Default = logger;
+            showConsoleToolStripMenuItem.Checked = Properties.Settings.Default.showConsole;
             writeLogToFileToolStripMenuItem.Checked = Properties.Settings.Default.useFileLogger;
 
             progressBarTextFont = new System.Drawing.Font(FontFamily.GenericSansSerif, 8);
@@ -175,6 +177,8 @@ namespace AssetStudioGUI
             Progress.Default = new Progress<int>(SetProgressBarValue);
             Progress.SetInstance(index: 1, new Progress<int>(SetProgressBarStringValue));
             Studio.StatusStripUpdate = StatusStripUpdate;
+
+            unityVersionStatusLabel.Visible = false;
         }
 
         private static string GetCachePath()
@@ -2309,9 +2313,17 @@ namespace AssetStudioGUI
             Logger.Verbose("Closing AssetStudio");
         }
 
-        private void buildTreeStructureToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        private void decompressBundlesToDiskToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.buildTreeStructure = buildTreeStructureToolStripMenuItem.Checked;
+            var isEnabled = decompressBundlesToDiskToolStripMenuItem.Checked;
+            assetsManager.Options.DecompressToDisk = isEnabled;
+            Properties.Settings.Default.decompressToDisk = isEnabled;
+            Properties.Settings.Default.Save();
+        }
+
+        private void buildSceneHierarchyToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.buildTreeStructure = buildSceneHierarchyToolStripMenuItem.Checked;
             Properties.Settings.Default.Save();
         }
 
@@ -2448,17 +2460,25 @@ namespace AssetStudioGUI
             }
         }
 
-        private void importOptions_DropDownClose(object sender, EventArgs e)
+        private void optionsToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
+        {
+            displayAll.Checked = Properties.Settings.Default.displayAll;
+            parseByTypetreeToolStripMenuItem.Checked = assetsManager.Options.ParseByTypeTree;
+            decompressBundlesToDiskToolStripMenuItem.Checked = assetsManager.Options.DecompressToDisk;
+            buildSceneHierarchyToolStripMenuItem.Checked = Properties.Settings.Default.buildTreeStructure;
+        }
+
+        private void gameOptions_DropDownClose(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(specifyUnityVersionTextBox.Text))
             {
-                assetsManager.Options.CustomUnityVersion = null;
+                assetsManager.Options.GameSpecific.CustomUnityVersion = null;
                 return;
             }
 
             try
             {
-                assetsManager.Options.CustomUnityVersion = new UnityVersion(specifyUnityVersionTextBox.Text);
+                assetsManager.Options.GameSpecific.CustomUnityVersion = new UnityVersion(specifyUnityVersionTextBox.Text);
             }
             catch (Exception ex)
             {
@@ -2466,25 +2486,16 @@ namespace AssetStudioGUI
             }
         }
 
-        private void importOptions_DropDownOpened(object sender, EventArgs e)
+        private void gameOptions_DropDownOpened(object sender, EventArgs e)
         {
-            if (assetsManager.Options.CustomUnityVersion != null)
+            if (assetsManager.Options.GameSpecific.CustomUnityVersion != null)
             {
-                specifyUnityVersionTextBox.Text = assetsManager.Options.CustomUnityVersion.FullVersion;
+                specifyUnityVersionTextBox.Text = assetsManager.Options.GameSpecific.CustomUnityVersion.FullVersion;
             }
-            alwaysDecompressToDiskToolStripMenuItem.Checked = assetsManager.Options.BundleOptions.DecompressToDisk;
             
             //highDpi workaround
             var font = customUnityVersionToolStripMenuItem.Font;
             specifyUnityVersionTextBox.Font = font;
-        }
-
-        private void alwaysDecompressToDiskToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var isEnabled = alwaysDecompressToDiskToolStripMenuItem.Checked;
-            assetsManager.Options.BundleOptions.DecompressToDisk = isEnabled;
-            Properties.Settings.Default.decompressToDisk = isEnabled;
-            Properties.Settings.Default.Save();
         }
 
         private void saveOptionsToDiskToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2494,21 +2505,20 @@ namespace AssetStudioGUI
             if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
             {
                 var savePath = saveFolderDialog.Folder;
-                assetsManager.Options.SaveToFile(savePath);
+                assetsManager.Options.GameSpecific.SaveToFile(savePath);
             }
         }
 
-        private void useAssetLoadingViaTypetreeToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        private void parseByTypetreeToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            var isEnabled = useAssetLoadingViaTypetreeToolStripMenuItem.Checked;
-            assetsManager.LoadViaTypeTree = isEnabled;
+            var isEnabled = parseByTypetreeToolStripMenuItem.Checked;
+            assetsManager.Options.ParseByTypeTree = isEnabled;
             Properties.Settings.Default.useTypetreeLoading = isEnabled;
             Properties.Settings.Default.Save();
         }
 
-        private void ApplyColorTheme(out bool isDarkMode)
+        private void ApplyColorTheme()
         {
-            isDarkMode = false;
             if (SystemInformation.HighContrast)
                 return;
 
@@ -2678,14 +2688,7 @@ namespace AssetStudioGUI
             Properties.Settings.Default.Save();
         }
 
-        private void meshLazyLoadToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.meshLazyLoad = meshLazyLoadToolStripMenuItem.Checked;
-            assetsManager.MeshLazyLoad = meshLazyLoadToolStripMenuItem.Checked;
-            Properties.Settings.Default.Save();
-        }
-
-        private static void FbxInitOptions(string base64String)
+        private static void FbxInitOrLoadOptions(string base64String)
         {
             if (string.IsNullOrEmpty(base64String))
             {
@@ -2699,22 +2702,28 @@ namespace AssetStudioGUI
             }
         }
 
-        private void moreOptionsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void moreGameOptionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (importOptionsForm == null || importOptionsForm.IsDisposed)
+            if (gameOptionsForm == null || gameOptionsForm.IsDisposed)
             {
-                importOptionsForm = new ImportOptionsForm(assetsManager);
-                importOptionsForm.Show(this);
+                gameOptionsForm = new GameOptionsForm(assetsManager.Options.GameSpecific);
+                gameOptionsForm.Show(this);
             }
             else
             {
-                importOptionsForm.Focus();
+                gameOptionsForm.Focus();
             }
+        }
+
+        private void moreStudioOptionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var studioOptions = new StudioOptionsForm(assetsManager.Options);
+            studioOptions.ShowDialog(this);
         }
 
         private void OnUnityVersionChanged(object s, EventArgs e)
         {
-            if (assetsManager.Options.CustomUnityVersion == null)
+            if (assetsManager.Options.GameSpecific.CustomUnityVersion == null)
             {
                 specifyUnityVersionTextBox.Text = "";
                 unityVersionStatusLabel.Text = "";
@@ -2722,14 +2731,14 @@ namespace AssetStudioGUI
             }
             else
             {
-                unityVersionStatusLabel.Text = assetsManager.Options.CustomUnityVersion.FullVersion;
+                unityVersionStatusLabel.Text = assetsManager.Options.GameSpecific.CustomUnityVersion.FullVersion;
                 unityVersionStatusLabel.Visible = true;
             }
         }
 
         private void unityVersionStatusLabel_DoubleClick(object sender, EventArgs e)
         {
-            assetsManager.Options.CustomUnityVersion = null;
+            assetsManager.Options.GameSpecific.CustomUnityVersion = null;
         }
 
         #region FMOD

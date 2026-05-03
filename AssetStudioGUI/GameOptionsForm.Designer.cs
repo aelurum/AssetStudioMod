@@ -1,6 +1,6 @@
 ﻿namespace AssetStudioGUI
 {
-    partial class ImportOptionsForm
+    partial class GameOptionsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,9 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.cachePathLabel = new System.Windows.Forms.Label();
-            this.cachePathSelectButton = new System.Windows.Forms.Button();
-            this.cachePathResetButton = new System.Windows.Forms.Button();
             this.unityVersionGroupBox = new System.Windows.Forms.GroupBox();
             this.legacyUnityVersionComboBox = new System.Windows.Forms.ComboBox();
             this.legacyUnityVersionLabel = new System.Windows.Forms.Label();
@@ -42,8 +39,6 @@
             this.customBlockCompressionLabel = new System.Windows.Forms.Label();
             this.customBlockInfoCompressionComboBox = new System.Windows.Forms.ComboBox();
             this.customBlockInfoCompressionLabel = new System.Windows.Forms.Label();
-            this.cacheFreeSpaceLabel = new System.Windows.Forms.Label();
-            this.alwaysDecompressToDiskCheckBox = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.closeButton = new System.Windows.Forms.Button();
             this.saveToDiskButton = new System.Windows.Forms.Button();
@@ -51,9 +46,8 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.cacheGroupBox = new System.Windows.Forms.GroupBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.tuanjieGroupBox = new System.Windows.Forms.GroupBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tMeshModeUnityRadioButton = new System.Windows.Forms.RadioButton();
             this.tMeshModeTuanjieRadioButton = new System.Windows.Forms.RadioButton();
@@ -64,40 +58,10 @@
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
-            this.cacheGroupBox.SuspendLayout();
             this.tabPage3.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.tuanjieGroupBox.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // cachePathLabel
-            // 
-            this.cachePathLabel.AutoEllipsis = true;
-            this.cachePathLabel.Location = new System.Drawing.Point(6, 19);
-            this.cachePathLabel.Name = "cachePathLabel";
-            this.cachePathLabel.Size = new System.Drawing.Size(348, 20);
-            this.cachePathLabel.TabIndex = 0;
-            this.cachePathLabel.Text = "Cache directory: <program folder>";
-            // 
-            // cachePathSelectButton
-            // 
-            this.cachePathSelectButton.Location = new System.Drawing.Point(9, 42);
-            this.cachePathSelectButton.Name = "cachePathSelectButton";
-            this.cachePathSelectButton.Size = new System.Drawing.Size(60, 25);
-            this.cachePathSelectButton.TabIndex = 1;
-            this.cachePathSelectButton.Text = "Select";
-            this.cachePathSelectButton.UseVisualStyleBackColor = false;
-            this.cachePathSelectButton.Click += new System.EventHandler(this.cachePathSelectButton_Click);
-            // 
-            // cachePathResetButton
-            // 
-            this.cachePathResetButton.Location = new System.Drawing.Point(75, 42);
-            this.cachePathResetButton.Name = "cachePathResetButton";
-            this.cachePathResetButton.Size = new System.Drawing.Size(60, 25);
-            this.cachePathResetButton.TabIndex = 2;
-            this.cachePathResetButton.Text = "Reset";
-            this.cachePathResetButton.UseVisualStyleBackColor = false;
-            this.cachePathResetButton.Click += new System.EventHandler(this.cachePathResetButton_Click);
             // 
             // unityVersionGroupBox
             // 
@@ -166,10 +130,10 @@
             this.decompressionGroupBox.Controls.Add(this.customBlockInfoCompressionComboBox);
             this.decompressionGroupBox.Controls.Add(this.customBlockInfoCompressionLabel);
             this.decompressionGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.decompressionGroupBox.Location = new System.Drawing.Point(3, 126);
+            this.decompressionGroupBox.Location = new System.Drawing.Point(3, 3);
             this.decompressionGroupBox.Name = "decompressionGroupBox";
             this.decompressionGroupBox.Size = new System.Drawing.Size(357, 92);
-            this.decompressionGroupBox.TabIndex = 1;
+            this.decompressionGroupBox.TabIndex = 0;
             this.decompressionGroupBox.TabStop = false;
             this.decompressionGroupBox.Text = "Decompression options";
             // 
@@ -220,27 +184,6 @@
             this.customBlockInfoCompressionLabel.Size = new System.Drawing.Size(154, 15);
             this.customBlockInfoCompressionLabel.TabIndex = 0;
             this.customBlockInfoCompressionLabel.Text = "BlockInfo compression type";
-            // 
-            // cacheFreeSpaceLabel
-            // 
-            this.cacheFreeSpaceLabel.AutoSize = true;
-            this.cacheFreeSpaceLabel.Location = new System.Drawing.Point(160, 47);
-            this.cacheFreeSpaceLabel.Name = "cacheFreeSpaceLabel";
-            this.cacheFreeSpaceLabel.Size = new System.Drawing.Size(91, 15);
-            this.cacheFreeSpaceLabel.TabIndex = 3;
-            this.cacheFreeSpaceLabel.Text = "Available space:";
-            // 
-            // alwaysDecompressToDiskCheckBox
-            // 
-            this.alwaysDecompressToDiskCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.alwaysDecompressToDiskCheckBox.Location = new System.Drawing.Point(9, 82);
-            this.alwaysDecompressToDiskCheckBox.Name = "alwaysDecompressToDiskCheckBox";
-            this.alwaysDecompressToDiskCheckBox.Size = new System.Drawing.Size(345, 19);
-            this.alwaysDecompressToDiskCheckBox.TabIndex = 4;
-            this.alwaysDecompressToDiskCheckBox.Text = "Always decompress asset bundles to disk (cache dir)";
-            this.toolTip1.SetToolTip(this.alwaysDecompressToDiskCheckBox, "If not selected, any bundles less than 2GB will be decompressed to RAM");
-            this.alwaysDecompressToDiskCheckBox.UseVisualStyleBackColor = true;
             // 
             // closeButton
             // 
@@ -310,7 +253,6 @@
             // 
             this.tabPage2.BackColor = System.Drawing.SystemColors.Menu;
             this.tabPage2.Controls.Add(this.decompressionGroupBox);
-            this.tabPage2.Controls.Add(this.cacheGroupBox);
             this.tabPage2.Location = new System.Drawing.Point(4, 24);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -318,44 +260,28 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Asset Bundles";
             // 
-            // cacheGroupBox
-            // 
-            this.cacheGroupBox.AutoSize = true;
-            this.cacheGroupBox.Controls.Add(this.alwaysDecompressToDiskCheckBox);
-            this.cacheGroupBox.Controls.Add(this.cacheFreeSpaceLabel);
-            this.cacheGroupBox.Controls.Add(this.cachePathLabel);
-            this.cacheGroupBox.Controls.Add(this.cachePathSelectButton);
-            this.cacheGroupBox.Controls.Add(this.cachePathResetButton);
-            this.cacheGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.cacheGroupBox.Location = new System.Drawing.Point(3, 3);
-            this.cacheGroupBox.Name = "cacheGroupBox";
-            this.cacheGroupBox.Size = new System.Drawing.Size(357, 123);
-            this.cacheGroupBox.TabIndex = 0;
-            this.cacheGroupBox.TabStop = false;
-            this.cacheGroupBox.Text = "Disk cache";
-            // 
             // tabPage3
             // 
             this.tabPage3.AutoScroll = true;
             this.tabPage3.BackColor = System.Drawing.SystemColors.Menu;
-            this.tabPage3.Controls.Add(this.groupBox1);
+            this.tabPage3.Controls.Add(this.tuanjieGroupBox);
             this.tabPage3.Location = new System.Drawing.Point(4, 24);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(363, 291);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Meshes";
             // 
-            // groupBox1
+            // tuanjieGroupBox
             // 
-            this.groupBox1.AutoSize = true;
-            this.groupBox1.Controls.Add(this.panel1);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Location = new System.Drawing.Point(3, 3);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(357, 82);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Tuanjie";
+            this.tuanjieGroupBox.AutoSize = true;
+            this.tuanjieGroupBox.Controls.Add(this.panel1);
+            this.tuanjieGroupBox.Controls.Add(this.label1);
+            this.tuanjieGroupBox.Location = new System.Drawing.Point(3, 3);
+            this.tuanjieGroupBox.Name = "tuanjieGroupBox";
+            this.tuanjieGroupBox.Size = new System.Drawing.Size(357, 82);
+            this.tuanjieGroupBox.TabIndex = 0;
+            this.tuanjieGroupBox.TabStop = false;
+            this.tuanjieGroupBox.Text = "Tuanjie engine";
             // 
             // panel1
             // 
@@ -432,10 +358,10 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MaximizeBox = false;
-            this.Name = "ImportOptionsForm";
+            this.Name = "GameOptionsForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Import options";
+            this.Text = "Game-specific options";
             this.unityVersionGroupBox.ResumeLayout(false);
             this.unityVersionGroupBox.PerformLayout();
             this.decompressionGroupBox.ResumeLayout(false);
@@ -443,13 +369,10 @@
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
-            this.tabPage2.PerformLayout();
-            this.cacheGroupBox.ResumeLayout(false);
-            this.cacheGroupBox.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.tuanjieGroupBox.ResumeLayout(false);
+            this.tuanjieGroupBox.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
@@ -458,10 +381,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Label cachePathLabel;
-        private System.Windows.Forms.Button cachePathSelectButton;
-        private System.Windows.Forms.Button cachePathResetButton;
         private System.Windows.Forms.GroupBox unityVersionGroupBox;
         private System.Windows.Forms.GroupBox decompressionGroupBox;
         private System.Windows.Forms.ToolTip toolTip1;
@@ -471,19 +390,16 @@
         private System.Windows.Forms.Label customUnityVersionLabel;
         private System.Windows.Forms.ComboBox customBlockCompressionComboBox;
         private System.Windows.Forms.Label customBlockCompressionLabel;
-        private System.Windows.Forms.CheckBox alwaysDecompressToDiskCheckBox;
         private System.Windows.Forms.Button closeButton;
         private System.Windows.Forms.Button saveToDiskButton;
         private System.Windows.Forms.Button applyButton;
-        private System.Windows.Forms.Label cacheFreeSpaceLabel;
         private System.Windows.Forms.Label legacyUnityVersionLabel;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.GroupBox cacheGroupBox;
         private System.Windows.Forms.ComboBox legacyUnityVersionComboBox;
         private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox tuanjieGroupBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.RadioButton tMeshModeUnityRadioButton;

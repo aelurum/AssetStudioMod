@@ -1,39 +1,32 @@
 ﻿using AssetStudio;
 using AssetStudio.CustomOptions;
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace AssetStudioGUI
 {
-    public partial class ImportOptionsForm : Form
+    public partial class GameOptionsForm : Form
     {
         private static readonly string SampleVersion = "e.g. 2022.3.2f1";
-        private readonly AssetsManager _assetsManager;
-        private string _cachePath;
+        private readonly GameSpecificOptions _gameOptions;
 
-        public ImportOptionsForm(AssetsManager assetsManager)
+        public GameOptionsForm(GameSpecificOptions gameOptions)
         {
             InitializeComponent();
-            _assetsManager = assetsManager;
-            if (assetsManager.Options.CustomUnityVersion != null)
+            _gameOptions = gameOptions;
+            if (gameOptions.CustomUnityVersion != null)
             {
-                customUnityVersionTextBox.Text = assetsManager.Options.CustomUnityVersion.FullVersion;
+                customUnityVersionTextBox.Text = gameOptions.CustomUnityVersion.FullVersion;
             }
             else
             {
                 ResetUnityVersionTextBox();
             }
             legacyUnityVersionComboBox.SelectedIndex = SetLegacyUnityVersionComboBoxIndex();
-            cachePathLabel.AutoSize = IsWine; //to disable AutoEllipsis in Wine
-            _cachePath = _assetsManager.Options.BundleOptions.CustomCachePath;
-            DisplayCachePath();
-            alwaysDecompressToDiskCheckBox.Checked = assetsManager.Options.BundleOptions.DecompressToDisk;
-            customBlockInfoCompressionComboBox.SelectedIndex = SetCompressionComboBoxIndex(assetsManager.Options.BundleOptions.CustomBlockInfoCompression);
-            customBlockCompressionComboBox.SelectedIndex = SetCompressionComboBoxIndex(assetsManager.Options.BundleOptions.CustomBlockCompression);
-            var tMeshMode = assetsManager.Options.MeshOptions.TuanjieMeshParsingMode;
+            customBlockInfoCompressionComboBox.SelectedIndex = SetCompressionComboBoxIndex(gameOptions.Bundles.CustomBlockInfoCompression);
+            customBlockCompressionComboBox.SelectedIndex = SetCompressionComboBoxIndex(gameOptions.Bundles.CustomBlockCompression);
+            var tMeshMode = gameOptions.Meshes.TuanjieMeshParsingMode;
             ((RadioButton)panel1.Controls.Cast<Control>().First(x => x.TabIndex == (int)tMeshMode)).Checked = true;
         }
 
@@ -41,13 +34,13 @@ namespace AssetStudioGUI
         {
             if (string.IsNullOrEmpty(customUnityVersionTextBox.Text) || customUnityVersionTextBox.Text == SampleVersion)
             {
-                _assetsManager.Options.CustomUnityVersion = null;
+                _gameOptions.CustomUnityVersion = null;
             }
             else
             {
                 try
                 {
-                    _assetsManager.Options.CustomUnityVersion = new UnityVersion(customUnityVersionTextBox.Text);
+                    _gameOptions.CustomUnityVersion = new UnityVersion(customUnityVersionTextBox.Text);
                     legacyUnityVersionComboBox.SelectedIndex = SetLegacyUnityVersionComboBoxIndex();
                 }
                 catch (Exception ex)
@@ -56,22 +49,13 @@ namespace AssetStudioGUI
                 }
             }
 
-            _assetsManager.Options.BundleOptions.CustomCachePath = _cachePath;
-            Properties.Settings.Default.cachePath = _cachePath;
-
             var blockCompression = GetCustomCompressionTypes(customBlockCompressionComboBox.SelectedIndex);
-            _assetsManager.Options.BundleOptions.CustomBlockCompression = blockCompression;
+            _gameOptions.Bundles.CustomBlockCompression = blockCompression;
             var blockInfoCompression = GetCustomCompressionTypes(customBlockInfoCompressionComboBox.SelectedIndex);
-            _assetsManager.Options.BundleOptions.CustomBlockInfoCompression = blockInfoCompression;
-
-            var decompressToDisk = alwaysDecompressToDiskCheckBox.Checked;
-            _assetsManager.Options.BundleOptions.DecompressToDisk = decompressToDisk;
-            Properties.Settings.Default.decompressToDisk = decompressToDisk;
+            _gameOptions.Bundles.CustomBlockInfoCompression = blockInfoCompression;
 
             var tMeshModeIndex = ((RadioButton)panel1.Controls.Cast<Control>().First(x => ((RadioButton)x).Checked)).TabIndex;
-            _assetsManager.Options.MeshOptions.TuanjieMeshParsingMode = (ImportOptions.CustomMeshOptions.MeshParsingMode)tMeshModeIndex;
-
-            Properties.Settings.Default.Save();
+            _gameOptions.Meshes.TuanjieMeshParsingMode = (GameSpecificOptions.CustomMeshOptions.MeshParsingMode)tMeshModeIndex;
         }
 
         #region General
@@ -129,7 +113,7 @@ namespace AssetStudioGUI
 
         private int SetLegacyUnityVersionComboBoxIndex()
         {
-            var version = _assetsManager.Options.CustomUnityVersion;
+            var version = _gameOptions.CustomUnityVersion;
 
             switch (version?.Major)
             {
@@ -173,33 +157,6 @@ namespace AssetStudioGUI
                 default: throw new NotSupportedException();
             }
         }
-
-        private void DisplayCachePath()
-        {
-            cachePathLabel.Text = $"Cache directory: {_cachePath}";
-            toolTip1.SetToolTip(cachePathLabel, _cachePath);
-            var driveInfo = new DriveInfo(Directory.GetDirectoryRoot(_cachePath));
-            cacheFreeSpaceLabel.Text = $"Available space: {driveInfo.AvailableFreeSpace * 1.0f / 0x40000000:.00}GB";
-        }
-
-        private void cachePathSelectButton_Click(object sender, EventArgs e)
-        {
-            var cachePathFolderDialog = new OpenFolderDialog();
-            cachePathFolderDialog.Title = "Select the cache directory";
-            if (cachePathFolderDialog.ShowDialog(this) != DialogResult.OK)
-                return;
-
-            _cachePath = cachePathFolderDialog.Folder;
-            DisplayCachePath();
-        }
-
-        private void cachePathResetButton_Click(object sender, EventArgs e)
-        {
-            _cachePath = Path.Combine(Directory.GetCurrentDirectory(), "temp");
-            if (!Directory.Exists(_cachePath))
-                Directory.CreateDirectory(_cachePath);
-            DisplayCachePath();
-        }
         #endregion
 
         private void saveToDiskButton_Click(object sender, EventArgs e)
@@ -210,13 +167,8 @@ namespace AssetStudioGUI
             if (saveFolderDialog.ShowDialog(this) == DialogResult.OK)
             {
                 var savePath = saveFolderDialog.Folder;
-                _assetsManager.Options.SaveToFile(savePath);
+                _gameOptions.SaveToFile(savePath);
             }
-        }
-
-        private void closeButton_Click(object sender, EventArgs e)
-        {
-            Close();
         }
 
         private void applyButton_Click(object sender, EventArgs e)
@@ -224,6 +176,9 @@ namespace AssetStudioGUI
             ApplyOptions();
         }
 
-        private static bool IsWine => Process.GetProcessesByName("winlogon").Length == 0;
+        private void closeButton_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }

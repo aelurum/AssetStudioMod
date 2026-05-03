@@ -745,9 +745,9 @@ namespace AssetStudio
                     var m_KeepIndices = reader.ReadBoolean();
                 }
 
-                var tuanjieParsingMode = reader.assetsFile.assetsManager.Options.MeshOptions.TuanjieMeshParsingMode;
-                var useSharedClusterData = tuanjieParsingMode == ImportOptions.CustomMeshOptions.MeshParsingMode.Tuanjie 
-                                           || (tuanjieParsingMode == ImportOptions.CustomMeshOptions.MeshParsingMode.Auto && reader.version < (2022, 3, 61, 2));
+                var tuanjieParsingMode = reader.assetsFile.assetsManager.Options.GameSpecific.Meshes.TuanjieMeshParsingMode;
+                var useSharedClusterData = tuanjieParsingMode == GameSpecificOptions.CustomMeshOptions.MeshParsingMode.Tuanjie 
+                                           || (tuanjieParsingMode == GameSpecificOptions.CustomMeshOptions.MeshParsingMode.Auto && reader.version < (2022, 3, 61, 2));
                 if (version.IsTuanjie && useSharedClusterData)
                 {
                     if (version < (2022, 3, 48, 3)) //2022.3.48t3(1.4.0) down
@@ -932,7 +932,7 @@ namespace AssetStudio
 
             //m_MeshLodInfo = new MeshLodInfo(reader) //6000.2 and up
 
-            if (!assetsFile.assetsManager.MeshLazyLoad)
+            if (assetsFile.assetsManager.Options.MeshPreProcessing)
                 ProcessData();
         }
 

@@ -8,19 +8,19 @@ using System.Text.Json.Serialization;
 
 namespace AssetStudio.CustomOptions
 {
-    public partial class ImportOptions
+    public partial class GameSpecificOptions
     {
         private static JsonSerializerOptions jsonOptions;
-        private static string fileName = "ImportOptions";
+        private static string fileName = "GameOptions";
         private UnityVersion _customUnityVer;
 
         public event EventHandler UnityVersionChanged;
 
-        public CustomBundleOptions BundleOptions { get; set; }
-        public CustomMeshOptions MeshOptions { get; set; }
+        public CustomBundleOptions Bundles { get; set; }
+        public CustomMeshOptions Meshes { get; set; }
         public UnityVersion CustomUnityVersion { get => _customUnityVer; set => SetUnityVersion(value); }
 
-        static ImportOptions()
+        static GameSpecificOptions()
         {
             jsonOptions = new JsonSerializerOptions
             {
@@ -29,19 +29,19 @@ namespace AssetStudio.CustomOptions
             };
         }
 
-        public ImportOptions()
+        public GameSpecificOptions()
         {
-            BundleOptions = new CustomBundleOptions();
-            MeshOptions = new CustomMeshOptions();
+            Bundles = new CustomBundleOptions();
+            Meshes = new CustomMeshOptions();
             CustomUnityVersion = null;
         }
 
-        public static ImportOptions FromOptionsFile(OptionsFile optionsFile)
+        public bool FromFile(OptionsFile optionsFile)
         {
             if (optionsFile.Reserved != 0)
             {
-                Logger.Debug("Skipped. Not an import options file.");
-                return null;
+                Logger.Debug("Skipped. Not a GameOptions file.");
+                return false;
             }
 
             var utf8Bytes = Convert.FromBase64String(Encoding.ASCII.GetString(optionsFile.Data));
@@ -49,7 +49,12 @@ namespace AssetStudio.CustomOptions
             if (optionsFile.DataCrc != dataCrc)
                 throw new IOException("Options file data is corrupted.");
 
-            return JsonSerializer.Deserialize<ImportOptions>(utf8Bytes, jsonOptions);
+            var parsedOptions = JsonSerializer.Deserialize<GameSpecificOptions>(utf8Bytes, jsonOptions);
+            Bundles = parsedOptions.Bundles;
+            Meshes = parsedOptions.Meshes;
+            CustomUnityVersion = parsedOptions.CustomUnityVersion;
+
+            return true;
         }
 
         public void SaveToFile(string outputFolder)
@@ -78,6 +83,7 @@ namespace AssetStudio.CustomOptions
         {
             if (_customUnityVer == value)
                 return;
+
             if (value == null)
             {
                 _customUnityVer = null;
@@ -85,6 +91,7 @@ namespace AssetStudio.CustomOptions
                 Logger.Info("- Specified Unity version: None");
                 return;
             }
+
             if (string.IsNullOrEmpty(value.BuildType))
             {
                 throw new NotSupportedException("Specified Unity version is not in a correct format.\n" +
@@ -92,7 +99,10 @@ namespace AssetStudio.CustomOptions
                                                 "Example: 2022.3.2f1");
             }
             _customUnityVer = value;
-            UnityVersionChanged?.Invoke(this, EventArgs.Empty);
+            if (UnityVersionChanged == null)
+                return;
+
+            UnityVersionChanged.Invoke(this, EventArgs.Empty);
 
             Logger.Info($"- Specified Unity version: {_customUnityVer}");
         }

@@ -30,13 +30,13 @@ namespace AssetStudioCLI
             Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
             Progress.Default = new Progress<int>(ShowCurProgressValue);
             Progress.SetInstance(1, new Progress<int>(ShowCurProgressValue));
-            assetsManager.LoadViaTypeTree = !CLIOptions.f_avoidLoadingViaTypetree.Value;
-            assetsManager.Options.CustomUnityVersion = CLIOptions.o_unityVersion.Value;
-            assetsManager.Options.BundleOptions.CustomBlockInfoCompression = CLIOptions.o_bundleBlockInfoCompression.Value;
-            assetsManager.Options.BundleOptions.CustomBlockCompression = CLIOptions.o_bundleBlockCompression.Value;
-            assetsManager.Options.BundleOptions.CustomCachePath = CLIOptions.o_cachePath.Value;
-            assetsManager.Options.BundleOptions.DecompressToDisk = CLIOptions.f_decompressToDisk.Value;
-            assetsManager.OptionLoaders.Clear();
+            assetsManager.Options.ParseByTypeTree = !CLIOptions.f_avoidLoadingViaTypetree.Value;
+            assetsManager.Options.GameSpecific.CustomUnityVersion = CLIOptions.o_unityVersion.Value;
+            assetsManager.Options.GameSpecific.Bundles.CustomBlockInfoCompression = CLIOptions.o_bundleBlockInfoCompression.Value;
+            assetsManager.Options.GameSpecific.Bundles.CustomBlockCompression = CLIOptions.o_bundleBlockCompression.Value;
+            assetsManager.Options.CustomCachePath = CLIOptions.o_cachePath.Value;
+            assetsManager.Options.DecompressToDisk = CLIOptions.f_decompressToDisk.Value;
+            assetsManager.ClearOptionLoaders();
         }
 
         private static void ShowCurProgressValue(int value)

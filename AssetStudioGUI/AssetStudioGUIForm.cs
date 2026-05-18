@@ -1587,6 +1587,7 @@ namespace AssetStudioGUI
                 Logger.Info("Resetting program...");
 
             Text = guiTitle;
+            AssetItem.Reset();
             Studio.assetsManager.Clear();
             Studio.assemblyLoader.Clear();
             Studio.exportableAssets.Clear();

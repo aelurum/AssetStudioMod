@@ -216,7 +216,6 @@ namespace AssetStudioCLI
                 {
                     var assetItem = new AssetItem(asset);
                     objectAssetItemDic.Add(asset, assetItem);
-                    assetItem.UniqueID = "_#" + i;
                     var isExportable = false;
                     switch (asset)
                     {

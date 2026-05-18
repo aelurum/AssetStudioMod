@@ -4,6 +4,8 @@ namespace AssetStudioCLI
 {
     internal class AssetItem
     {
+        private static long _counter;
+
         public Object Asset;
         public SerializedFile SourceFile;
         public string Container = string.Empty;
@@ -12,7 +14,7 @@ namespace AssetStudioCLI
         public long FullSize;
         public ClassIDType Type;
         public string Text;
-        public string UniqueID;
+        public readonly string UniqueID;
         public ulong Hash;
         public GameObjectNode Node;
 
@@ -24,6 +26,7 @@ namespace AssetStudioCLI
             TypeString = Type.ToString();
             m_PathID = asset.m_PathID;
             FullSize = asset.byteSize;
+            UniqueID = $" #{_counter++}";
             Hash = 0;
         }
     }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 namespace AssetStudio
 {
@@ -17,5 +14,7 @@ namespace AssetStudio
         public string m_KlassName;
         public string m_NameSpace;
         public string m_AsmName;
+
+        public bool Match(params ulong[] hashes) => hashes.Any(x => x == System.IO.Hashing.XxHash3.HashToUInt64(m_OldTypeHash));
     }
 }

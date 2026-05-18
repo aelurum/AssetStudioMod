@@ -1,10 +1,10 @@
-﻿using AssetStudio.CustomOptions;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using static AssetStudio.CustomOptions.GameSpecificOptions.CustomMeshOptions;
 
 namespace AssetStudio
 {
@@ -746,8 +746,13 @@ namespace AssetStudio
                 }
 
                 var tuanjieParsingMode = reader.assetsFile.assetsManager.Options.GameSpecific.Meshes.TuanjieMeshParsingMode;
-                var useSharedClusterData = tuanjieParsingMode == GameSpecificOptions.CustomMeshOptions.MeshParsingMode.Tuanjie 
-                                           || (tuanjieParsingMode == GameSpecificOptions.CustomMeshOptions.MeshParsingMode.Auto && reader.version < (2022, 3, 61, 2));
+                var useSharedClusterData = tuanjieParsingMode == MeshParsingMode.Tuanjie;
+                if (tuanjieParsingMode == MeshParsingMode.Auto)
+                {
+                    //SharedClusterData becomes optional from v1.6.1, but idk in what cases
+                    useSharedClusterData = version < (2022, 3, 61, 2) || !serializedType.Match(6165448184371784201);
+                }
+                
                 if (version.IsTuanjie && useSharedClusterData)
                 {
                     if (version < (2022, 3, 48, 3)) //2022.3.48t3(1.4.0) down

@@ -118,6 +118,7 @@ namespace AssetStudio
             {1169, "RenderingLayerMask"},
             {1188, "fixed_array"},
             {1200, "EntityId"},
+            {1209, "LoadableObjectId"},
         };
     }
 }

@@ -155,7 +155,7 @@ namespace AssetStudio
                 }
             }
 
-            if ((!version.IsAlpha && version >= (6000, 5)) || (version.IsAlpha && version >= (6000, 5, 0, 7))) //6000.5.0a7 and up
+            if (version >= (6000, 5)) //6000.5.0a7 and up
             {
                 m_BlendShapes = new BlendShapeData(reader);
             }
@@ -228,7 +228,7 @@ namespace AssetStudio
             }
 
             m_Extrude = reader.ReadUInt32();
-            if (version.IsInRange((5, 3), (6000, 5))) //5.3 - 6000.4
+            if (version.IsInRange((5, 3), (6000, 5))) //5.3 - 6000.5 down
             {
                 m_IsPolygon = reader.ReadBoolean();
                 reader.AlignStream();

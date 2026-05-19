@@ -957,7 +957,7 @@ namespace AssetStudio
             {
                 isSerializeReferenceCurve = reader.ReadByte();
             }
-            if ((!version.IsAlpha && version >= (6000, 5)) || (version.IsAlpha && version >= (6000, 5, 0, 7))) //6000.5.0a7 and up
+            if (version >= (6000, 5)) //6000.5.0a7 and up
             {
                 metaData = reader.ReadUInt16();
             }

@@ -327,6 +327,7 @@ namespace AssetStudio
         PluginBuildInfo = 382020655,
         UIAnimationBinder = 382093023,
         MemorySettings = 387306366,
+        UIAnimationClip = 392092235,
         BuildMetaDataImporter = 403037116,
         BuildInstructionImporter = 403037117,
         EditorProjectAccess = 426301858,

@@ -516,7 +516,7 @@ namespace AssetStudio
         public Vector3[] m_PositionValues;
         public Vector4[] m_QuaternionValues;
         public Vector3[] m_ScaleValues;
-        public int[] m_EntityIdValues;
+        public ulong[] m_EntityIdValues;
 
         public ValueArray(ObjectReader reader)
         {
@@ -566,7 +566,15 @@ namespace AssetStudio
                     reader.AlignStream();
                     if (version >= (6000, 2)) //6000.2 and up
                     {
-                        m_EntityIdValues = reader.ReadInt32Array();
+                        var numEntities = reader.ReadInt32();
+                        var m_EntityIdList = new List<ulong>();
+                        for (var i = 0; i < numEntities; i++)
+                        {
+                            m_EntityIdList.Add(version >= (6000, 5) //6000.5 and up
+                                ? reader.ReadUInt64()
+                                : reader.ReadUInt32());
+                        }
+                        m_EntityIdValues = m_EntityIdList.ToArray();
                     }
                 }
             }

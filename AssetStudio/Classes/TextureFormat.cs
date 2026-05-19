@@ -279,5 +279,37 @@
         /// Four channel (RGBA) texture format, 16-bits unsigned integer per channel.
         /// </summary>
         RGBA64,
+        /// <summary>
+        /// Single channel (R) texture format, 8-bits signed integer.
+        /// </summary>
+        R8_SIGNED,
+        /// <summary>
+        /// Two channel (RG) texture format, 8-bits signed integer per channel.
+        /// </summary>
+        RG16_SIGNED,
+        /// <summary>
+        /// Three channel (RGB) texture format, 8-bits signed integer per channel.
+        /// </summary>
+        RGB24_SIGNED,
+        /// <summary>
+        /// Four channel (RGBA) texture format, 8-bits signed integer per channel.
+        /// </summary>
+        RGBA32_SIGNED,
+        /// <summary>
+        /// Single channel (R) texture format, 16-bits signed integer.
+        /// </summary>
+        R16_SIGNED,
+        /// <summary>
+        /// Two channel (RG) texture format, 16-bits signed integer per channel.
+        /// </summary>
+        RG32_SIGNED,
+        /// <summary>
+        ///  Three color (RGB) texture format, 16-bits signed integer per channel.
+        /// </summary>
+        RGB48_SIGNED,
+        /// <summary>
+        /// Four channel (RGBA) texture format, 16-bits signed integer per channel.
+        /// </summary>
+        RGBA64_SIGNED,
     }
 }

@@ -61,5 +61,6 @@
         ArmLinux,
         ArmLinuxServer,
         VisionOS,
+        PlayableAds,
     }
 }

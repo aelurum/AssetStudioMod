@@ -128,6 +128,11 @@ namespace AssetStudio
             }
             m_ConditionConstantArray = conditionConstantList.ToArray();
 
+            if (version.IsTuanjie && version >= (2022, 3, 62, 2)) //2022.3.62t2(1.8.0) and up
+            {
+                var m_PriorityOrder = reader.ReadInt32();
+            }
+
             m_DestinationState = reader.ReadUInt32();
             if (version >= 5) //5.0 and up
             {
@@ -155,6 +160,11 @@ namespace AssetStudio
             if (version >= (4, 5)) //4.5 and up
             {
                 m_CanTransitionToSelf = reader.ReadBoolean();
+            }
+
+            if (version.IsTuanjie && version >= (2022, 3, 62, 8)) //2022.3.62t8(1.9.0) and up
+            {
+                var m_UseInertialization = reader.ReadBoolean();
             }
 
             reader.AlignStream();
@@ -400,6 +410,12 @@ namespace AssetStudio
             {
                 m_CycleOffset = reader.ReadSingle();
             }
+
+            if (version.IsTuanjie && version >= (2022, 3, 62, 2)) //2022.3.62t2(1.8.0) and up
+            {
+                var m_OverrideDuration = reader.ReadSingle();
+            }
+
             m_IKOnFeet = reader.ReadBoolean();
             if (version >= 5) //5.0 and up
             {
@@ -410,6 +426,11 @@ namespace AssetStudio
             if (version >= (4, 1)) //4.1 and up
             {
                 m_Mirror = reader.ReadBoolean();
+            }
+
+            if (version.IsTuanjie && version >= (2022, 3, 62, 2)) //2022.3.62t2(1.8.0) and up
+            {
+                var m_UseOverrideDuration = reader.ReadBoolean();
             }
 
             reader.AlignStream();

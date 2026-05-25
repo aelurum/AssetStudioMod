@@ -311,5 +311,36 @@
         /// Four channel (RGBA) texture format, 16-bits signed integer per channel.
         /// </summary>
         RGBA64_SIGNED,
+
+        //Tuanjie engine
+        //(adding 1000 for compatibility with Unity formats)
+        /// <summary>
+        /// Offset for Tuanjie texture formats.
+        /// </summary>
+        TUANJIE_OFFSET = 1000,
+        /// <summary>
+        /// PNG (32 bits) compressed RGBA texture format.
+        /// </summary>
+        PNG_32_RGBA = TUANJIE_OFFSET + 75,
+        /// <summary>
+        /// PNG (24 bits) compressed RGB texture format.
+        /// </summary>
+        PNG_24_RGB = TUANJIE_OFFSET + 76,
+        /// <summary>
+        /// PNG (8 bits) compressed RGBA texture format.
+        /// </summary>
+        PNG_8_RGBA = TUANJIE_OFFSET + 77,
+    }
+
+    public static class TextureFormatExtensions
+    {
+        public static TextureFormat ToTuanjie(this TextureFormat format)
+        {
+            return format > TextureFormat.RGBA64 && format < TextureFormat.TUANJIE_OFFSET
+                ? TextureFormat.TUANJIE_OFFSET + (int)format
+                : format;
+        }
+
+        public static bool IsPng(this TextureFormat format) => format >= TextureFormat.PNG_32_RGBA && format <= TextureFormat.PNG_8_RGBA;
     }
 }

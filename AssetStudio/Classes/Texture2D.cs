@@ -63,7 +63,9 @@ namespace AssetStudio
             m_Width = parsedTex2d.m_Width;
             m_Height = parsedTex2d.m_Height;
             m_CompleteImageSize = parsedTex2d.m_CompleteImageSize;
-            m_TextureFormat = parsedTex2d.m_TextureFormat;
+            m_TextureFormat = version.IsTuanjie && version >= (2022, 3, 62, 8)
+                ? parsedTex2d.m_TextureFormat.ToTuanjie() //2022.3.62t8(1.9.0) and up
+                : parsedTex2d.m_TextureFormat;
             m_MipMap = parsedTex2d.m_MipMap;
             m_MipCount = parsedTex2d.m_MipCount;
             m_ImageCount = parsedTex2d.m_ImageCount;
@@ -104,6 +106,8 @@ namespace AssetStudio
                 var m_TextureManagerMultiFormatSettingSize = reader.ReadInt32();
                 reader.Position += m_TextureManagerMultiFormatSettingSize; //skip byte[] m_TextureManagerMultiFormatSetting
                 reader.AlignStream();
+
+                m_TextureFormat = version >= (2022, 3, 62, 8) ? m_TextureFormat.ToTuanjie() : m_TextureFormat; //2022.3.62t8(1.9.0) and up
             }
             if (version < (5, 2)) //5.2 down
             {

@@ -322,6 +322,11 @@ namespace AssetStudio
                     case TextureFormat.RGBA64: //test pass
                         flag = DecodeRGBA64(buff, destSpan);
                         break;
+                    case TextureFormat.PNG_8_RGBA:
+                    case TextureFormat.PNG_24_RGB: //test pass
+                    case TextureFormat.PNG_32_RGBA: //test pass
+                        flag = DecodePng(buff, destSpan);
+                        break;
                 }
             }
             finally
@@ -809,6 +814,20 @@ namespace AssetStudio
                 destSpan[i + 3] = DownScaleFrom16BitTo8Bit((ushort)((val >> 48) & 0xffff)); //A
             }
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool DecodePng(ReadOnlySpan<byte> buff, Span<byte> destSpan)
+        {
+            try
+            {
+                Image.Load<Bgra32>(buff).CopyPixelDataTo(destSpan);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private bool TryUnpackCrunch(ReadOnlySpan<byte> buff, out ReadOnlySpan<byte> result)

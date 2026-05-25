@@ -69,7 +69,10 @@ namespace AssetStudio
                     if (version.IsTuanjie) //2022.3.2t3(1.0.0) and up
                     {
                         var m_virtualGeometry = reader.ReadByte();
-                        var m_virtualGeometryShadow = reader.ReadByte();
+                        if (version < (2022, 3, 62, 2)) //2022.3.62t2(1.8.0) down
+                        {
+                            var m_virtualGeometryShadow = reader.ReadByte();
+                        }
                         if (version >= (2022, 3, 48, 3)) //2022.3.48t3(1.4.0) and up
                         {
                             reader.AlignStream();

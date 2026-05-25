@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AssetStudio.Classes.Tuanjie.Mesh;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using static AssetStudio.CustomOptions.GameSpecificOptions.CustomMeshOptions;
@@ -517,105 +517,7 @@ namespace AssetStudio
             }
         }
     }
-
-    public class VGPackedHierarchyNode
-    {
-        public Vector4[] LODBounds = new Vector4[8];
-        public Vector3[] AABBCenter = new Vector3[8];
-        public uint[] MinLODError_MaxParentLODError = new uint[8];
-        public Vector3[] AABBExtent = new Vector3[8];
-        public uint[] ChildStartIndex = new uint[8];
-        public uint[] PageIndex_PageCount_PageBlockCount = new uint[8];
-
-        public VGPackedHierarchyNode(ObjectReader reader)
-        {
-            for (var i = 0; i < 8; i++)
-            {
-                LODBounds[i] = reader.ReadVector4();
-                AABBCenter[i] = reader.ReadVector3();
-                MinLODError_MaxParentLODError[i] = reader.ReadUInt32();
-                AABBExtent[i] = reader.ReadVector3();
-                ChildStartIndex[i] = reader.ReadUInt32();
-                PageIndex_PageCount_PageBlockCount[i] = reader.ReadUInt32();
-            }
-        }
-    }
-
-    public class VGPageStreamingInfo
-    {
-        public uint offset;
-        public uint wholeSize;
-        public uint dataSize;
-        public uint dependencyOffset;
-        public uint dependencyCount;
-        public uint flags;
-
-        public VGPageStreamingInfo(BinaryReader reader)
-        {
-            offset = reader.ReadUInt32();
-            wholeSize = reader.ReadUInt32();
-            dataSize = reader.ReadUInt32();
-            dependencyOffset = reader.ReadUInt32();
-            dependencyCount = reader.ReadUInt32();
-            flags = reader.ReadUInt32();
-        }
-    }
-
-    public class SharedClusterData //Tuanjie
-    {
-        public SharedClusterData(ObjectReader reader, byte rev)
-        {
-            var m_LightmapUseUV1 = reader.ReadInt32();
-            var m_fileScale = reader.ReadSingle();
-            if (rev == 1)
-            {
-                var NumInputTriangles = reader.ReadUInt32();
-                var NumInputVertices = reader.ReadUInt32();
-                var NumInputMeshes = reader.ReadUInt16();
-                var NumInputTexCoords = reader.ReadUInt16();
-                var ResourceFlags = reader.ReadUInt32();
-            }
-            var rootClusterPageSize = reader.ReadInt32();
-            reader.Position += rootClusterPageSize; //skip byte[] rootClusterPage
-            if (rev == 1)
-            {
-                var imposterAtlasSize = reader.ReadInt32();
-                reader.Position += imposterAtlasSize * 2; //skip ushort[] imposterAtlas
-            }
-            var hierarchyNodesSize = reader.ReadInt32();
-            for (var i = 0; i < hierarchyNodesSize; i++)
-            {
-                var hierarchyNode = new VGPackedHierarchyNode(reader);
-            }
-            if (rev == 1)
-            {
-                var hierarchyRootOffsetsSize = reader.ReadInt32();
-                reader.Position += hierarchyRootOffsetsSize * 4; //skip uint[] hierarchyRootOffsets
-            }
-            var pageStreamingInfosSize = reader.ReadInt32();
-            for (var i = 0; i < pageStreamingInfosSize; i++)
-            {
-                var pageStreamingInfo = new VGPageStreamingInfo(reader);
-            }
-            var pageIndicesOfDependenciesSize = reader.ReadInt32();
-            reader.Position += pageIndicesOfDependenciesSize * 4; //skip uint[] pageIndicesOfDependencies
-            if (rev == 2)
-            {
-                var inputTrianglesCount = reader.ReadUInt32();
-                var inputVerticesCount = reader.ReadUInt32();
-                var inputMeshesCount = reader.ReadUInt16();
-                var inputTexCoordsCount = reader.ReadUInt16();
-                var resourceFlags = reader.ReadUInt32();
-                var imposterAtlasSize = reader.ReadInt32();
-                reader.Position += imposterAtlasSize * 2; //skip ushort[] imposterAtlas
-                var hierarchyRootOffsetsSize = reader.ReadInt32();
-                reader.Position += hierarchyRootOffsetsSize * 4; //skip uint[] hierarchyRootOffsets
-            }
-            var streamableClusterPageSize = reader.ReadInt32();
-            reader.Position += streamableClusterPageSize; //skip byte[] streamableClusterPageSize
-        }
-    }
-
+    
     public sealed class Mesh : NamedObject
     {
         private bool isLoaded;
@@ -677,12 +579,12 @@ namespace AssetStudio
 
                 if (version <= (2, 5)) //2.0 - 2.5 down
                 {
-                    int m_IndexBufferSize = reader.ReadInt32();
+                    int m_IndexBufferCount = reader.ReadInt32();
 
                     if (m_Use16BitIndices)
                     {
                         var indexBufferList = new List<uint>();
-                        for (var i = 0; i < m_IndexBufferSize / 2; i++)
+                        for (var i = 0; i < m_IndexBufferCount / 2; i++)
                         {
                             indexBufferList.Add(reader.ReadUInt16());
                         }
@@ -694,14 +596,14 @@ namespace AssetStudio
                     }
                     else
                     {
-                        m_IndexBuffer = reader.ReadUInt32Array(m_IndexBufferSize / 4);
+                        m_IndexBuffer = reader.ReadUInt32Array(m_IndexBufferCount / 4);
                     }
                 }
 
-                int m_SubMeshesSize = reader.ReadInt32();
-                reader.ThrowIfTooLarge(m_SubMeshesSize * 12f);
+                int m_SubMeshesCount = reader.ReadInt32();
+                reader.ThrowIfTooLarge(m_SubMeshesCount * 12f);
                 m_SubMeshes = new List<SubMesh>();
-                for (var i = 0; i < m_SubMeshesSize; i++)
+                for (var i = 0; i < m_SubMeshesCount; i++)
                 {
                     m_SubMeshes.Add(new SubMesh(reader));
                 }
@@ -723,14 +625,11 @@ namespace AssetStudio
             {
                 if (version >= 2019) //2019 and up
                 {
-                    var m_BonesAABBSize = reader.ReadInt32();
-                    for (var i = 0; i < m_BonesAABBSize; i++)
-                    {
-                        var m_BonesAABB = new MinMaxAABB(reader);
-                    }
+                    var m_BonesAABBCount = reader.ReadInt32();
+                    reader.Position += m_BonesAABBCount * 24; //skip MinMaxAABB[] m_BonesAABB
 
-                    var m_VariableBoneCountWeightsSize = reader.ReadInt32();
-                    reader.Position += m_VariableBoneCountWeightsSize * 4; //skip uint[] m_VariableBoneCountWeights
+                    var m_VariableBoneCountWeightsCount = reader.ReadInt32();
+                    reader.Position += m_VariableBoneCountWeightsCount * 4; //skip uint[] m_VariableBoneCountWeights
                 }
 
                 var m_MeshCompression = reader.ReadByte();
@@ -744,32 +643,40 @@ namespace AssetStudio
                     var m_KeepVertices = reader.ReadBoolean();
                     var m_KeepIndices = reader.ReadBoolean();
                 }
-
-                var tuanjieParsingMode = reader.assetsFile.assetsManager.Options.GameSpecific.Meshes.TuanjieMeshParsingMode;
-                var useSharedClusterData = tuanjieParsingMode == MeshParsingMode.Tuanjie;
-                if (tuanjieParsingMode == MeshParsingMode.Auto)
-                {
-                    //SharedClusterData becomes optional from v1.6.1, but idk in what cases
-                    useSharedClusterData = version < (2022, 3, 61, 2) || !serializedType.Match(6165448184371784201);
-                }
-                
-                if (version.IsTuanjie && useSharedClusterData)
-                {
-                    if (version < (2022, 3, 48, 3)) //2022.3.48t3(1.4.0) down
-                    {
-                        _ = new SharedClusterData(reader, rev: 1);
-                    }
-                    else if (version < (2022, 3, 61, 2)) //2022.3.48t3(1.4.0) - 2022.3.61t1(1.6.0)
-                    {
-                        _ = new SharedClusterData(reader, rev: 2);
-                    }
-                    else //2022.3.61t2(1.6.1) and up
-                    {
-                        reader.AlignStream();
-                        _ = new SharedClusterData(reader, rev: 3);
-                    }
-                }
                 reader.AlignStream();
+
+                if (version.IsTuanjie)
+                {
+                    var tuanjieParsingMode = assetsFile.assetsManager.Options.GameSpecific.Meshes.TuanjieMeshParsingMode;
+                    var parseAsTuanjie = tuanjieParsingMode == MeshParsingMode.Tuanjie;
+                    if (tuanjieParsingMode == MeshParsingMode.Auto)
+                    {
+                        //Tuanjie features becomes optional from v1.6.1, but idk in what cases (platform dependent?)
+                        parseAsTuanjie = version < (2022, 3, 61, 2) || !serializedType.Match(6165448184371784201, 16777665667907586384);
+                    }
+
+                    if (parseAsTuanjie)
+                    {
+                        if (version >= (2022, 3, 62)) //2022.3.62t1(1.7.0) and up
+                        {
+                            var m_GIFacetMesh = new GIFacetMesh(reader);
+                            var m_GISDFMesh = new GISDFMesh(reader);
+                        }
+
+                        if (version < (2022, 3, 48, 3)) //2022.3.48t3(1.4.0) down
+                        {
+                            _ = new SharedClusterData(reader, rev: 1);
+                        }
+                        else if (version < (2022, 3, 61, 2)) //2022.3.48t3(1.4.0) - 2022.3.61t1(1.6.0)
+                        {
+                            _ = new SharedClusterData(reader, rev: 2);
+                        }
+                        else //2022.3.61t2(1.6.1) and up
+                        {
+                            _ = new SharedClusterData(reader, rev: 3);
+                        }
+                    }
+                }
 
                 //Unity fixed it in 2017.3.1p1 and later versions
                 if (version >= (2017, 4) //2017.4

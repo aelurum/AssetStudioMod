@@ -372,6 +372,19 @@ namespace AssetStudioCLI
             return false;
         }
 
+        public static bool ExportJsonDumpFile(AssetItem item, string exportPath)
+        {
+            if (!TryExportFile(exportPath, item, ".json", out var exportFullPath, mode: "JsonDump"))
+                return false;
+            var m_Type = item.Asset is MonoBehaviour m_MonoBehaviour
+                ? m_MonoBehaviour.serializedType.m_Type ?? m_MonoBehaviour.ConvertToTypeTree(Studio.assemblyLoader)
+                : null;
+            var jsonDoc = item.Asset.ToJsonDoc(m_Type);
+            var str = System.Text.Json.JsonSerializer.Serialize(jsonDoc, Object.JsonOptions);
+            File.WriteAllText(exportFullPath, str);
+            return true;
+        }
+
         public static bool ExportConvertFile(AssetItem item, string exportPath)
         {
             switch (item.Type)

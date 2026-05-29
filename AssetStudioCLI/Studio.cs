@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using static AssetStudioCLI.Exporter;
 using Ansi = AssetStudio.ColorConsole;
 
 namespace AssetStudioCLI
@@ -628,6 +627,7 @@ namespace AssetStudioCLI
 
         public static void ExportAssets()
         {
+            var workMode = CLIOptions.o_workMode.Value;
             var savePath = CLIOptions.o_outputFolder.Value;
             var toExportCount = parsedAssetsList.Count;
             var exportedCount = 0;
@@ -636,6 +636,7 @@ namespace AssetStudioCLI
             var parallelExportCount = CLIOptions.o_maxParallelExportTasks.Value;
             var toExportAssetDict = new ConcurrentDictionary<AssetItem, string>();
             var toParallelExportAssetDict = new ConcurrentDictionary<AssetItem, string>();
+            var modeStr = workMode == WorkMode.Dump || workMode == WorkMode.JsonDump ? "Dump" : "Export";
 
             if (CLIOptions.o_stripPathPrefix.Value != null)
             {
@@ -715,7 +716,7 @@ namespace AssetStudioCLI
                 }
                 exportPath += Path.DirectorySeparatorChar;
 
-                if (CLIOptions.o_workMode.Value == WorkMode.Export)
+                if (workMode == WorkMode.Export)
                 {
                     switch (asset.Type)
                     {
@@ -754,32 +755,36 @@ namespace AssetStudioCLI
                 var isExported = false;
                 try
                 {
-                    switch (CLIOptions.o_workMode.Value)
+                    switch (workMode)
                     {
                         case WorkMode.ExportRaw:
-                            Logger.Debug($"{CLIOptions.o_workMode}: {asset.Type} : {asset.Container} : {asset.Text}");
-                            isExported = ExportRawFile(asset, exportPath);
+                            Logger.Debug($"{workMode}: {asset.Type} : {asset.Container} : {asset.Text}");
+                            isExported = Exporter.ExportRawFile(asset, exportPath);
                             break;
                         case WorkMode.Dump:
-                            Logger.Debug($"{CLIOptions.o_workMode}: {asset.Type} : {asset.Container} : {asset.Text}");
-                            isExported = ExportDumpFile(asset, exportPath);
+                            Logger.Debug($"{workMode}: {asset.Type} : {asset.Container} : {asset.Text}");
+                            isExported = Exporter.ExportDumpFile(asset, exportPath);
+                            break;
+                        case WorkMode.JsonDump:
+                            Logger.Debug($"{workMode}: {asset.Type} : {asset.Container} : {asset.Text}");
+                            isExported = Exporter.ExportJsonDumpFile(asset, exportPath);
                             break;
                         case WorkMode.Export:
-                            Logger.Debug($"{CLIOptions.o_workMode}: {asset.Type} : {asset.Container} : {asset.Text}");
-                            isExported = ExportConvertFile(asset, exportPath);
+                            Logger.Debug($"{workMode}: {asset.Type} : {asset.Container} : {asset.Text}");
+                            isExported = Exporter.ExportConvertFile(asset, exportPath);
                             break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error($"{asset.SourceFile.originalPath ?? asset.SourceFile.fullName}: [{$"{asset.Type}: {asset.Text}".Color(Ansi.BrightRed)}] : Export error\n{ex}");
+                    Logger.Error($"{asset.SourceFile.originalPath ?? asset.SourceFile.fullName}: [{$"{asset.Type}: {asset.Text}".Color(Ansi.BrightRed)}] : {modeStr} error\n{ex}");
                 }
 
                 if (isExported)
                 {
                     exportedCount++;
                 }
-                Console.Write($"Exported [{exportedCount}/{toExportCount}]\r");
+                Console.Write($"{modeStr}ed [{exportedCount}/{toExportCount}]\r");
             }
             Exporter.ClearHash();
 
@@ -793,7 +798,7 @@ namespace AssetStudioCLI
                     {
                         Interlocked.Increment(ref exportedCount);
                         Logger.Debug(debugLog);
-                        Console.Write($"Exported [{exportedCount}/{toExportCount}]\r");
+                        Console.Write($"{modeStr}ed [{exportedCount}/{toExportCount}]\r");
                     }
                 }
                 catch (Exception ex)
@@ -806,12 +811,12 @@ namespace AssetStudioCLI
 
             if (exportedCount == 0)
             {
-                Logger.Default.Log(LoggerEvent.Info, "Nothing exported.", ignoreLevel: true);
+                Logger.Default.Log(LoggerEvent.Info, $"Nothing {modeStr.ToLower()}ed.", ignoreLevel: true);
             }
             else
             {
                 var outPath = CLIOptions.o_outputFolder.Value.ColorIf(toExportCount > exportedCount, Ansi.BrightYellow, Ansi.BrightGreen);
-                Logger.Default.Log(LoggerEvent.Info, $"Finished exporting {exportedCount} asset(s) to \"{outPath}\".", ignoreLevel: true);
+                Logger.Default.Log(LoggerEvent.Info, $"Finished {modeStr.ToLower()}ing {exportedCount} asset(s) to \"{outPath}\".", ignoreLevel: true);
             }
 
             if (toExportCount > exportedCount)
@@ -911,7 +916,7 @@ namespace AssetStudioCLI
                 foreach (var gameObjectNode in exportableObjects)
                 {
                     var gameObject = gameObjectNode.gameObject;
-                    var filename = FixFileName(gameObject.m_Name);
+                    var filename = Exporter.FixFileName(gameObject.m_Name);
                     var targetPath = $"{savePath}{filename}{Path.DirectorySeparatorChar}";
                     //重名文件处理
                     for (int i = 1; ; i++)
@@ -931,7 +936,7 @@ namespace AssetStudioCLI
                     Progress.Report(k, exportableCount);
                     try
                     {
-                        ExportGameObject(gameObject, targetPath);
+                        Exporter.ExportGameObject(gameObject, targetPath);
                         Logger.Debug($"{gameObject.type} \"{filename}\" saved to \"{targetPath}\"");
                         exportedCount++;
                     }

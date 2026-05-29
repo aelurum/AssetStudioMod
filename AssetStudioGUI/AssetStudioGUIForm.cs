@@ -1832,76 +1832,6 @@ namespace AssetStudioGUI
             }
         }
 
-        private void goToSceneHierarchyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var selectAsset = (AssetItem)assetListView.Items[assetListView.SelectedIndices[0]];
-            if (selectAsset.TreeNode != null)
-            {
-                sceneTreeView.SelectedNode = selectAsset.TreeNode;
-                tabControl1.SelectedTab = tabPage1;
-            }
-        }
-
-        private void exportAllAssetsMenuItem_Click(object sender, EventArgs e)
-        {
-            ExportAssets(ExportFilter.All, ExportType.Convert);
-        }
-
-        private void exportSelectedAssetsMenuItem_Click(object sender, EventArgs e)
-        {
-            ExportAssets(ExportFilter.Selected, ExportType.Convert);
-        }
-
-        private void exportFilteredAssetsMenuItem_Click(object sender, EventArgs e)
-        {
-            ExportAssets(ExportFilter.Filtered, ExportType.Convert);
-        }
-
-        private void toolStripMenuItem4_Click(object sender, EventArgs e)
-        {
-            ExportAssets(ExportFilter.All, ExportType.Raw);
-        }
-
-        private void toolStripMenuItem5_Click(object sender, EventArgs e)
-        {
-            ExportAssets(ExportFilter.Selected, ExportType.Raw);
-        }
-
-        private void toolStripMenuItem6_Click(object sender, EventArgs e)
-        {
-            ExportAssets(ExportFilter.Filtered, ExportType.Raw);
-        }
-
-        private void toolStripMenuItem7_Click(object sender, EventArgs e)
-        {
-            ExportAssets(ExportFilter.All, ExportType.Dump);
-        }
-
-        private void toolStripMenuItem8_Click(object sender, EventArgs e)
-        {
-            ExportAssets(ExportFilter.Selected, ExportType.Dump);
-        }
-
-        private void toolStripMenuItem9_Click(object sender, EventArgs e)
-        {
-            ExportAssets(ExportFilter.Filtered, ExportType.Dump);
-        }
-
-        private void toolStripMenuItem11_Click(object sender, EventArgs e)
-        {
-            ExportAssetsList(ExportFilter.All);
-        }
-
-        private void toolStripMenuItem12_Click(object sender, EventArgs e)
-        {
-            ExportAssetsList(ExportFilter.Selected);
-        }
-
-        private void toolStripMenuItem13_Click(object sender, EventArgs e)
-        {
-            ExportAssetsList(ExportFilter.Filtered);
-        }
-
         private void exportAllObjectsSplitToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (sceneTreeView.Nodes.Count > 0)
@@ -1912,13 +1842,69 @@ namespace AssetStudioGUI
                 {
                     saveDirectoryBackup = saveFolderDialog.Folder;
                     var savePath = saveFolderDialog.Folder + Path.DirectorySeparatorChar;
-                    ExportSplitObjects(savePath, sceneTreeView.Nodes);
+                    Studio.ExportSplitObjects(savePath, sceneTreeView.Nodes);
                 }
             }
             else
             {
                 StatusStripUpdate("No Objects available for export");
             }
+        }
+
+        private void goToSceneHierarchyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectAsset = (AssetItem)assetListView.Items[assetListView.SelectedIndices[0]];
+            if (selectAsset.TreeNode != null)
+            {
+                sceneTreeView.SelectedNode = selectAsset.TreeNode;
+                tabControl1.SelectedTab = tabPage1;
+            }
+        }
+
+        private static ExportFilter GetExportFilterFromTag(string tag)
+        {
+            switch (tag)
+            {
+                case "all": return ExportFilter.All;
+                case "select": return ExportFilter.Selected;
+                case "filter": return ExportFilter.Filtered;
+                default: throw new NotSupportedException();
+            }
+        }
+
+        private void exportAssetsByToolStripMenuItem(object sender, EventArgs e)
+        {
+            var menuItem = (ToolStripMenuItem)sender;
+            var exportFilter = GetExportFilterFromTag((string)menuItem.Tag);
+            ExportAssets(exportFilter, ExportType.Convert);
+        }
+
+        private void exportRawAssetsByToolStripMenuItem(object sender, EventArgs e)
+        {
+            var menuItem = (ToolStripMenuItem)sender;
+            var exportFilter = GetExportFilterFromTag((string)menuItem.Tag);
+            ExportAssets(exportFilter, ExportType.Raw);
+        }
+
+        private void dumpAssetsByToolStripMenuItem(object sender, EventArgs e)
+        {
+            var menuItem = (ToolStripMenuItem)sender;
+            var exportFilter = GetExportFilterFromTag((string)menuItem.Tag);
+            ExportAssets(exportFilter, ExportType.Dump);
+        }
+
+        private void jsonDumpAssetsByToolStripMenuItem(object sender, EventArgs e)
+        {
+            var menuItem = (ToolStripMenuItem)sender;
+            var exportFilter = GetExportFilterFromTag((string)menuItem.Tag);
+            ExportAssets(exportFilter, ExportType.JsonDump);
+        }
+
+        private void exportAssetsListByToolStripMenuItem(object sender, EventArgs e)
+        {
+            var menuItem = (ToolStripMenuItem)sender;
+            var exportFilter = GetExportFilterFromTag((string)menuItem.Tag);
+            ExportAssetsList(exportFilter);
         }
 
         private void assetListView_SelectedIndexChanged(object sender, EventArgs e)

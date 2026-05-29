@@ -25,6 +25,7 @@ namespace AssetStudioCLI.Options
         Export,
         ExportRaw,
         Dump,
+        JsonDump,
         Info,
         Live2D,
         SplitObjects,
@@ -209,11 +210,12 @@ namespace AssetStudioCLI.Options
                 optionDefaultValue: WorkMode.Export,
                 optionName: "-m, --mode <value>",
                 optionDescription: "Specify working mode\n" +
-                    "<Value: extract | export(default) | exportRaw | dump | info | live2d |\nsplitObjects | animator>\n" +
+                    "<Value: extract | export(default) | exportRaw | dump | jsonDump | info |\nlive2d | splitObjects | animator>\n" +
                     "Extract - Extract(Decompress) asset bundles\n" +
                     "Export - Convert and export assets\n" +
                     "ExportRaw - Export raw assets\n" +
-                    "Dump - Generate json dumps of loaded asset\n" +
+                    "Dump - Generate txt dumps of loaded asset\n" +
+                    "JsonDump - Generate json dumps of loaded asset\n" +
                     "Info - Load file(s) and show the number of available for export assets\n" +
                     "Live2D - Export Live2D Cubism models\n" +
                     "SplitObjects - Export all model objects (split) (fbx)\n" +
@@ -706,6 +708,9 @@ namespace AssetStudioCLI.Options
                     case "dump":
                         o_workMode.Value = WorkMode.Dump;
                         break;
+                    case "jsondump":
+                        o_workMode.Value = WorkMode.JsonDump;
+                        break;
                     case "info":
                         o_workMode.Value = WorkMode.Info;
                         o_exportAssetTypes.Value.Add(ClassIDType.Animator);
@@ -821,6 +826,7 @@ namespace AssetStudioCLI.Options
                         {
                             case WorkMode.ExportRaw:
                             case WorkMode.Dump:
+                            case WorkMode.JsonDump:
                             case WorkMode.Info:
                                 f_loadAllAssets.Value = true;
                                 flagIndexes.Add(i);
@@ -1493,8 +1499,12 @@ namespace AssetStudioCLI.Options
         {
             switch (o_workMode.Value)
             {
-                case WorkMode.ExportRaw:
                 case WorkMode.Dump:
+                case WorkMode.JsonDump:
+                    return f_loadAllAssets.Value && o_exportAssetTypes.Value == o_exportAssetTypes.DefaultValue
+                        ? $"# Dump Asset Type(s): All"
+                        : $"# Dump Asset Type(s): {string.Join(", ", o_exportAssetTypes.Value)}";
+                case WorkMode.ExportRaw:
                 case WorkMode.Info:
                     return f_loadAllAssets.Value && o_exportAssetTypes.Value == o_exportAssetTypes.DefaultValue
                         ? $"# Export Asset Type(s): All"
@@ -1538,6 +1548,7 @@ namespace AssetStudioCLI.Options
                 case WorkMode.Export:
                 case WorkMode.ExportRaw:
                 case WorkMode.Dump:
+                case WorkMode.JsonDump:
                 case WorkMode.Info:
                     if (o_workMode.Value != WorkMode.Export)
                     {

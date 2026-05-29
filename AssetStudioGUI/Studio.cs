@@ -13,7 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using static AssetStudioGUI.Exporter;
 using Object = AssetStudio.Object;
 
 namespace AssetStudioGUI
@@ -29,7 +28,8 @@ namespace AssetStudioGUI
     {
         Convert,
         Raw,
-        Dump
+        Dump,
+        JsonDump,
     }
 
     internal enum ExportFilter
@@ -534,7 +534,7 @@ namespace AssetStudioGUI
                 var toParallelExportAssetDict = new ConcurrentDictionary<AssetItem, string>();
                 var exceptionMsgs = new ConcurrentDictionary<Exception, string>();
                 var parallelExportCount = GetParallelExportCount();
-                var mode = exportType == ExportType.Dump ? "Dump" : "Export";
+                var mode = exportType == ExportType.Dump || exportType == ExportType.JsonDump ? "Dump" : "Export";
                 var toExportCount = toExportAssets.Count;
                 var exportedCount = 0;
                 var i = 0;
@@ -634,13 +634,16 @@ namespace AssetStudioGUI
                         switch (exportType)
                         {
                             case ExportType.Raw:
-                                isExported = ExportRawFile(asset, exportPath);
+                                isExported = Exporter.ExportRawFile(asset, exportPath);
                                 break;
                             case ExportType.Dump:
-                                isExported = ExportDumpFile(asset, exportPath);
+                                isExported = Exporter.ExportDumpFile(asset, exportPath);
+                                break;
+                            case ExportType.JsonDump:
+                                isExported = Exporter.ExportJsonDumpFile(asset, exportPath);
                                 break;
                             case ExportType.Convert:
-                                isExported = ExportConvertFile(asset, exportPath);
+                                isExported = Exporter.ExportConvertFile(asset, exportPath);
                                 break;
                         }
                     }
@@ -793,7 +796,7 @@ namespace AssetStudioGUI
                             continue;
                         }
                         //处理非法文件名
-                        var filename = FixFileName(j.Text);
+                        var filename = Exporter.FixFileName(j.Text);
                         //每个文件存放在单独的文件夹
                         var targetPath = $"{savePath}{filename}{Path.DirectorySeparatorChar}";
                         //重名文件处理
@@ -813,7 +816,7 @@ namespace AssetStudioGUI
                         Logger.Info($"Exporting {filename}.fbx");
                         try
                         {
-                            ExportGameObject(j.gameObject, targetPath);
+                            Exporter.ExportGameObject(j.gameObject, targetPath);
                         }
                         catch (Exception ex)
                         {
@@ -849,7 +852,7 @@ namespace AssetStudioGUI
                 Logger.Info($"Exporting {animator.Text}");
                 try
                 {
-                    ExportAnimator(animator, exportPath, animationList);
+                    Exporter.ExportAnimator(animator, exportPath, animationList);
                     if (Properties.Settings.Default.openAfterExport)
                     {
                         OpenFolderInExplorer(exportPath);
@@ -882,7 +885,7 @@ namespace AssetStudioGUI
                         try
                         {
                             var modelExportPath = Path.Combine(exportPath, gameObject.m_Name) + Path.DirectorySeparatorChar;
-                            ExportGameObject(gameObject, modelExportPath, animationList);
+                            Exporter.ExportGameObject(gameObject, modelExportPath, animationList);
                             Logger.Info($"Finished exporting {gameObject.m_Name}");
                         }
                         catch (Exception ex)
@@ -914,7 +917,7 @@ namespace AssetStudioGUI
                 Logger.Info($"Exporting {name}");
                 try
                 {
-                    ExportGameObjectMerge(gameObjects, exportPath, animationList);
+                    Exporter.ExportGameObjectMerge(gameObjects, exportPath, animationList);
                     Progress.Report(1, 1);
                     Logger.Info($"Finished exporting {name}");
                 }

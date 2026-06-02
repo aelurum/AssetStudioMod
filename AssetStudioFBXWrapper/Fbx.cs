@@ -64,6 +64,7 @@ namespace AssetStudio
             public bool ExportSkins { get; set; }
             public bool ExportAnimations { get; set; }
             public bool ExportBlendShape { get; set; }
+            public bool DumpMaterials { get; set; }
             public bool CastToBone { get; set; }
             public float BoneSize { get; set; }
             public bool ExportAllUvsAsDiffuseMaps { get; set; }
@@ -78,8 +79,8 @@ namespace AssetStudio
                 Init();
             }
 
-            public Settings(bool eulerFilter, float filterPrecision, bool exportAllNodes, bool exportSkins, bool exportAnimations, bool exportBlendShape, bool castToBone, float boneSize,
-                bool exportAllUvsAsDiffuseMaps, float scaleFactor, int fbxVersionIndex, int fbxFormat, Dictionary<int, int> uvBindings)
+            public Settings(bool eulerFilter, float filterPrecision, bool exportAllNodes, bool exportSkins, bool exportAnimations, bool exportBlendShape, bool dumpMaterials,
+                bool castToBone, float boneSize, bool exportAllUvsAsDiffuseMaps, float scaleFactor, int fbxVersionIndex, int fbxFormat, Dictionary<int, int> uvBindings)
             {
                 EulerFilter = eulerFilter;
                 FilterPrecision = filterPrecision;
@@ -87,6 +88,7 @@ namespace AssetStudio
                 ExportSkins = exportSkins;
                 ExportAnimations = exportAnimations;
                 ExportBlendShape = exportBlendShape;
+                DumpMaterials = dumpMaterials;
                 CastToBone = castToBone;
                 BoneSize = (int)boneSize;
                 ExportAllUvsAsDiffuseMaps = exportAllUvsAsDiffuseMaps;
@@ -110,6 +112,7 @@ namespace AssetStudio
                 ExportSkins = true;
                 ExportAnimations = true;
                 ExportBlendShape = true;
+                DumpMaterials = false;
                 CastToBone = false;
                 ExportAllUvsAsDiffuseMaps = false;
                 BoneSize = 10;

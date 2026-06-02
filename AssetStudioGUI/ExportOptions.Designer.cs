@@ -86,6 +86,7 @@
             this.imagesTabPage = new System.Windows.Forms.TabPage();
             this.keepSpriteSizeCheckBox = new System.Windows.Forms.CheckBox();
             this.fbxTabPage = new System.Windows.Forms.TabPage();
+            this.dumpMaterialsCheckBox = new System.Windows.Forms.CheckBox();
             this.live2DTabPage = new System.Windows.Forms.TabPage();
             this.Cancel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.parallelExportUpDown)).BeginInit();
@@ -106,7 +107,7 @@
             // 
             this.OKbutton.AutoSize = true;
             this.OKbutton.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.OKbutton.Location = new System.Drawing.Point(228, 418);
+            this.OKbutton.Location = new System.Drawing.Point(228, 442);
             this.OKbutton.Margin = new System.Windows.Forms.Padding(6);
             this.OKbutton.Name = "OKbutton";
             this.OKbutton.Size = new System.Drawing.Size(88, 27);
@@ -484,10 +485,10 @@
             // fbxResetButton
             // 
             this.fbxResetButton.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.fbxResetButton.Location = new System.Drawing.Point(280, 320);
+            this.fbxResetButton.Location = new System.Drawing.Point(280, 340);
             this.fbxResetButton.Name = "fbxResetButton";
             this.fbxResetButton.Size = new System.Drawing.Size(88, 27);
-            this.fbxResetButton.TabIndex = 20;
+            this.fbxResetButton.TabIndex = 21;
             this.fbxResetButton.Text = "Reset";
             this.fbxResetButton.UseVisualStyleBackColor = false;
             this.fbxResetButton.Click += new System.EventHandler(this.resetButton_Click);
@@ -495,10 +496,10 @@
             // uvBindingsLabel
             // 
             this.uvBindingsLabel.AutoSize = true;
-            this.uvBindingsLabel.Location = new System.Drawing.Point(7, 166);
+            this.uvBindingsLabel.Location = new System.Drawing.Point(7, 184);
             this.uvBindingsLabel.Name = "uvBindingsLabel";
             this.uvBindingsLabel.Size = new System.Drawing.Size(97, 15);
-            this.uvBindingsLabel.TabIndex = 16;
+            this.uvBindingsLabel.TabIndex = 17;
             this.uvBindingsLabel.Text = "UV type bindings";
             // 
             // uvIndicesCheckedListBox
@@ -514,11 +515,11 @@
             "UV5",
             "UV6",
             "UV7"});
-            this.uvIndicesCheckedListBox.Location = new System.Drawing.Point(18, 188);
+            this.uvIndicesCheckedListBox.Location = new System.Drawing.Point(18, 206);
             this.uvIndicesCheckedListBox.Name = "uvIndicesCheckedListBox";
             this.uvIndicesCheckedListBox.ScrollAlwaysVisible = true;
             this.uvIndicesCheckedListBox.Size = new System.Drawing.Size(151, 93);
-            this.uvIndicesCheckedListBox.TabIndex = 17;
+            this.uvIndicesCheckedListBox.TabIndex = 18;
             this.optionTooltip.SetToolTip(this.uvIndicesCheckedListBox, "Checked UVs will be exported (if they exist)");
             this.uvIndicesCheckedListBox.SelectedIndexChanged += new System.EventHandler(this.uvIndicesCheckedListBox_SelectedIndexChanged);
             // 
@@ -538,11 +539,11 @@
             "Shininess",
             "Reflection",
             "Transparency"});
-            this.uvTypesListBox.Location = new System.Drawing.Point(205, 188);
+            this.uvTypesListBox.Location = new System.Drawing.Point(205, 206);
             this.uvTypesListBox.Name = "uvTypesListBox";
             this.uvTypesListBox.ScrollAlwaysVisible = true;
             this.uvTypesListBox.Size = new System.Drawing.Size(151, 93);
-            this.uvTypesListBox.TabIndex = 18;
+            this.uvTypesListBox.TabIndex = 19;
             this.uvTypesListBox.SelectedIndexChanged += new System.EventHandler(this.uvTypesListBox_SelectedIndexChanged);
             // 
             // exportAllUvsAsDiffuseMaps
@@ -551,10 +552,10 @@
             this.exportAllUvsAsDiffuseMaps.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.exportAllUvsAsDiffuseMaps.AutoSize = true;
-            this.exportAllUvsAsDiffuseMaps.Location = new System.Drawing.Point(7, 287);
+            this.exportAllUvsAsDiffuseMaps.Location = new System.Drawing.Point(7, 305);
             this.exportAllUvsAsDiffuseMaps.Name = "exportAllUvsAsDiffuseMaps";
             this.exportAllUvsAsDiffuseMaps.Size = new System.Drawing.Size(183, 19);
-            this.exportAllUvsAsDiffuseMaps.TabIndex = 19;
+            this.exportAllUvsAsDiffuseMaps.TabIndex = 20;
             this.exportAllUvsAsDiffuseMaps.Text = "Export all UVs as diffuse maps";
             this.optionTooltip.SetToolTip(this.exportAllUvsAsDiffuseMaps, "Check if some UV maps are missing after export (e.g. in Blender). But this can al" +
         "so cause some bugs with UVs.");
@@ -600,7 +601,7 @@
             this.scaleFactor.Location = new System.Drawing.Point(309, 65);
             this.scaleFactor.Name = "scaleFactor";
             this.scaleFactor.Size = new System.Drawing.Size(58, 23);
-            this.scaleFactor.TabIndex = 11;
+            this.scaleFactor.TabIndex = 12;
             this.scaleFactor.Value = new decimal(new int[] {
             1,
             0,
@@ -613,7 +614,7 @@
             this.label5.Location = new System.Drawing.Point(224, 67);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(67, 15);
-            this.label5.TabIndex = 10;
+            this.label5.TabIndex = 11;
             this.label5.Text = "ScaleFactor";
             // 
             // fbxFormat
@@ -626,7 +627,7 @@
             this.fbxFormat.Location = new System.Drawing.Point(297, 95);
             this.fbxFormat.Name = "fbxFormat";
             this.fbxFormat.Size = new System.Drawing.Size(70, 23);
-            this.fbxFormat.TabIndex = 13;
+            this.fbxFormat.TabIndex = 14;
             // 
             // label4
             // 
@@ -634,7 +635,7 @@
             this.label4.Location = new System.Drawing.Point(220, 98);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(65, 15);
-            this.label4.TabIndex = 12;
+            this.label4.TabIndex = 13;
             this.label4.Text = "FBXFormat";
             // 
             // fbxVersion
@@ -651,7 +652,7 @@
             this.fbxVersion.Location = new System.Drawing.Point(313, 126);
             this.fbxVersion.Name = "fbxVersion";
             this.fbxVersion.Size = new System.Drawing.Size(54, 23);
-            this.fbxVersion.TabIndex = 15;
+            this.fbxVersion.TabIndex = 16;
             // 
             // label3
             // 
@@ -659,7 +660,7 @@
             this.label3.Location = new System.Drawing.Point(226, 130);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(65, 15);
-            this.label3.TabIndex = 14;
+            this.label3.TabIndex = 15;
             this.label3.Text = "FBXVersion";
             // 
             // boneSize
@@ -667,7 +668,7 @@
             this.boneSize.Location = new System.Drawing.Point(309, 35);
             this.boneSize.Name = "boneSize";
             this.boneSize.Size = new System.Drawing.Size(58, 23);
-            this.boneSize.TabIndex = 9;
+            this.boneSize.TabIndex = 10;
             this.boneSize.Value = new decimal(new int[] {
             10,
             0,
@@ -680,7 +681,7 @@
             this.label2.Location = new System.Drawing.Point(238, 37);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(54, 15);
-            this.label2.TabIndex = 8;
+            this.label2.TabIndex = 9;
             this.label2.Text = "BoneSize";
             // 
             // exportSkins
@@ -703,7 +704,7 @@
             this.label1.Location = new System.Drawing.Point(218, 7);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(81, 15);
-            this.label1.TabIndex = 6;
+            this.label1.TabIndex = 7;
             this.label1.Text = "FilterPrecision";
             // 
             // filterPrecision
@@ -717,7 +718,7 @@
             this.filterPrecision.Location = new System.Drawing.Point(309, 5);
             this.filterPrecision.Name = "filterPrecision";
             this.filterPrecision.Size = new System.Drawing.Size(58, 23);
-            this.filterPrecision.TabIndex = 7;
+            this.filterPrecision.TabIndex = 8;
             this.filterPrecision.Value = new decimal(new int[] {
             25,
             0,
@@ -774,7 +775,7 @@
             this.optionsTabControl.Margin = new System.Windows.Forms.Padding(12);
             this.optionsTabControl.Name = "optionsTabControl";
             this.optionsTabControl.SelectedIndex = 0;
-            this.optionsTabControl.Size = new System.Drawing.Size(398, 400);
+            this.optionsTabControl.Size = new System.Drawing.Size(398, 415);
             this.optionsTabControl.TabIndex = 1;
             // 
             // generalTabPage
@@ -793,7 +794,7 @@
             this.generalTabPage.Controls.Add(this.openAfterExport);
             this.generalTabPage.Location = new System.Drawing.Point(4, 24);
             this.generalTabPage.Name = "generalTabPage";
-            this.generalTabPage.Size = new System.Drawing.Size(390, 372);
+            this.generalTabPage.Size = new System.Drawing.Size(390, 387);
             this.generalTabPage.TabIndex = 0;
             this.generalTabPage.Text = "General";
             // 
@@ -816,7 +817,7 @@
             this.imagesTabPage.Controls.Add(this.exportSpriteWithAlphaMask);
             this.imagesTabPage.Location = new System.Drawing.Point(4, 24);
             this.imagesTabPage.Name = "imagesTabPage";
-            this.imagesTabPage.Size = new System.Drawing.Size(390, 372);
+            this.imagesTabPage.Size = new System.Drawing.Size(390, 387);
             this.imagesTabPage.TabIndex = 3;
             this.imagesTabPage.Text = "Images";
             // 
@@ -837,6 +838,7 @@
             // fbxTabPage
             // 
             this.fbxTabPage.BackColor = System.Drawing.SystemColors.Menu;
+            this.fbxTabPage.Controls.Add(this.dumpMaterialsCheckBox);
             this.fbxTabPage.Controls.Add(this.fbxResetButton);
             this.fbxTabPage.Controls.Add(this.eulerFilter);
             this.fbxTabPage.Controls.Add(this.uvBindingsLabel);
@@ -860,9 +862,21 @@
             this.fbxTabPage.Controls.Add(this.label4);
             this.fbxTabPage.Location = new System.Drawing.Point(4, 24);
             this.fbxTabPage.Name = "fbxTabPage";
-            this.fbxTabPage.Size = new System.Drawing.Size(390, 372);
+            this.fbxTabPage.Size = new System.Drawing.Size(390, 387);
             this.fbxTabPage.TabIndex = 1;
             this.fbxTabPage.Text = "FBX";
+            // 
+            // dumpMaterialsCheckBox
+            // 
+            this.dumpMaterialsCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dumpMaterialsCheckBox.AutoSize = true;
+            this.dumpMaterialsCheckBox.Location = new System.Drawing.Point(7, 153);
+            this.dumpMaterialsCheckBox.Name = "dumpMaterialsCheckBox";
+            this.dumpMaterialsCheckBox.Size = new System.Drawing.Size(110, 19);
+            this.dumpMaterialsCheckBox.TabIndex = 6;
+            this.dumpMaterialsCheckBox.Text = "Dump materials";
+            this.dumpMaterialsCheckBox.UseVisualStyleBackColor = true;
             // 
             // live2DTabPage
             // 
@@ -875,7 +889,7 @@
             this.live2DTabPage.Controls.Add(this.l2dMotionExportMethodPanel);
             this.live2DTabPage.Location = new System.Drawing.Point(4, 24);
             this.live2DTabPage.Name = "live2DTabPage";
-            this.live2DTabPage.Size = new System.Drawing.Size(390, 372);
+            this.live2DTabPage.Size = new System.Drawing.Size(390, 387);
             this.live2DTabPage.TabIndex = 2;
             this.live2DTabPage.Text = "Cubism Live2D";
             // 
@@ -884,7 +898,7 @@
             this.Cancel.AutoSize = true;
             this.Cancel.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.Cancel.Location = new System.Drawing.Point(322, 418);
+            this.Cancel.Location = new System.Drawing.Point(322, 442);
             this.Cancel.Margin = new System.Windows.Forms.Padding(6);
             this.Cancel.Name = "Cancel";
             this.Cancel.Size = new System.Drawing.Size(88, 27);
@@ -902,7 +916,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.SystemColors.Menu;
             this.CancelButton = this.Cancel;
-            this.ClientSize = new System.Drawing.Size(422, 451);
+            this.ClientSize = new System.Drawing.Size(422, 481);
             this.Controls.Add(this.optionsTabControl);
             this.Controls.Add(this.OKbutton);
             this.Controls.Add(this.Cancel);
@@ -998,5 +1012,6 @@
         private System.Windows.Forms.Button Cancel;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.CheckBox keepSpriteSizeCheckBox;
+        private System.Windows.Forms.CheckBox dumpMaterialsCheckBox;
     }
 }

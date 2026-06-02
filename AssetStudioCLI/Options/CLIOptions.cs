@@ -120,6 +120,7 @@ namespace AssetStudioCLI.Options
         public static Option<float> o_fbxScaleFactor;
         public static Option<int> o_fbxBoneSize;
         public static Option<AnimationExportMode> o_fbxAnimMode;
+        public static Option<bool> f_fbxDumpMaterials;
         public static Option<bool> f_fbxUvsAsDiffuseMaps;
         //filter
         public static Option<List<string>> o_filterByName;
@@ -415,6 +416,14 @@ namespace AssetStudioCLI.Options
                     "Skip - Don't export animations\n" +
                     "All - Try to bind all loaded animations to each loaded model\n",
                 optionExample: "Example: \"--fbx-animation skip\"\n",
+                optionHelpGroup: HelpGroups.FBX
+            );
+            f_fbxDumpMaterials = new GroupedOption<bool>
+            (
+                optionDefaultValue: false,
+                optionName: "--fbx-dump-materials",
+                optionDescription: "(Flag) If specified, Studio will dump model-related Material assets along with a model\n",
+                optionExample: "",
                 optionHelpGroup: HelpGroups.FBX
             );
             f_fbxUvsAsDiffuseMaps = new GroupedOption<bool>
@@ -779,6 +788,17 @@ namespace AssetStudioCLI.Options
                             return;
                         }
                         f_l2dForceBezier.Value = true;
+                        flagIndexes.Add(i);
+                        break;
+                    case "--fbx-dump-mats":
+                    case "--fbx-dump-materials":
+                        if (o_workMode.Value != WorkMode.SplitObjects)
+                        {
+                            Console.WriteLine($"{"Error".Color(brightRed)} during parsing [{flag.Color(brightYellow)}] flag. This flag is not suitable for the current working mode [{o_workMode.Value}].\n");
+                            ShowOptionDescription(o_workMode);
+                            return;
+                        }
+                        f_fbxDumpMaterials.Value = true;
                         flagIndexes.Add(i);
                         break;
                     case "--fbx-uvs-as-diffuse":
@@ -1601,6 +1621,7 @@ namespace AssetStudioCLI.Options
                     sb.AppendLine($"# FBX Scale Factor: {o_fbxScaleFactor}");
                     sb.AppendLine($"# FBX Bone Size: {o_fbxBoneSize}");
                     sb.AppendLine($"# FBX Animation Mode: {o_fbxAnimMode}");
+                    sb.AppendLine($"# FBX Dump Materials: {f_fbxDumpMaterials}");
                     sb.AppendLine($"# FBX UVs as Diffuse Maps: {f_fbxUvsAsDiffuseMaps}");
                     break;
             }

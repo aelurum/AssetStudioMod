@@ -13,6 +13,7 @@ namespace AssetStudio
         public List<ImportedTexture> TextureList { get; protected set; } = new List<ImportedTexture>();
         public List<ImportedKeyframedAnimation> AnimationList { get; protected set; } = new List<ImportedKeyframedAnimation>();
         public List<ImportedMorph> MorphList { get; protected set; } = new List<ImportedMorph>();
+        public HashSet<Material> MaterialAssetSet { get; protected set; } = new HashSet<Material>();
 
         private ImageFormat imageFormat;
         private Avatar avatar;
@@ -315,6 +316,7 @@ namespace AssetStudio
                     if (meshR.m_Materials[i - firstSubMesh].TryGet(out var m_Material))
                     {
                         mat = m_Material;
+                        MaterialAssetSet.Add(mat);
                     }
                 }
                 ImportedMaterial iMat = ConvertMaterial(mat);

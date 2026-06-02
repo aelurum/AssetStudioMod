@@ -249,9 +249,25 @@ namespace AssetStudioGUI
             return true;
         }
 
-        private static void ExportFbx(IImported convert, string exportPath)
+        private static void ExportFbx(ModelConverter convert, string exportPath)
         {
             ModelExporter.ExportFbx(exportPath, convert, Studio.FbxSettings);
+            if (!Studio.FbxSettings.DumpMaterials || convert.MaterialAssetSet.Count == 0 || !File.Exists(exportPath))
+                return;
+
+            var exportDir = Path.Combine(Path.GetDirectoryName(exportPath), "Materials");
+            Directory.CreateDirectory(exportDir);
+            foreach (var mat in convert.MaterialAssetSet)
+            {
+                var jsonDoc = mat.ToJsonDoc();
+                var str = System.Text.Json.JsonSerializer.Serialize(jsonDoc, Object.JsonOptions);
+                var exportFullPath = Path.Combine(exportDir, $"{mat.m_Name}.json");
+                if (File.Exists(exportFullPath))
+                {
+                    exportFullPath = Path.Combine(exportDir, $"{mat.m_Name} #{mat.GetHashCode():x}.json");
+                }
+                File.WriteAllText(exportFullPath, str);
+            }
         }
 
         public static bool ExportRawFile(AssetItem item, string exportPath)

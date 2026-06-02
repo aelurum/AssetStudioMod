@@ -70,6 +70,7 @@ namespace AssetStudioGUI
             Studio.FbxSettings.ExportSkins = exportSkins.Checked;
             Studio.FbxSettings.ExportAnimations = exportAnimations.Checked;
             Studio.FbxSettings.ExportBlendShape = exportBlendShape.Checked;
+            Studio.FbxSettings.DumpMaterials = dumpMaterialsCheckBox.Checked;
             Studio.FbxSettings.CastToBone = castToBone.Checked;
             Studio.FbxSettings.ExportAllUvsAsDiffuseMaps = exportAllUvsAsDiffuseMaps.Checked;
             Studio.FbxSettings.BoneSize = (int)boneSize.Value;
@@ -133,6 +134,7 @@ namespace AssetStudioGUI
             exportSkins.Checked = fbxSettings.ExportSkins;
             exportAnimations.Checked = fbxSettings.ExportAnimations;
             exportBlendShape.Checked = fbxSettings.ExportBlendShape;
+            dumpMaterialsCheckBox.Checked = fbxSettings.DumpMaterials;
             castToBone.Checked = fbxSettings.CastToBone;
             exportAllUvsAsDiffuseMaps.Checked = fbxSettings.ExportAllUvsAsDiffuseMaps;
             boneSize.Value = (decimal)fbxSettings.BoneSize;

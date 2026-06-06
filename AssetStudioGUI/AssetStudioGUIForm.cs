@@ -38,6 +38,7 @@ namespace AssetStudioGUI
         private string tempClipboard;
         private bool isDarkMode;
         private GameOptionsForm gameOptionsForm;
+        private bool showAssetDebugInfo;
 
         #region FMODControl
         private FMOD.System system;
@@ -1138,7 +1139,7 @@ namespace AssetStudioGUI
             FMODinfoLabel.Text = frequency + " Hz";
             FMODtimerLabel.Text = $"00:00.00 / {(FMODlenms / 1000 / 60):00}:{(FMODlenms / 1000 % 60):00}.{(FMODlenms / 10 % 100):00}";
 
-            sound.getFormat(out _, out _, out var audioChannels, out _);
+            sound.getFormat(out var soundType, out var soundFormat, out var audioChannels, out _);
             switch (audioChannels)
             {
                 case 1:
@@ -1150,6 +1151,12 @@ namespace AssetStudioGUI
                 default:
                     FMODaudioChannelsLabel.Text = $"{audioChannels}-Channel";
                     break;
+            }
+
+            if (showAssetDebugInfo)
+            {
+                assetItem.InfoText += $"\nSound type: {soundType}";
+                assetItem.InfoText += $"\nSound format: {soundFormat}";
             }
         }
 
@@ -2726,6 +2733,11 @@ namespace AssetStudioGUI
         private void unityVersionStatusLabel_DoubleClick(object sender, EventArgs e)
         {
             assetsManager.Options.GameSpecific.CustomUnityVersion = null;
+        }
+
+        private void showAssetDebugInfoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showAssetDebugInfo = !showAssetDebugInfo;
         }
 
         #region FMOD

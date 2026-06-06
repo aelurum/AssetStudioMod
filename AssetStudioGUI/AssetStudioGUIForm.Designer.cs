@@ -101,6 +101,7 @@
             this.showConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem15 = new System.Windows.Forms.ToolStripMenuItem();
             this.writeLogToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showAssetDebugInfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportClassStructuresMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.colorThemeToolStripMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -791,6 +792,7 @@
             this.showConsoleToolStripMenuItem,
             this.toolStripMenuItem15,
             this.writeLogToFileToolStripMenuItem,
+            this.showAssetDebugInfoToolStripMenuItem,
             this.exportClassStructuresMenuItem});
             this.debugMenuItem.Name = "debugMenuItem";
             this.debugMenuItem.Size = new System.Drawing.Size(54, 20);
@@ -821,6 +823,14 @@
             this.writeLogToFileToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
             this.writeLogToFileToolStripMenuItem.Text = "Write log to file";
             this.writeLogToFileToolStripMenuItem.CheckedChanged += new System.EventHandler(this.writeLogToFileToolStripMenuItem_CheckedChanged);
+            // 
+            // showAssetDebugInfoToolStripMenuItem
+            // 
+            this.showAssetDebugInfoToolStripMenuItem.CheckOnClick = true;
+            this.showAssetDebugInfoToolStripMenuItem.Name = "showAssetDebugInfoToolStripMenuItem";
+            this.showAssetDebugInfoToolStripMenuItem.Size = new System.Drawing.Size(288, 22);
+            this.showAssetDebugInfoToolStripMenuItem.Text = "Display asset debug info";
+            this.showAssetDebugInfoToolStripMenuItem.Click += new System.EventHandler(this.showAssetDebugInfoToolStripMenuItem_Click);
             // 
             // exportClassStructuresMenuItem
             // 
@@ -1940,6 +1950,7 @@
         private System.Windows.Forms.ToolStripMenuItem jsonDumpAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem jsonDumpSelectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem jsonDumpFilterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showAssetDebugInfoToolStripMenuItem;
     }
 }
 

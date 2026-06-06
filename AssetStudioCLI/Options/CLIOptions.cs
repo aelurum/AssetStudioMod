@@ -122,6 +122,7 @@ namespace AssetStudioCLI.Options
         public static Option<AnimationExportMode> o_fbxAnimMode;
         public static Option<bool> f_fbxDumpMaterials;
         public static Option<bool> f_fbxUvsAsDiffuseMaps;
+        public static Option<bool> f_fbxAsciiFormat;
         //filter
         public static Option<List<string>> o_filterByName;
         public static Option<List<string>> o_filterByContainer;
@@ -432,7 +433,16 @@ namespace AssetStudioCLI.Options
                 optionName: "--fbx-uvs-as-diffuse",
                 optionDescription: "(Flag) If specified, Studio will export all UVs as Diffuse maps.\n" +
                     "Сan be useful if you cannot find some UVs after exporting (e.g. in Blender)\n" +
-                    "(But can also cause some bugs with UVs)",
+                    "(But can also cause some bugs with UVs)\n",
+                optionExample: "",
+                optionHelpGroup: HelpGroups.FBX
+            );
+            f_fbxAsciiFormat = new GroupedOption<bool>
+            (
+                optionDefaultValue: false,
+                optionName: "--fbx-ascii-format",
+                optionDescription: "(Flag) If specified, Studio will export FBX in ASCII format.\n" +
+                    "If not specified, Binary format will be used",
                 optionExample: "",
                 optionHelpGroup: HelpGroups.FBX
             );
@@ -743,6 +753,7 @@ namespace AssetStudioCLI.Options
                             : WorkMode.SplitObjects;
                         o_exportAssetTypes.Value = new List<ClassIDType>
                         {
+                            ClassIDType.AnimationClip,
                             ClassIDType.Animator,
                             ClassIDType.Mesh,
                             ClassIDType.Texture2D,
@@ -802,13 +813,23 @@ namespace AssetStudioCLI.Options
                         flagIndexes.Add(i);
                         break;
                     case "--fbx-uvs-as-diffuse":
-                        if (o_workMode.Value != WorkMode.SplitObjects)
+                        if (o_workMode.Value != WorkMode.SplitObjects && o_workMode.Value != WorkMode.Animator)
                         {
                             Console.WriteLine($"{"Error".Color(brightRed)} during parsing [{flag.Color(brightYellow)}] flag. This flag is not suitable for the current working mode [{o_workMode.Value}].\n");
                             ShowOptionDescription(o_workMode);
                             return;
                         }
                         f_fbxUvsAsDiffuseMaps.Value = true;
+                        flagIndexes.Add(i);
+                        break;
+                    case "--fbx-ascii-format":
+                        if (o_workMode.Value != WorkMode.SplitObjects && o_workMode.Value != WorkMode.Animator)
+                        {
+                            Console.WriteLine($"{"Error".Color(brightRed)} during parsing [{flag.Color(brightYellow)}] flag. This flag is not suitable for the current working mode [{o_workMode.Value}].\n");
+                            ShowOptionDescription(o_workMode);
+                            return;
+                        }
+                        f_fbxAsciiFormat.Value = true;
                         flagIndexes.Add(i);
                         break;
                     case "--filter-with-regex":
@@ -1623,6 +1644,7 @@ namespace AssetStudioCLI.Options
                     sb.AppendLine($"# FBX Animation Mode: {o_fbxAnimMode}");
                     sb.AppendLine($"# FBX Dump Materials: {f_fbxDumpMaterials}");
                     sb.AppendLine($"# FBX UVs as Diffuse Maps: {f_fbxUvsAsDiffuseMaps}");
+                    sb.AppendLine($"# FBX Export in ASCII Format: {f_fbxAsciiFormat}");
                     break;
             }
             sb.AppendLine("======");

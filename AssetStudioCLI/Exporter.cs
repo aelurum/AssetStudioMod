@@ -290,6 +290,7 @@ namespace AssetStudioCLI
                 ExportAllUvsAsDiffuseMaps = CLIOptions.f_fbxUvsAsDiffuseMaps.Value,
                 ExportAnimations = CLIOptions.o_fbxAnimMode.Value != AnimationExportMode.Skip,
                 DumpMaterials = CLIOptions.f_fbxDumpMaterials.Value,
+                FbxFormat = CLIOptions.f_fbxAsciiFormat.Value ? 1 : 0,
             };
             ModelExporter.ExportFbx(exportPath, convert, fbxSettings);
             if (!fbxSettings.DumpMaterials || convert.MaterialAssetSet.Count == 0 || !File.Exists(exportPath))

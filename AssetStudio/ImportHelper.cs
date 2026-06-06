@@ -1,8 +1,11 @@
-﻿using Org.Brotli.Dec;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+
+#if NETFRAMEWORK
+using AssetStudio.Libs.Brotli;
+#endif
 
 namespace AssetStudio
 {
@@ -81,7 +84,11 @@ namespace AssetStudio
                 using (reader)
                 {
                     var stream = new MemoryStream();
+#if NETFRAMEWORK
                     using (var brotliStream = new BrotliInputStream(reader.BaseStream))
+#else
+                    using (var brotliStream = new BrotliStream(reader.BaseStream, CompressionMode.Decompress))
+#endif
                     {
                         brotliStream.CopyTo(stream);
                     }

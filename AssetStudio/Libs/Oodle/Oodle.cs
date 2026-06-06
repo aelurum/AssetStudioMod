@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using AssetStudio.PInvoke;
 #endif
 
-namespace BundleCompression.Oodle
+namespace AssetStudio.Libs.Oodle
 {
     public static class OodleLZ
     {

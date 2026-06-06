@@ -1,9 +1,9 @@
-﻿using BundleCompression.Lzma;
-using BundleCompression.Oodle;
+﻿using AssetStudio.Libs.Lzma;
+using AssetStudio.Libs.Oodle;
+using K4os.Compression.LZ4;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
-using K4os.Compression.LZ4;
 using ZstdSharp;
 
 namespace AssetStudio

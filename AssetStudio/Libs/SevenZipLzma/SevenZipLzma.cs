@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.IO;
 using SevenZip.Compression.LZMA;
 
-namespace BundleCompression.Lzma
+namespace AssetStudio.Libs.Lzma
 {
     public static class SevenZipLzma
     {

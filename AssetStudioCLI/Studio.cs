@@ -29,12 +29,12 @@ namespace AssetStudioCLI
             Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
             Progress.Default = new Progress<int>(ShowCurProgressValue);
             Progress.SetInstance(1, new Progress<int>(ShowCurProgressValue));
+            assetsManager.Options.CustomCachePath = CLIOptions.o_cachePath.Value;
+            assetsManager.Options.DecompressToDisk = CLIOptions.f_decompressToDisk.Value;
             assetsManager.Options.ParseByTypeTree = !CLIOptions.f_avoidLoadingViaTypetree.Value;
             assetsManager.Options.GameSpecific.CustomUnityVersion = CLIOptions.o_unityVersion.Value;
             assetsManager.Options.GameSpecific.Bundles.CustomBlockInfoCompression = CLIOptions.o_bundleBlockInfoCompression.Value;
             assetsManager.Options.GameSpecific.Bundles.CustomBlockCompression = CLIOptions.o_bundleBlockCompression.Value;
-            assetsManager.Options.CustomCachePath = CLIOptions.o_cachePath.Value;
-            assetsManager.Options.DecompressToDisk = CLIOptions.f_decompressToDisk.Value;
             assetsManager.ClearOptionLoaders();
         }
 
@@ -153,10 +153,7 @@ namespace AssetStudioCLI
 
                 var filePath = Path.Combine(extractPath, file.path);
                 var fileDirectory = Path.GetDirectoryName(filePath);
-                if (!Directory.Exists(fileDirectory))
-                {
-                    Directory.CreateDirectory(fileDirectory);
-                }
+                Directory.CreateDirectory(fileDirectory);
                 if (!File.Exists(filePath))
                 {
                     using (var fileStream = File.Create(filePath))
@@ -362,7 +359,7 @@ namespace AssetStudioCLI
                 BuildTreeStructure(objectAssetItemDic);
             }
 
-            var log = $"Finished loading {assetsManager.AssetsFileList.Count} files with {parsedAssetsList.Count} exportable assets";
+            var log = $"Finished loading {assetsManager.AssetsFileList.Count} files with {parsedAssetsList.Count} exportable asset(s)";
             var m_ObjectsCount = assetsManager.AssetsFileList.Sum(x => x.m_Objects.LongCount(y => CLIOptions.o_exportAssetTypes.Value.Any(k => (int)k == y.classID)));
             var objectsCount = assetsManager.AssetsFileList.Sum(x => x.Objects.LongCount(y => CLIOptions.o_exportAssetTypes.Value.Any(k => k == y.type)));
             if (m_ObjectsCount != objectsCount)

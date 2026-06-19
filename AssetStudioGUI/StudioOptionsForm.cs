@@ -49,8 +49,7 @@ namespace AssetStudioGUI
         private void cachePathResetButton_Click(object sender, EventArgs e)
         {
             _cachePath = Path.Combine(Directory.GetCurrentDirectory(), "temp");
-            if (!Directory.Exists(_cachePath))
-                Directory.CreateDirectory(_cachePath);
+            Directory.CreateDirectory(_cachePath);
             DisplayCachePath();
         }
 

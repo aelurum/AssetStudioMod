@@ -415,7 +415,7 @@
             this.customUnityVersionToolStripMenuItem.Enabled = false;
             this.customUnityVersionToolStripMenuItem.Name = "customUnityVersionToolStripMenuItem";
             this.customUnityVersionToolStripMenuItem.ShowShortcutKeys = false;
-            this.customUnityVersionToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.customUnityVersionToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
             this.customUnityVersionToolStripMenuItem.Text = "Custom Unity version";
             // 
             // specifyUnityVersionTextBox
@@ -431,26 +431,26 @@
             // 
             this.gameOptionsToolStripSeparator.Name = "gameOptionsToolStripSeparator";
             this.gameOptionsToolStripSeparator.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.gameOptionsToolStripSeparator.Size = new System.Drawing.Size(210, 6);
+            this.gameOptionsToolStripSeparator.Size = new System.Drawing.Size(219, 6);
             // 
             // saveGameOptionsToDiskToolStripMenuItem
             // 
             this.saveGameOptionsToDiskToolStripMenuItem.Name = "saveGameOptionsToDiskToolStripMenuItem";
             this.saveGameOptionsToDiskToolStripMenuItem.ShowShortcutKeys = false;
-            this.saveGameOptionsToDiskToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.saveGameOptionsToDiskToolStripMenuItem.Text = "Save current options to disk";
+            this.saveGameOptionsToDiskToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
+            this.saveGameOptionsToDiskToolStripMenuItem.Text = "Save current options to disk...";
             this.saveGameOptionsToDiskToolStripMenuItem.Click += new System.EventHandler(this.saveOptionsToDiskToolStripMenuItem_Click);
             // 
             // gameOptionsToolStripSeparator2
             // 
             this.gameOptionsToolStripSeparator2.Name = "gameOptionsToolStripSeparator2";
             this.gameOptionsToolStripSeparator2.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.gameOptionsToolStripSeparator2.Size = new System.Drawing.Size(210, 6);
+            this.gameOptionsToolStripSeparator2.Size = new System.Drawing.Size(219, 6);
             // 
             // moreGameOptionsToolStripMenuItem
             // 
             this.moreGameOptionsToolStripMenuItem.Name = "moreGameOptionsToolStripMenuItem";
-            this.moreGameOptionsToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
+            this.moreGameOptionsToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
             this.moreGameOptionsToolStripMenuItem.Text = "More options...";
             this.moreGameOptionsToolStripMenuItem.Click += new System.EventHandler(this.moreGameOptionsToolStripMenuItem_Click);
             // 
@@ -836,7 +836,7 @@
             // 
             this.exportClassStructuresMenuItem.Name = "exportClassStructuresMenuItem";
             this.exportClassStructuresMenuItem.Size = new System.Drawing.Size(288, 22);
-            this.exportClassStructuresMenuItem.Text = "Export class structures";
+            this.exportClassStructuresMenuItem.Text = "Export class structures...";
             this.exportClassStructuresMenuItem.Click += new System.EventHandler(this.exportClassStructuresMenuItem_Click);
             // 
             // aboutToolStripMenuItem
@@ -1437,6 +1437,7 @@
             // classTextBox
             // 
             this.classTextBox.BackColor = System.Drawing.SystemColors.Window;
+            this.classTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.classTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.classTextBox.Location = new System.Drawing.Point(0, 0);
             this.classTextBox.Multiline = true;

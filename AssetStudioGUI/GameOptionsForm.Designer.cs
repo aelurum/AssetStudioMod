@@ -191,7 +191,7 @@
             this.closeButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.closeButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.closeButton.Location = new System.Drawing.Point(294, 336);
-            this.closeButton.Margin = new System.Windows.Forms.Padding(3, 6, 3, 6);
+            this.closeButton.Margin = new System.Windows.Forms.Padding(3, 3, 6, 6);
             this.closeButton.Name = "closeButton";
             this.closeButton.Size = new System.Drawing.Size(88, 27);
             this.closeButton.TabIndex = 3;
@@ -204,7 +204,7 @@
             this.saveToDiskButton.AutoSize = true;
             this.saveToDiskButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.saveToDiskButton.Location = new System.Drawing.Point(12, 336);
-            this.saveToDiskButton.Margin = new System.Windows.Forms.Padding(3, 6, 3, 6);
+            this.saveToDiskButton.Margin = new System.Windows.Forms.Padding(6, 3, 3, 6);
             this.saveToDiskButton.Name = "saveToDiskButton";
             this.saveToDiskButton.Size = new System.Drawing.Size(89, 27);
             this.saveToDiskButton.TabIndex = 1;
@@ -218,7 +218,7 @@
             this.applyButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.applyButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.applyButton.Location = new System.Drawing.Point(200, 336);
-            this.applyButton.Margin = new System.Windows.Forms.Padding(3, 6, 3, 6);
+            this.applyButton.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
             this.applyButton.Name = "applyButton";
             this.applyButton.Size = new System.Drawing.Size(88, 27);
             this.applyButton.TabIndex = 2;
@@ -235,7 +235,7 @@
             this.tabControl1.Margin = new System.Windows.Forms.Padding(12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(371, 319);
+            this.tabControl1.Size = new System.Drawing.Size(371, 309);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -245,7 +245,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 24);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(363, 291);
+            this.tabPage1.Size = new System.Drawing.Size(363, 281);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             // 
@@ -341,7 +341,7 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Parsing mode";
             // 
-            // ImportOptionsForm
+            // GameOptionsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;

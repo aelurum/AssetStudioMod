@@ -193,10 +193,7 @@ namespace AssetStudioGUI
                 
                 var filePath = Path.Combine(extractPath, file.path);
                 var fileDirectory = Path.GetDirectoryName(filePath);
-                if (!Directory.Exists(fileDirectory))
-                {
-                    Directory.CreateDirectory(fileDirectory);
-                }
+                Directory.CreateDirectory(fileDirectory);
                 if (!File.Exists(filePath))
                 {
                     using (var fileStream = File.Create(filePath))
@@ -1069,7 +1066,7 @@ namespace AssetStudioGUI
             var mocPathDict = GenerateMocPathDict(mocDict, searchByFilename);
             if (!searchByFilename && mocPathDict.Count != mocDict.Count)
             {
-                Logger.Warning("Some Live2D models cannot be exported using containers\nTry to enable search by file name in the options");
+                Logger.Warning("Some Live2D models cannot be exported using containers\nTry to enable search by file name in the export options");
             }
 
             if (searchByFilename)

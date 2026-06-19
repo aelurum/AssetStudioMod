@@ -615,17 +615,22 @@ namespace AssetStudio
         private void ReadAssets()
         {
             var serializedVer = AssetsFileList[0].header.m_Version;
-            if (serializedVer <= SerializedFileFormatVersion.Unknown_6 && serializedVer >= SerializedFileFormatVersion.Unknown_5 && AutoLegacyVersion == null && Options.GameSpecific.CustomUnityVersion == null)
+            switch (serializedVer)
             {
-                var versions = serializedVer == SerializedFileFormatVersion.Unknown_6
-                    ? "'2.1.0f1', '2.5.0f1', '2.6.0f1'"
-                    : "'1.2.0f1', '1.6.0f1', '2.0.0f1";
-                Logger.Warning(
-                    "\nUnable to detect legacy Unity version automatically\n" +
-                    "If the assets load with errors try to specify one of the following Unity versions\n" +
-                    $"Possible versions: {versions}");
+                case SerializedFileFormatVersion.Unknown_5:
+                case SerializedFileFormatVersion.Unknown_6:
+                    if (AutoLegacyVersion == null && Options.GameSpecific.CustomUnityVersion == null)
+                    {
+                        var versions = serializedVer == SerializedFileFormatVersion.Unknown_6
+                            ? "'2.1.0f1', '2.5.0f1', '2.6.0f1'"
+                            : "'1.2.0f1', '1.6.0f1', '2.0.0f1'";
+                        Logger.Warning(
+                            "\nUnable to detect legacy Unity version automatically\n" +
+                            "If the assets load with errors try to specify one of the following Unity versions\n" +
+                            $"Possible versions: {versions}");
+                    }
+                    break;
             }
-
             Logger.Info("Read assets...");
 
             var jsonOptions = new JsonSerializerOptions

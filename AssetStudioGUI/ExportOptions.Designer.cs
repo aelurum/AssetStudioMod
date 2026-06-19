@@ -108,7 +108,7 @@
             this.OKbutton.AutoSize = true;
             this.OKbutton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.OKbutton.Location = new System.Drawing.Point(228, 442);
-            this.OKbutton.Margin = new System.Windows.Forms.Padding(6);
+            this.OKbutton.Margin = new System.Windows.Forms.Padding(3, 3, 3, 6);
             this.OKbutton.Name = "OKbutton";
             this.OKbutton.Size = new System.Drawing.Size(88, 27);
             this.OKbutton.TabIndex = 2;
@@ -899,7 +899,7 @@
             this.Cancel.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.Cancel.Location = new System.Drawing.Point(322, 442);
-            this.Cancel.Margin = new System.Windows.Forms.Padding(6);
+            this.Cancel.Margin = new System.Windows.Forms.Padding(3, 3, 6, 6);
             this.Cancel.Name = "Cancel";
             this.Cancel.Size = new System.Drawing.Size(88, 27);
             this.Cancel.TabIndex = 3;

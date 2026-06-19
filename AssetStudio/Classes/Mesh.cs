@@ -577,30 +577,12 @@ namespace AssetStudio
                     m_Use16BitIndices = reader.ReadInt32() > 0;
                 }
 
-                if (version <= (2, 5)) //2.0 - 2.5 down
+                if (version < (2, 6)) //2.0 - 2.6 down
                 {
-                    int m_IndexBufferCount = reader.ReadInt32();
-
-                    if (m_Use16BitIndices)
-                    {
-                        var indexBufferList = new List<uint>();
-                        for (var i = 0; i < m_IndexBufferCount / 2; i++)
-                        {
-                            indexBufferList.Add(reader.ReadUInt16());
-                        }
-                        if (version >= (2, 1))
-                        {
-                            reader.AlignStream();
-                        }
-                        m_IndexBuffer = indexBufferList.ToArray();
-                    }
-                    else
-                    {
-                        m_IndexBuffer = reader.ReadUInt32Array(m_IndexBufferCount / 4);
-                    }
+                    m_IndexBuffer = ReadIndexBuffer(reader, m_Use16BitIndices);
                 }
 
-                int m_SubMeshesCount = reader.ReadInt32();
+                var m_SubMeshesCount = reader.ReadInt32();
                 reader.ThrowIfTooLarge(m_SubMeshesCount * 12f);
                 m_SubMeshes = new List<SubMesh>();
                 for (var i = 0; i < m_SubMeshesCount; i++)
@@ -687,22 +669,7 @@ namespace AssetStudio
                     m_Use16BitIndices = m_IndexFormat == 0;
                 }
 
-                int m_IndexBufferSize = reader.ReadInt32();
-                if (m_Use16BitIndices)
-                {
-                    var indexBufferList = new List<uint>();
-                    for (var i = 0; i < m_IndexBufferSize / 2; i++)
-                    {
-                        indexBufferList.Add(reader.ReadUInt16());
-                    }
-
-                    reader.AlignStream();
-                    m_IndexBuffer = indexBufferList.ToArray();
-                }
-                else
-                {
-                    m_IndexBuffer = reader.ReadUInt32Array(m_IndexBufferSize / 4);
-                }
+                m_IndexBuffer = ReadIndexBuffer(reader, m_Use16BitIndices);
             }
 
             if (version < (3, 5)) //3.4.2 and earlier
@@ -846,6 +813,30 @@ namespace AssetStudio
 
             if (assetsFile.assetsManager.Options.MeshPreProcessing)
                 ProcessData();
+        }
+
+        private static uint[] ReadIndexBuffer(ObjectReader reader, bool use16BitIndices)
+        {
+            var indexBufferSize = reader.ReadInt32();
+            reader.ThrowIfTooLarge(indexBufferSize);
+
+            if (use16BitIndices)
+            {
+                var indexBuffer = new uint[indexBufferSize / 2];
+                for (var i = 0; i < indexBufferSize / 2; i++)
+                {
+                    indexBuffer[i] = reader.ReadUInt16();
+                }
+                if (reader.version >= (2, 1))
+                {
+                    reader.AlignStream();
+                }
+                return indexBuffer;
+            }
+            else
+            {
+                return reader.ReadUInt32Array(indexBufferSize / 4);
+            }
         }
 
         public void ProcessData()

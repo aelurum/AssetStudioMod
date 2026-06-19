@@ -110,7 +110,7 @@ namespace AssetStudio
                     if (bundleSize > streamSize)
                         Logger.Warning("Bundle size is incorrect.");
                     IsDataAfterBundle = streamSize - bundleSize > 200;
-                    
+
                     var unityVer = m_Header.unityRevision;
                     var customUnityVer = studioOptions.GameSpecific.CustomUnityVersion;
                     if (customUnityVer != null)

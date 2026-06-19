@@ -41,12 +41,12 @@
             this.cachePathResetButton = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.meshPreProcessingCheckBox = new System.Windows.Forms.CheckBox();
+            this.displayAllCheckBox = new System.Windows.Forms.CheckBox();
             this.parseByTypetreeCheckBox = new System.Windows.Forms.CheckBox();
+            this.meshPreProcessingCheckBox = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.OKbutton = new System.Windows.Forms.Button();
             this.Cancel = new System.Windows.Forms.Button();
-            this.displayAllCheckBox = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.guiComponentsGroupBox.SuspendLayout();
@@ -63,7 +63,7 @@
             this.tabControl1.Margin = new System.Windows.Forms.Padding(12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(371, 333);
+            this.tabControl1.Size = new System.Drawing.Size(371, 327);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -74,7 +74,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 24);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(363, 305);
+            this.tabPage1.Size = new System.Drawing.Size(363, 299);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "General";
             // 
@@ -83,7 +83,7 @@
             this.guiComponentsGroupBox.AutoSize = true;
             this.guiComponentsGroupBox.Controls.Add(this.buildSceneHierarchyCheckBox);
             this.guiComponentsGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.guiComponentsGroupBox.Location = new System.Drawing.Point(3, 126);
+            this.guiComponentsGroupBox.Location = new System.Drawing.Point(3, 128);
             this.guiComponentsGroupBox.Name = "guiComponentsGroupBox";
             this.guiComponentsGroupBox.Size = new System.Drawing.Size(357, 63);
             this.guiComponentsGroupBox.TabIndex = 1;
@@ -92,12 +92,13 @@
             // 
             // buildSceneHierarchyCheckBox
             // 
-            this.buildSceneHierarchyCheckBox.AutoSize = true;
+            this.buildSceneHierarchyCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.buildSceneHierarchyCheckBox.Checked = true;
             this.buildSceneHierarchyCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.buildSceneHierarchyCheckBox.Location = new System.Drawing.Point(6, 22);
             this.buildSceneHierarchyCheckBox.Name = "buildSceneHierarchyCheckBox";
-            this.buildSceneHierarchyCheckBox.Size = new System.Drawing.Size(138, 19);
+            this.buildSceneHierarchyCheckBox.Size = new System.Drawing.Size(348, 19);
             this.buildSceneHierarchyCheckBox.TabIndex = 0;
             this.buildSceneHierarchyCheckBox.Text = "Build scene hierarchy";
             this.toolTip1.SetToolTip(this.buildSceneHierarchyCheckBox, "You can disable tree structure building if you don\'t use the Scene Hierarchy tab");
@@ -114,7 +115,7 @@
             this.cacheGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.cacheGroupBox.Location = new System.Drawing.Point(3, 3);
             this.cacheGroupBox.Name = "cacheGroupBox";
-            this.cacheGroupBox.Size = new System.Drawing.Size(357, 123);
+            this.cacheGroupBox.Size = new System.Drawing.Size(357, 125);
             this.cacheGroupBox.TabIndex = 0;
             this.cacheGroupBox.TabStop = false;
             this.cacheGroupBox.Text = "Disk cache";
@@ -123,7 +124,7 @@
             // 
             this.alwaysDecompressToDiskCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.alwaysDecompressToDiskCheckBox.Location = new System.Drawing.Point(9, 82);
+            this.alwaysDecompressToDiskCheckBox.Location = new System.Drawing.Point(9, 84);
             this.alwaysDecompressToDiskCheckBox.Name = "alwaysDecompressToDiskCheckBox";
             this.alwaysDecompressToDiskCheckBox.Size = new System.Drawing.Size(345, 19);
             this.alwaysDecompressToDiskCheckBox.TabIndex = 4;
@@ -134,7 +135,7 @@
             // cacheFreeSpaceLabel
             // 
             this.cacheFreeSpaceLabel.AutoSize = true;
-            this.cacheFreeSpaceLabel.Location = new System.Drawing.Point(160, 47);
+            this.cacheFreeSpaceLabel.Location = new System.Drawing.Point(160, 49);
             this.cacheFreeSpaceLabel.Name = "cacheFreeSpaceLabel";
             this.cacheFreeSpaceLabel.Size = new System.Drawing.Size(91, 15);
             this.cacheFreeSpaceLabel.TabIndex = 3;
@@ -151,7 +152,7 @@
             // 
             // cachePathSelectButton
             // 
-            this.cachePathSelectButton.Location = new System.Drawing.Point(9, 42);
+            this.cachePathSelectButton.Location = new System.Drawing.Point(9, 44);
             this.cachePathSelectButton.Name = "cachePathSelectButton";
             this.cachePathSelectButton.Size = new System.Drawing.Size(60, 25);
             this.cachePathSelectButton.TabIndex = 1;
@@ -161,7 +162,7 @@
             // 
             // cachePathResetButton
             // 
-            this.cachePathResetButton.Location = new System.Drawing.Point(75, 42);
+            this.cachePathResetButton.Location = new System.Drawing.Point(75, 44);
             this.cachePathResetButton.Name = "cachePathResetButton";
             this.cachePathResetButton.Size = new System.Drawing.Size(60, 25);
             this.cachePathResetButton.TabIndex = 2;
@@ -176,7 +177,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 24);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(363, 305);
+            this.tabPage2.Size = new System.Drawing.Size(363, 299);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Assets";
             // 
@@ -194,17 +195,18 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Asset parsing";
             // 
-            // meshPreProcessingCheckBox
+            // displayAllCheckBox
             // 
-            this.meshPreProcessingCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.displayAllCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.meshPreProcessingCheckBox.Location = new System.Drawing.Point(6, 47);
-            this.meshPreProcessingCheckBox.Name = "meshPreProcessingCheckBox";
-            this.meshPreProcessingCheckBox.Size = new System.Drawing.Size(348, 19);
-            this.meshPreProcessingCheckBox.TabIndex = 2;
-            this.meshPreProcessingCheckBox.Text = "Pre-process Mesh assets during loading";
-            this.toolTip1.SetToolTip(this.meshPreProcessingCheckBox, "Requires more RAM");
-            this.meshPreProcessingCheckBox.UseVisualStyleBackColor = true;
+            this.displayAllCheckBox.Location = new System.Drawing.Point(6, 22);
+            this.displayAllCheckBox.Name = "displayAllCheckBox";
+            this.displayAllCheckBox.Size = new System.Drawing.Size(348, 19);
+            this.displayAllCheckBox.TabIndex = 3;
+            this.displayAllCheckBox.Text = "Display all assets";
+            this.toolTip1.SetToolTip(this.displayAllCheckBox, "Check this option will display all types assets. Not extractable assets can expor" +
+        "t the RAW file.");
+            this.displayAllCheckBox.UseVisualStyleBackColor = true;
             // 
             // parseByTypetreeCheckBox
             // 
@@ -217,7 +219,21 @@
             this.parseByTypetreeCheckBox.Size = new System.Drawing.Size(348, 19);
             this.parseByTypetreeCheckBox.TabIndex = 1;
             this.parseByTypetreeCheckBox.Text = "Parse assets using their typetree";
+            this.toolTip1.SetToolTip(this.parseByTypetreeCheckBox, "(Applies to assets with typetree included)\r\nSlower but can parse non-standard ass" +
+        "ets.\r\nOnly for Texture2D, AnimationClip and Material assets for now.");
             this.parseByTypetreeCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // meshPreProcessingCheckBox
+            // 
+            this.meshPreProcessingCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.meshPreProcessingCheckBox.Location = new System.Drawing.Point(6, 47);
+            this.meshPreProcessingCheckBox.Name = "meshPreProcessingCheckBox";
+            this.meshPreProcessingCheckBox.Size = new System.Drawing.Size(348, 19);
+            this.meshPreProcessingCheckBox.TabIndex = 2;
+            this.meshPreProcessingCheckBox.Text = "Pre-process Mesh assets during loading";
+            this.toolTip1.SetToolTip(this.meshPreProcessingCheckBox, "Requires more RAM");
+            this.meshPreProcessingCheckBox.UseVisualStyleBackColor = true;
             // 
             // OKbutton
             // 
@@ -238,26 +254,13 @@
             this.Cancel.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.Cancel.Location = new System.Drawing.Point(295, 354);
-            this.Cancel.Margin = new System.Windows.Forms.Padding(3, 6, 3, 6);
+            this.Cancel.Margin = new System.Windows.Forms.Padding(3, 3, 6, 6);
             this.Cancel.Name = "Cancel";
             this.Cancel.Size = new System.Drawing.Size(88, 27);
             this.Cancel.TabIndex = 2;
             this.Cancel.Text = "Cancel";
             this.Cancel.UseVisualStyleBackColor = false;
             this.Cancel.Click += new System.EventHandler(this.Cancel_Click);
-            // 
-            // displayAllCheckBox
-            // 
-            this.displayAllCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.displayAllCheckBox.Location = new System.Drawing.Point(6, 22);
-            this.displayAllCheckBox.Name = "displayAllCheckBox";
-            this.displayAllCheckBox.Size = new System.Drawing.Size(348, 19);
-            this.displayAllCheckBox.TabIndex = 3;
-            this.displayAllCheckBox.Text = "Display all assets";
-            this.toolTip1.SetToolTip(this.displayAllCheckBox, "Check this option will display all types assets. Not extractable assets can expor" +
-        "t the RAW file.");
-            this.displayAllCheckBox.UseVisualStyleBackColor = true;
             // 
             // StudioOptionsForm
             // 
@@ -284,7 +287,6 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.guiComponentsGroupBox.ResumeLayout(false);
-            this.guiComponentsGroupBox.PerformLayout();
             this.cacheGroupBox.ResumeLayout(false);
             this.cacheGroupBox.PerformLayout();
             this.tabPage2.ResumeLayout(false);

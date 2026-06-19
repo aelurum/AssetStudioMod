@@ -509,7 +509,7 @@ namespace AssetStudio
         {
             var version = reader.version;
             data = reader.ReadUInt32Array();
-            if (version.IsInRange((2022, 3, 19), 2023) //2022.3.19f1 to 2023
+            if (version.IsInRange((2022, 3, 19), 2023) //2022.3.19f1 - 2023 down
                 || version >= (2023, 2, 8)) //2023.2.8f1 and up
             {
                 curveCount = reader.ReadUInt16();

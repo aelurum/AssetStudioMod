@@ -120,6 +120,7 @@ namespace AssetStudio
                 {
                     image.Mutate(x => x.Flip(FlipMode.Vertical));
                 }
+
                 return true;
             }
             finally
@@ -332,6 +333,13 @@ namespace AssetStudio
             finally
             {
                 BigArrayPool<byte>.Shared.Return(buff, clearArray: true);
+            }
+
+            //src: https://github.com/AssetRipper/AssetRipper/blob/master/Source/AssetRipper.Export.Modules.Textures/TextureConverter.cs
+            // despite the name, this packing works for different formats
+            if (m_Texture2D.m_LightmapFormat == 3) //NormalmapDXT5nm
+            {
+                UnpackNormal(destSpan);
             }
 
             return flag;
@@ -843,6 +851,24 @@ namespace AssetStudio
                 result = TextureDecoder.UnpackCrunch(buff);
             }
             return !result.IsEmpty;
+        }
+
+        private void UnpackNormal(Span<byte> bgraImageData)
+        {
+            for (var i = 0; i < outputDataSize; i += 4)
+            {
+                (bgraImageData[i + 2], bgraImageData[i + 3]) = (bgraImageData[i + 3], bgraImageData[i + 2]); //Alpha and red are swapped
+                var g = bgraImageData[i + 1];
+                var r = bgraImageData[i + 2];
+                
+                //Blue needs calculated
+                const double magnitudeSqr = 255 * 255;
+                var vr = r * 2.0 - 255.0;
+                var vg = g * 2.0 - 255.0;
+                var hypotenuseSqr = Math.Min(vr * vr + vg * vg, magnitudeSqr);
+                var b = (Math.Sqrt(magnitudeSqr - hypotenuseSqr) + 255.0) / 2.0;
+                bgraImageData[i] = (byte)b;
+            }
         }
     }
 }

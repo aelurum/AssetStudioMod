@@ -13,6 +13,7 @@ namespace AssetStudio
         public bool m_MipMap;
         public int m_MipCount;
         public GLTextureSettings m_TextureSettings;
+        public int m_LightmapFormat;
         public int m_ImageCount;
         public byte[] m_PlatformBlob;
         [JsonPropertyName("image data")]
@@ -70,6 +71,7 @@ namespace AssetStudio
             m_MipCount = parsedTex2d.m_MipCount;
             m_ImageCount = parsedTex2d.m_ImageCount;
             m_TextureSettings = parsedTex2d.m_TextureSettings;
+            m_LightmapFormat = parsedTex2d.m_LightmapFormat;
             m_StreamData = parsedTex2d.m_StreamData;
             m_PlatformBlob = parsedTex2d.m_PlatformBlob ?? Array.Empty<byte>();
 
@@ -137,7 +139,7 @@ namespace AssetStudio
                     var m_IgnoreMasterTextureLimit = reader.ReadBoolean();
                 }
             }
-            if (version.IsInRange(3, (5, 5))) //3.0.0 - 5.4
+            if (version.IsInRange(3, (5, 5))) //3.0.0 - 5.5 down
             {
                 var m_ReadAllowed = reader.ReadBoolean();
             }
@@ -162,7 +164,7 @@ namespace AssetStudio
             m_TextureSettings = new GLTextureSettings(reader);
             if (version >= 3) //3.0 and up
             {
-                var m_LightmapFormat = reader.ReadInt32();
+                m_LightmapFormat = reader.ReadInt32();
             }
             if (version >= (3, 5)) //3.5.0 and up
             {

@@ -891,6 +891,11 @@ namespace AssetStudio
 
                 isLoaded = true;
             }
+            catch (Exception ex)
+            {
+                Logger.Warning($"Cannot process mesh | PathID: {m_PathID} | Name: \"{m_Name}\"" +
+                               $"\n{ex.Message}");
+            }
             finally
             {
                 if (isStreamedDataSize)

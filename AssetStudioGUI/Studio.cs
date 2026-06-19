@@ -1138,14 +1138,20 @@ namespace AssetStudioGUI
         public static void ExportLive2D(string exportPath, List<MonoBehaviour> selMocs = null, List<AnimationClip> selClipMotions = null, List<MonoBehaviour> selFadeMotions = null, MonoBehaviour selFadeLst = null)
         {
             var baseDestPath = Path.Combine(exportPath, "Live2DOutput");
-            var forceBezier = Properties.Settings.Default.l2dForceBezier;
             var modelGroupOption = Properties.Settings.Default.l2dModelGroupOption;
-            var searchByFilename = Properties.Settings.Default.l2dAssetSearchByFilename;
-            var motionMode = Properties.Settings.Default.l2dMotionMode;
+            var l2dOptions = new Live2DOptions()
+            {
+                SelectedClipMotions = selClipMotions,
+                SelectedFadeMotions = selFadeMotions,
+                SelectedFadeMotionList = selFadeLst,
+                MotionMode = Properties.Settings.Default.l2dMotionMode,
+                ForceBezier = Properties.Settings.Default.l2dForceBezier,
+                SearchByFilename = Properties.Settings.Default.l2dAssetSearchByFilename,
+            };
             if (selClipMotions != null)
-                motionMode = Live2DMotionMode.AnimationClipV2;
+                l2dOptions.MotionMode = Live2DMotionMode.AnimationClipV2;
             else if (selFadeMotions != null || selFadeLst != null)
-                motionMode = Live2DMotionMode.MonoBehaviour;
+                l2dOptions.MotionMode = Live2DMotionMode.MonoBehaviour;
             var mocDict = selMocs != null
                 ? selMocs.ToDictionary(moc => moc, moc => l2dAssetManager.ModelDict[moc])
                 : l2dAssetManager.ModelDict;
@@ -1171,30 +1177,30 @@ namespace AssetStudioGUI
                     Logger.Info($"[{modelCounter + 1}/{totalModelCount}] Exporting Live2D from: \"{srcContainer}\"...");
                     try
                     {
-                        var cubismExtractor = new Live2DExtractor(assetGroupKvp, selClipMotions, selFadeMotions, selFadeLst);
-                        var filename = string.IsNullOrEmpty(cubismExtractor.MocMono.assetsFile.originalPath)
+                        var cubismExtractor = new Live2DExtractor(assetGroupKvp, l2dOptions);
+                        var fileName = string.IsNullOrEmpty(cubismExtractor.MocMono.assetsFile.originalPath)
                             ? Path.GetFileNameWithoutExtension(cubismExtractor.MocMono.assetsFile.fileName)
                             : Path.GetFileNameWithoutExtension(cubismExtractor.MocMono.assetsFile.originalPath);
                         var modelName = !string.IsNullOrEmpty(cubismExtractor.Model?.Name)
                             ? cubismExtractor.Model.Name
-                            : filename;
+                            : fileName;
                         Logger.Info($"Model name: \"{modelName}\"");
 
                         string modelPath;
                         switch (modelGroupOption)
                         {
                             case Live2DModelGroupOption.SourceFileName:
-                                modelPath = filename;
+                                modelPath = fileName;
                                 break;
                             case Live2DModelGroupOption.ModelName:
                                 modelPath = modelName;
                                 break;
                             default: //ContainerPath
-                                var container = searchByFilename && cubismExtractor.Model != null
+                                var container = l2dOptions.SearchByFilename && cubismExtractor.Model != null
                                     ? cubismExtractor.Model.Container
                                     : srcContainer;
                                 container = container == assetGroupKvp.Key.assetsFile.fullName
-                                    ? filename
+                                    ? fileName
                                     : container;
                                 modelPath = Path.HasExtension(container)
                                     ? container.Replace(Path.GetExtension(container), "")
@@ -1202,7 +1208,7 @@ namespace AssetStudioGUI
                                 break;
                         }
                         var destPath = Exporter.SafePathCombine(baseDestPath, modelPath);
-                        cubismExtractor.ExtractCubismModel(destPath, motionMode, forceBezier, GetParallelExportCount());
+                        cubismExtractor.ExtractCubismModel(destPath, GetParallelExportCount());
                         modelCounter++;
                     }
                     catch (Exception ex)

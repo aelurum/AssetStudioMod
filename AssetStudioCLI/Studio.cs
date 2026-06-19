@@ -1164,10 +1164,13 @@ namespace AssetStudioCLI
         public static void ExportLive2D()
         {
             var baseDestPath = Path.Combine(CLIOptions.o_outputFolder.Value, "Live2DOutput");
-            var motionMode = CLIOptions.o_l2dMotionMode.Value;
-            var forceBezier = CLIOptions.f_l2dForceBezier.Value;
             var modelGroupOption = CLIOptions.o_l2dGroupOption.Value;
-            var searchByFilename = CLIOptions.f_l2dAssetSearchByFilename.Value;
+            var l2dOptions = new Live2DOptions()
+            {
+                MotionMode = CLIOptions.o_l2dMotionMode.Value,
+                ForceBezier = CLIOptions.f_l2dForceBezier.Value,
+                SearchByFilename = CLIOptions.f_l2dAssetSearchByFilename.Value,
+            };
             if (CLIOptions.filterBy == FilterBy.NameOrContainer)
                 FilterMocDict();
             if (l2dAssetManager.ModelDict.Count == 0)
@@ -1198,30 +1201,30 @@ namespace AssetStudioCLI
                 Logger.Info($"[{modelCounter + 1}/{totalModelCount}] Exporting Live2D from: \"{srcContainer.Color(Ansi.BrightCyan)}\"...");
                 try
                 {
-                    var cubismExtractor = new Live2DExtractor(assetGroupKvp);
-                    var filename = string.IsNullOrEmpty(cubismExtractor.MocMono.assetsFile.originalPath)
+                    var cubismExtractor = new Live2DExtractor(assetGroupKvp, l2dOptions);
+                    var fileName = string.IsNullOrEmpty(cubismExtractor.MocMono.assetsFile.originalPath)
                         ? Path.GetFileNameWithoutExtension(cubismExtractor.MocMono.assetsFile.fileName)
                         : Path.GetFileNameWithoutExtension(cubismExtractor.MocMono.assetsFile.originalPath);
                     var modelName = !string.IsNullOrEmpty(cubismExtractor.Model?.Name)
                         ? cubismExtractor.Model.Name
-                        : filename;
+                        : fileName;
                     Logger.Info($"Model name: \"{modelName}\"");
 
                     string modelPath;
                     switch (modelGroupOption)
                     {
                         case Live2DModelGroupOption.SourceFileName:
-                            modelPath = filename;
+                            modelPath = fileName;
                             break;
                         case Live2DModelGroupOption.ModelName:
                             modelPath = modelName;
                             break;
                         default: //ContainerPath
-                            var container = searchByFilename && cubismExtractor.Model != null
+                            var container = l2dOptions.SearchByFilename && cubismExtractor.Model != null
                                 ? cubismExtractor.Model.Container
                                 : srcContainer;
                             container = container == assetGroupKvp.Key.assetsFile.fullName
-                                ? filename
+                                ? fileName
                                 : container;
                             modelPath = Path.HasExtension(container)
                                 ? container.Replace(Path.GetExtension(container), "")
@@ -1230,7 +1233,7 @@ namespace AssetStudioCLI
                     }
 
                     var destPath = Exporter.SafePathCombine(baseDestPath, modelPath);
-                    cubismExtractor.ExtractCubismModel(destPath, motionMode, forceBezier, parallelTaskCount);
+                    cubismExtractor.ExtractCubismModel(destPath, parallelTaskCount);
                     modelCounter++;
                 }
                 catch (Exception ex)

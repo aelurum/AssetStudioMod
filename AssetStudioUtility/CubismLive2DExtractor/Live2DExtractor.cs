@@ -26,6 +26,7 @@ namespace CubismLive2DExtractor
         public static Dictionary<MonoBehaviour, CubismModel> MocDict { get; set; }
         public static AssemblyLoader Assembly { get; set; }
         public CubismModel Model { get; set; }
+        private Live2DOptions Options { get; }
         private List<MonoBehaviour> FadeMotions { get; set; }
         private List<AnimationClip> AnimationClips { get; set; }
         private List<MonoBehaviour> Expressions { get; set; }
@@ -42,12 +43,13 @@ namespace CubismLive2DExtractor
         private HashSet<string> EyeBlinkParameters { get; set; }
         private HashSet<string> LipSyncParameters { get; set; }
 
-        public Live2DExtractor(KeyValuePair<MonoBehaviour, List<Object>> assetGroupKvp, List<AnimationClip> selClipMotions = null, List<MonoBehaviour> selFadeMotions = null, MonoBehaviour selFadeMotionLst = null)
+        public Live2DExtractor(KeyValuePair<MonoBehaviour, List<Object>> assetGroupKvp, Live2DOptions l2dOptions)
         {
+            Options = l2dOptions;
             Expressions = new List<MonoBehaviour>();
-            FadeMotions = selFadeMotions ?? new List<MonoBehaviour>();
-            AnimationClips = selClipMotions ?? new List<AnimationClip>();
-            FadeMotionLst = selFadeMotionLst;
+            FadeMotions = Options.SelectedFadeMotions ?? new List<MonoBehaviour>();
+            AnimationClips = Options.SelectedClipMotions ?? new List<AnimationClip>();
+            FadeMotionLst = Options.SelectedFadeMotionList;
             Texture2Ds = new List<Texture2D>();
             EyeBlinkParameters = new HashSet<string>();
             LipSyncParameters = new HashSet<string>();
@@ -63,9 +65,9 @@ namespace CubismLive2DExtractor
             var searchModelPartCdi = true;
             var searchPoseParts = true;
             var searchFadeMotions =
-                selClipMotions == null
-                && selFadeMotions == null
-                && selFadeMotionLst == null;
+                Options.SelectedClipMotions == null
+                && Options.SelectedFadeMotions == null
+                && Options.SelectedFadeMotionList == null;
 
             Logger.Debug("Sorting model assets..");
 
@@ -109,9 +111,9 @@ namespace CubismLive2DExtractor
                     PoseParts = Model.PosePartList;
                     searchPoseParts = false;
                 }
-                if (Model.ClipMotionList.Count > 0 && selClipMotions == null)
+                if (Model.ClipMotionList.Count > 0 && Options.SelectedClipMotions == null)
                 {
-                    AnimationClips = Model.ClipMotionList;
+                    AnimationClips.AddRange(Model.ClipMotionList);
                 }
             }
             foreach (var asset in assetGroupKvp.Value)
@@ -197,7 +199,7 @@ namespace CubismLive2DExtractor
                         }
                         break;
                     case AnimationClip m_AnimationClip:
-                        if (selClipMotions == null)
+                        if (Options.SelectedClipMotions == null)
                         {
                             AnimationClips.Add(m_AnimationClip);
                         }
@@ -207,17 +209,23 @@ namespace CubismLive2DExtractor
                         break;
                 }
             }
+
             if (renderTextureSet.Count > 0)
             {
                 Texture2Ds = renderTextureSet.ToList();
             }
+            else if (Options.SearchByFilename)
+            {
+                Texture2Ds = Texture2Ds.Where(x => x.m_Name.ToLower().StartsWith("texture")).ToList();
+            }
+
             if (AnimationClips.Count > 0)
             {
                 AnimationClips = AnimationClips.Distinct().ToList();
             }
         }
 
-        public void ExtractCubismModel(string destPath, Live2DMotionMode motionMode, bool forceBezier = false, int parallelTaskCount = 1)
+        public void ExtractCubismModel(string destPath, int parallelTaskCount = 1)
         {
             var modelName = Model?.Name ?? destPath.Split('/', '\\').Last();
             destPath += Path.DirectorySeparatorChar;
@@ -311,7 +319,7 @@ namespace CubismLive2DExtractor
             var destMotionPath = Path.Combine(destPath, "motions") + Path.DirectorySeparatorChar;
             var motionFps = 0f;
 
-            if (motionMode == Live2DMotionMode.MonoBehaviour) //Fade motions from MonoBehaviour
+            if (Options.MotionMode == Live2DMotionMode.MonoBehaviour) //Fade motions from MonoBehaviour
             {
                 if (FadeMotionLst != null) //Fade motions from fadeMotionList
                 {
@@ -340,7 +348,7 @@ namespace CubismLive2DExtractor
                 if (FadeMotions.Count > 0)
                 {
                     Logger.Debug("Motion export method: MonoBehaviour (Fade motion)");
-                    ExportFadeMotions(destMotionPath, forceBezier, motions, ref motionFps);
+                    ExportFadeMotions(destMotionPath, motions, ref motionFps);
                 }
             }
 
@@ -348,7 +356,7 @@ namespace CubismLive2DExtractor
             {
                 CubismMotion3Converter converter;
                 var exportMethod = "AnimationClip";
-                switch (motionMode)
+                switch (Options.MotionMode)
                 {
                     case Live2DMotionMode.AnimationClipV1 when Model?.ModelGameObject != null:
                         exportMethod += "V1";
@@ -356,7 +364,7 @@ namespace CubismLive2DExtractor
                         break;
                     default: //AnimationClipV2
                         exportMethod += "V2";
-                        if (motionMode == Live2DMotionMode.MonoBehaviour)
+                        if (Options.MotionMode == Live2DMotionMode.MonoBehaviour)
                         {
                             exportMethod = FadeMotions.Count > 0
                                 ? exportMethod + " (unable to export motions using Fade motion method)"
@@ -367,7 +375,7 @@ namespace CubismLive2DExtractor
                 }
                 Logger.Debug($"Motion export method: {exportMethod}");
 
-                ExportClipMotions(destMotionPath, converter, forceBezier, motions, ref motionFps);
+                ExportClipMotions(destMotionPath, converter, motions, ref motionFps);
             }
 
             if (motions.Count == 0)
@@ -520,7 +528,7 @@ namespace CubismLive2DExtractor
             #endregion
         }
 
-        private void ExportFadeMotions(string destMotionPath, bool forceBezier, SortedDictionary<string, JArray> motions, ref float fps)
+        private void ExportFadeMotions(string destMotionPath, SortedDictionary<string, JArray> motions, ref float fps)
         {
             Directory.CreateDirectory(destMotionPath);
             foreach (var fadeMotionMono in FadeMotions)
@@ -533,7 +541,7 @@ namespace CubismLive2DExtractor
                 if (fadeMotion.ParameterIds.Length == 0)
                     continue;
 
-                var motionJson = new CubismMotion3Json(fadeMotion, ParameterNames, PartNames, forceBezier);
+                var motionJson = new CubismMotion3Json(fadeMotion, ParameterNames, PartNames, Options.ForceBezier);
                 fps = motionJson.Meta.Fps;
 
                 var animName = Path.GetFileNameWithoutExtension(fadeMotion.m_Name);
@@ -549,7 +557,7 @@ namespace CubismLive2DExtractor
             }
         }
 
-        private static void ExportClipMotions(string destMotionPath, CubismMotion3Converter converter, bool forceBezier, SortedDictionary<string, JArray> motions, ref float fps)
+        private void ExportClipMotions(string destMotionPath, CubismMotion3Converter converter, SortedDictionary<string, JArray> motions, ref float fps)
         {
             if (converter == null)
                 return;
@@ -566,7 +574,7 @@ namespace CubismLive2DExtractor
                     Logger.Warning($"Motion \"{animName}\" is empty. Export skipped");
                     continue;
                 }
-                var motionJson = new CubismMotion3Json(animation, forceBezier);
+                var motionJson = new CubismMotion3Json(animation, Options.ForceBezier);
                 fps = motionJson.Meta.Fps;
 
                 if (motions.ContainsKey(animName))

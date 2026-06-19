@@ -1238,7 +1238,9 @@ namespace AssetStudio
             //IndexBuffer
             if (m_CompressedMesh.m_Triangles.m_NumItems > 0)
             {
-                m_IndexBuffer = Array.ConvertAll(m_CompressedMesh.m_Triangles.UnpackInts(), x => (uint)x);
+                m_IndexBuffer = m_Use16BitIndices
+                    ? Array.ConvertAll(m_CompressedMesh.m_Triangles.UnpackInts(), x => (uint)x)
+                    : MemoryMarshal.Cast<byte, uint>(m_CompressedMesh.m_Triangles.m_Data).ToArray(); //sus
             }
             //Color
             if (m_CompressedMesh.m_Colors?.m_NumItems > 0)

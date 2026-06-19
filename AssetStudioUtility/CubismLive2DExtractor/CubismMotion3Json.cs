@@ -1,10 +1,12 @@
 ﻿// File Format Specifications
 // https://github.com/Live2D/CubismSpecs/blob/master/FileFormats/motion3.json.md
 
+using AssetStudio;
+using CubismLive2DExtractor.CubismJsonConverters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AssetStudio;
+using System.Text.Json.Serialization;
 
 namespace CubismLive2DExtractor
 {
@@ -36,6 +38,7 @@ namespace CubismLive2DExtractor
             public string Id;
             public float FadeInTime;
             public float FadeOutTime;
+            [JsonConverter(typeof(MyJsonConverterFloatList))]
             public List<float> Segments;
         }
 

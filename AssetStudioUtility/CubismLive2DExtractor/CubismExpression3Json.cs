@@ -1,4 +1,6 @@
-﻿namespace CubismLive2DExtractor
+﻿using System.Text.Json.Serialization;
+
+namespace CubismLive2DExtractor
 {
     public class CubismExpression3Json
     {
@@ -11,6 +13,7 @@
         {
             public string Id { get; set; }
             public float Value { get; set; }
+            [JsonConverter(typeof(JsonStringEnumConverter))]
             public BlendType Blend { get; set; }
         }
     }

@@ -1,14 +1,18 @@
-﻿using System;
+﻿using AssetStudio;
+using CubismLive2DExtractor.CubismJsonConverters;
+using CubismLive2DExtractor.CubismUnityClasses;
+using System;
 using System.Collections.Specialized;
 using System.Linq;
-using AssetStudio;
-using CubismLive2DExtractor.CubismUnityClasses;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CubismLive2DExtractor
 {
     public static class CubismParsers
     {
+        public static readonly JsonSerializerOptions CubismJsonOptions;
+
         public enum CubismMonoBehaviourType
         {
             FadeController,
@@ -24,9 +28,21 @@ namespace CubismLive2DExtractor
             RenderTexture,
         }
 
+        static CubismParsers()
+        {
+            CubismJsonOptions = new JsonSerializerOptions
+            {
+                Converters = { new MyJsonConverterFloat(asDecimal: true) },
+                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
+                PropertyNameCaseInsensitive = true,
+                IncludeFields = true,
+                WriteIndented = true,
+            };
+        }
+
         public static string ParsePhysics(OrderedDictionary physicsDict, float motionFps)
         {
-            var cubismPhysicsRig = JsonConvert.DeserializeObject<CubismPhysics>(JsonConvert.SerializeObject(physicsDict)).Rig;
+            var cubismPhysicsRig = JsonSerializer.Deserialize<CubismPhysics>(JsonSerializer.SerializeToUtf8Bytes(physicsDict, CubismJsonOptions), CubismJsonOptions).Rig;
 
             var physicsSettings = new CubismPhysics3Json.SerializablePhysicsSettings[cubismPhysicsRig.SubRigs.Length];
             for (var i = 0; i < physicsSettings.Length; i++)
@@ -129,7 +145,10 @@ namespace CubismLive2DExtractor
                 },
                 PhysicsSettings = physicsSettings
             };
-            return JsonConvert.SerializeObject(physicsJson, Formatting.Indented, new MyJsonConverter2());
+            var physicsOptions = new JsonSerializerOptions(CubismJsonOptions);
+            physicsOptions.Converters.Clear();
+            physicsOptions.Converters.Add(new MyJsonConverterFloat());
+            return JsonSerializer.Serialize(physicsJson, physicsOptions);
         }
 
         public static OrderedDictionary ParseMonoBehaviour(MonoBehaviour m_MonoBehaviour, CubismMonoBehaviourType cubismMonoBehaviourType, AssemblyLoader assemblyLoader)

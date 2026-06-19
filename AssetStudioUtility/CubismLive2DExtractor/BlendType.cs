@@ -2,8 +2,8 @@
 {
     public enum BlendType
     {
+        Overwrite,
         Add,
         Multiply,
-        Overwrite,
     }
 }

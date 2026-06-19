@@ -6,8 +6,6 @@
 using AssetStudio;
 using AssetStudio.Addons.CubismLive2D;
 using CubismLive2DExtractor.CubismUnityClasses;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,6 +13,8 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using static CubismLive2DExtractor.CubismParsers;
 using Object = AssetStudio.Object;
@@ -315,7 +315,7 @@ namespace CubismLive2DExtractor
             #endregion
 
             #region motion3.json
-            var motions = new SortedDictionary<string, JArray>();
+            var motions = new SortedDictionary<string, JsonNode>();
             var destMotionPath = Path.Combine(destPath, "motions") + Path.DirectorySeparatorChar;
             var motionFps = 0f;
 
@@ -327,7 +327,7 @@ namespace CubismLive2DExtractor
                     var fadeMotionLstDict = ParseMonoBehaviour(FadeMotionLst, CubismMonoBehaviourType.FadeMotionList, Assembly);
                     if (fadeMotionLstDict != null)
                     {
-                        var cubismFadeList = JsonConvert.DeserializeObject<CubismFadeMotionList>(JsonConvert.SerializeObject(fadeMotionLstDict));
+                        var cubismFadeList = JsonSerializer.Deserialize<CubismFadeMotionList>(JsonSerializer.SerializeToUtf8Bytes(fadeMotionLstDict, CubismJsonOptions), CubismJsonOptions);
                         var fadeMotionAssetSet = new HashSet<MonoBehaviour>();
                         foreach (var motionPPtr in cubismFadeList.CubismFadeMotionObjects)
                         {
@@ -389,7 +389,7 @@ namespace CubismLive2DExtractor
             #endregion
 
             #region exp3.json
-            var expressions = new JArray();
+            var expressions = new JsonArray();
             var destExpressionPath = Path.Combine(destPath, "expressions") + Path.DirectorySeparatorChar;
 
             if (ExpressionLst != null) //Expressions from Expression List
@@ -398,7 +398,7 @@ namespace CubismLive2DExtractor
                 var expLstDict = ParseMonoBehaviour(ExpressionLst, CubismMonoBehaviourType.ExpressionList, Assembly);
                 if (expLstDict != null)
                 {
-                    var cubismExpList = JsonConvert.DeserializeObject<CubismExpressionList>(JsonConvert.SerializeObject(expLstDict));
+                    var cubismExpList = JsonSerializer.Deserialize<CubismExpressionList>(JsonSerializer.SerializeToUtf8Bytes(expLstDict, CubismJsonOptions), CubismJsonOptions);
                     var expAssetSet = new HashSet<MonoBehaviour>();
                     foreach (var expPPtr in cubismExpList.CubismExpressionObjects)
                     {
@@ -427,14 +427,14 @@ namespace CubismLive2DExtractor
                 if (expressionDict == null)
                     continue;
                 
-                var expression = JsonConvert.DeserializeObject<CubismExpression3Json>(JsonConvert.SerializeObject(expressionDict));
+                var expression = JsonSerializer.Deserialize<CubismExpression3Json>(JsonSerializer.SerializeToUtf8Bytes(expressionDict, CubismJsonOptions), CubismJsonOptions);
 
-                expressions.Add(new JObject
+                expressions.Add(new JsonObject
                 {
-                    { "Name", expressionName },
-                    { "File", $"expressions/{expressionName}.exp3.json" }
+                    ["Name"] = expressionName,
+                    ["File"] = $"expressions/{expressionName}.exp3.json",
                 });
-                File.WriteAllText($"{destExpressionPath}{expressionName}.exp3.json", JsonConvert.SerializeObject(expression, Formatting.Indented));
+                File.WriteAllBytes($"{destExpressionPath}{expressionName}.exp3.json", JsonSerializer.SerializeToUtf8Bytes(expression, CubismJsonOptions));
             }
             #endregion
 
@@ -519,16 +519,16 @@ namespace CubismLive2DExtractor
                     Physics = isPhysicsExported ? $"{modelName}.physics3.json" : null,
                     Pose = isPoseExported ? $"{modelName}.pose3.json" : null,
                     DisplayInfo = isCdiExported ? $"{modelName}.cdi3.json" : null,
-                    Motions = JObject.FromObject(motions),
+                    Motions = new JsonObject(motions),
                     Expressions = expressions,
                 },
                 Groups = groups.ToArray()
             };
-            File.WriteAllText($"{destPath}{modelName}.model3.json", JsonConvert.SerializeObject(model3, Formatting.Indented));
+            File.WriteAllBytes($"{destPath}{modelName}.model3.json", JsonSerializer.SerializeToUtf8Bytes(model3, CubismJsonOptions));
             #endregion
         }
 
-        private void ExportFadeMotions(string destMotionPath, SortedDictionary<string, JArray> motions, ref float fps)
+        private void ExportFadeMotions(string destMotionPath, SortedDictionary<string, JsonNode> motions, ref float fps)
         {
             Directory.CreateDirectory(destMotionPath);
             foreach (var fadeMotionMono in FadeMotions)
@@ -536,8 +536,8 @@ namespace CubismLive2DExtractor
                 var fadeMotionDict = ParseMonoBehaviour(fadeMotionMono, CubismMonoBehaviourType.FadeMotion, Assembly);
                 if (fadeMotionDict == null)
                     continue;
-                
-                var fadeMotion = JsonConvert.DeserializeObject<CubismFadeMotionData>(JsonConvert.SerializeObject(fadeMotionDict));
+
+                var fadeMotion = JsonSerializer.Deserialize<CubismFadeMotionData>(JsonSerializer.SerializeToUtf8Bytes(fadeMotionDict, CubismJsonOptions), CubismJsonOptions);
                 if (fadeMotion.ParameterIds.Length == 0)
                     continue;
 
@@ -551,13 +551,13 @@ namespace CubismLive2DExtractor
                     if (motions.ContainsKey(animName))
                         continue;
                 }
-                var motionPath = new JObject(new JProperty("File", $"motions/{animName}.motion3.json"));
-                motions.Add(animName, new JArray(motionPath));
-                File.WriteAllText($"{destMotionPath}{animName}.motion3.json", JsonConvert.SerializeObject(motionJson, Formatting.Indented, new MyJsonConverter()));
+                var motionPath = new JsonObject { ["File"] = $"motions/{animName}.motion3.json" };
+                motions.Add(animName, new JsonArray(motionPath));
+                File.WriteAllBytes($"{destMotionPath}{animName}.motion3.json", JsonSerializer.SerializeToUtf8Bytes(motionJson, CubismJsonOptions));
             }
         }
 
-        private void ExportClipMotions(string destMotionPath, CubismMotion3Converter converter, SortedDictionary<string, JArray> motions, ref float fps)
+        private void ExportClipMotions(string destMotionPath, CubismMotion3Converter converter, SortedDictionary<string, JsonNode> motions, ref float fps)
         {
             if (converter == null)
                 return;
@@ -584,9 +584,9 @@ namespace CubismLive2DExtractor
                     if (motions.ContainsKey(animName))
                         continue;
                 }
-                var motionPath = new JObject(new JProperty("File", $"motions/{animName}.motion3.json"));
-                motions.Add(animName, new JArray(motionPath));
-                File.WriteAllText($"{destMotionPath}{animName}.motion3.json", JsonConvert.SerializeObject(motionJson, Formatting.Indented, new MyJsonConverter()));
+                var motionPath = new JsonObject { ["File"] = $"motions/{animName}.motion3.json" };
+                motions.Add(animName, new JsonArray(motionPath));
+                File.WriteAllBytes($"{destMotionPath}{animName}.motion3.json", JsonSerializer.SerializeToUtf8Bytes(motionJson, CubismJsonOptions));
             }
         }
 
@@ -631,7 +631,7 @@ namespace CubismLive2DExtractor
             {
                 poseJson.Groups[i++] = nodeList.ToArray();
             }
-            File.WriteAllText($"{destPath}{modelName}.pose3.json", JsonConvert.SerializeObject(poseJson, Formatting.Indented));
+            File.WriteAllBytes($"{destPath}{modelName}.pose3.json", JsonSerializer.SerializeToUtf8Bytes(poseJson, CubismJsonOptions));
             return true;
         }
 
@@ -681,7 +681,7 @@ namespace CubismLive2DExtractor
             if (parts.Count == 0 && parameters.Count == 0) 
                 return false;
 
-            File.WriteAllText($"{destPath}{modelName}.cdi3.json", JsonConvert.SerializeObject(cdiJson, Formatting.Indented));
+            File.WriteAllBytes($"{destPath}{modelName}.cdi3.json", JsonSerializer.SerializeToUtf8Bytes(cdiJson, CubismJsonOptions));
             return true;
         }
 

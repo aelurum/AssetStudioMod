@@ -1,5 +1,6 @@
 ﻿using AssetStudio;
-using Newtonsoft.Json;
+using CubismLive2DExtractor.CubismJsonConverters;
+using System.Text.Json.Serialization;
 
 namespace CubismLive2DExtractor.CubismUnityClasses
 {
@@ -33,6 +34,7 @@ namespace CubismLive2DExtractor.CubismUnityClasses
         public float AngleScale { get; set; }
         public float Weight { get; set; }
         public CubismPhysicsSourceComponent SourceComponent { get; set; }
+        [JsonConverter(typeof(MyJsonConverterBool))]
         public bool IsInverted { get; set; }
     }
 
@@ -50,6 +52,7 @@ namespace CubismLive2DExtractor.CubismUnityClasses
         public float AngleScale { get; set; }
         public float Weight { get; set; }
         public CubismPhysicsSourceComponent SourceComponent { get; set; }
+        [JsonConverter(typeof(MyJsonConverterBool))]
         public bool IsInverted { get; set; }
     }
 
@@ -71,7 +74,7 @@ namespace CubismLive2DExtractor.CubismUnityClasses
 
     public sealed class CubismPhysics : MonoBehaviour
     {
-        [JsonProperty("_rig")]
+        [JsonPropertyName("_rig")]
         public CubismPhysicsRig Rig { get; set; }
     }
 }

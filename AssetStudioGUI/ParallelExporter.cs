@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace AssetStudioGUI
@@ -191,7 +190,7 @@ namespace AssetStudioGUI
 
         private static bool TryExportFile(string dir, AssetItem item, string extension, out string fullPath)
         {
-            var fileName = FixFileName(item.Text);
+            var fileName = item.Text;
             var filenameFormatIndex = Properties.Settings.Default.filenameFormat;
             var canOverwrite = Properties.Settings.Default.overwriteExistingFiles;
             switch (filenameFormatIndex)
@@ -207,7 +206,7 @@ namespace AssetStudioGUI
                     break;
             }
             extension = extension.ToLower();
-            fullPath = Path.Combine(dir, $"{fileName}{extension}");
+            fullPath = Exporter.SafeFilePath(dir, $"{fileName}{extension}");
             if (ExportPathDict.TryAdd(fullPath, true))
             {
                 if (CanWrite(fullPath, dir, canOverwrite))
@@ -217,7 +216,7 @@ namespace AssetStudioGUI
             }
             else if (filenameFormatIndex == 0 || (filenameFormatIndex == 3 && item.Hash == 0)) //assetName, asset name@hash
             {
-                fullPath = Path.Combine(dir, $"{fileName}{item.UniqueID}{extension}");
+                fullPath = Exporter.SafeFilePath(dir, $"{fileName}{item.UniqueID}{extension}");
                 if (CanWrite(fullPath, dir, canOverwrite))
                 {
                     return true;
@@ -249,13 +248,6 @@ namespace AssetStudioGUI
                 default:
                     throw new NotImplementedException();
             }
-        }
-
-        private static string FixFileName(string str)
-        {
-            return str.Length >= 260
-                ? Path.GetRandomFileName()
-                : Path.GetInvalidFileNameChars().Aggregate(str, (current, c) => current.Replace(c, '_'));
         }
 
         public static void ClearHash()

@@ -679,7 +679,7 @@ namespace AssetStudioCLI
                             exportPath = Path.Combine(savePath, containerPath);
                             if (groupOption == AssetGroupOption.ContainerPathFull)
                             {
-                                exportPath = Path.Combine(exportPath, Path.GetFileNameWithoutExtension(asset.Container));
+                                exportPath = Exporter.SafeFilePath(exportPath, Path.GetFileNameWithoutExtension(asset.Container));
                             }
                         }
                         else
@@ -700,7 +700,7 @@ namespace AssetStudioCLI
                     case AssetGroupOption.SceneHierarchy:
                         if (asset.Node != null)
                         {
-                            exportPath = Path.Combine(savePath, asset.Node.FullPath);
+                            exportPath = Exporter.SafePathCombine(savePath, asset.Node.FullPath);
                         }
                         else
                         {
@@ -866,7 +866,7 @@ namespace AssetStudioCLI
             var exportedCount = 0;
             var k = 0;
 
-            Logger.Info($"Searching for objects to export..");
+            Logger.Info("Searching for objects to export..");
             Progress.Reset();
             var count = gameObjectTree.Sum(x => x.nodes.Count);
             foreach (var node in gameObjectTree)
@@ -913,14 +913,14 @@ namespace AssetStudioCLI
                 foreach (var gameObjectNode in exportableObjects)
                 {
                     var gameObject = gameObjectNode.gameObject;
-                    var filename = Exporter.FixFileName(gameObject.m_Name);
-                    var targetPath = $"{savePath}{filename}{Path.DirectorySeparatorChar}";
+                    var filename = gameObject.m_Name;
+                    var targetPath = $"{Exporter.SafeFilePath(savePath, filename)}{Path.DirectorySeparatorChar}";
                     //重名文件处理
                     for (int i = 1; ; i++)
                     {
                         if (Directory.Exists(targetPath))
                         {
-                            targetPath = $"{savePath}{filename} ({i}){Path.DirectorySeparatorChar}";
+                            targetPath = $"{Exporter.SafeFilePath(savePath, filename)} ({i}){Path.DirectorySeparatorChar}";
                         }
                         else
                         {
@@ -1229,7 +1229,7 @@ namespace AssetStudioCLI
                             break;
                     }
 
-                    var destPath = Path.Combine(baseDestPath, modelPath);
+                    var destPath = Exporter.SafePathCombine(baseDestPath, modelPath);
                     cubismExtractor.ExtractCubismModel(destPath, motionMode, forceBezier, parallelTaskCount);
                     modelCounter++;
                 }

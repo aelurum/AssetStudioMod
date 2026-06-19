@@ -552,7 +552,7 @@ namespace AssetStudioGUI
                                 exportPath = Path.Combine(savePath, Path.GetDirectoryName(asset.Container));
                                 if (groupOption == AssetGroupOption.ContainerPathFull)
                                 {
-                                    exportPath = Path.Combine(exportPath, Path.GetFileNameWithoutExtension(asset.Container));
+                                    exportPath = Exporter.SafeFilePath(exportPath, Path.GetFileNameWithoutExtension(asset.Container));
                                 }
                             }
                             else
@@ -573,7 +573,7 @@ namespace AssetStudioGUI
                         case AssetGroupOption.SceneHierarchy:
                             if (asset.TreeNode != null)
                             {
-                                exportPath = Path.Combine(savePath, asset.TreeNode.FullPath);
+                                exportPath = Exporter.SafePathCombine(savePath, asset.TreeNode.FullPath);
                             }
                             else
                             {
@@ -793,15 +793,15 @@ namespace AssetStudioGUI
                             continue;
                         }
                         //处理非法文件名
-                        var filename = Exporter.FixFileName(j.Text);
+                        var fileName = j.Text;
                         //每个文件存放在单独的文件夹
-                        var targetPath = $"{savePath}{filename}{Path.DirectorySeparatorChar}";
+                        var targetPath = $"{Exporter.SafeFilePath(savePath, fileName)}{Path.DirectorySeparatorChar}";
                         //重名文件处理
                         for (int i = 1;; i++)
                         {
                             if (Directory.Exists(targetPath))
                             {
-                                targetPath = $"{savePath}{filename} ({i}){Path.DirectorySeparatorChar}";
+                                targetPath = $"{Exporter.SafeFilePath(savePath, fileName)} ({i}){Path.DirectorySeparatorChar}";
                             }
                             else
                             {
@@ -810,7 +810,7 @@ namespace AssetStudioGUI
                         }
                         Directory.CreateDirectory(targetPath);
                         //导出FBX
-                        Logger.Info($"Exporting {filename}.fbx");
+                        Logger.Info($"Exporting {fileName}.fbx");
                         try
                         {
                             Exporter.ExportGameObject(j.gameObject, targetPath);
@@ -821,7 +821,7 @@ namespace AssetStudioGUI
                         }
 
                         Progress.Report(++k, count);
-                        Logger.Info($"Finished exporting {filename}.fbx");
+                        Logger.Info($"Finished exporting {fileName}.fbx");
                     }
                 }
                 if (Properties.Settings.Default.openAfterExport)
@@ -878,16 +878,28 @@ namespace AssetStudioGUI
                     Progress.Reset();
                     foreach (var gameObject in gameObjects)
                     {
-                        Logger.Info($"Exporting {gameObject.m_Name}");
+                        var fileName = gameObject.m_Name;
+                        Logger.Info($"Exporting {fileName}");
                         try
                         {
-                            var modelExportPath = Path.Combine(exportPath, gameObject.m_Name) + Path.DirectorySeparatorChar;
+                            var modelExportPath = $"{Exporter.SafeFilePath(exportPath, fileName)}{Path.DirectorySeparatorChar}";
+                            for (var j = 1;; j++)
+                            {
+                                if (Directory.Exists(modelExportPath))
+                                {
+                                    modelExportPath = $"{Exporter.SafeFilePath(exportPath, fileName)} ({i}){Path.DirectorySeparatorChar}";
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
                             Exporter.ExportGameObject(gameObject, modelExportPath, animationList);
-                            Logger.Info($"Finished exporting {gameObject.m_Name}");
+                            Logger.Info($"Finished exporting {fileName}");
                         }
                         catch (Exception ex)
                         {
-                            Logger.Error($"Export GameObject:{gameObject.m_Name} error", ex);
+                            Logger.Error($"Export GameObject:{fileName} error", ex);
                             Logger.Info("Error in export");
                         }
 
@@ -1189,7 +1201,7 @@ namespace AssetStudioGUI
                                     : container;
                                 break;
                         }
-                        var destPath = Path.Combine(baseDestPath, modelPath);
+                        var destPath = Exporter.SafePathCombine(baseDestPath, modelPath);
                         cubismExtractor.ExtractCubismModel(destPath, motionMode, forceBezier, GetParallelExportCount());
                         modelCounter++;
                     }

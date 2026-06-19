@@ -288,7 +288,7 @@ namespace AssetStudio
             }
 
             m_ClipID = reader.ReadUInt32();
-            if (version == 4 && version.Minor >= 5) //4.5 - 5.0
+            if (version.IsInRange((4, 5, 2), 5)) //4.5.2 - 5.0 down
             {
                 m_ClipIndex = reader.ReadUInt32();
             }

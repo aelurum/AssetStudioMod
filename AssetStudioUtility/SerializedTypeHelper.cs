@@ -113,7 +113,12 @@ namespace AssetStudio
             nodes.Add(new TypeTreeNode("UInt16", "atime5", indent + 1, false));
             nodes.Add(new TypeTreeNode("UInt16", "atime6", indent + 1, false));
             nodes.Add(new TypeTreeNode("UInt16", "atime7", indent + 1, false));
-            if (version >= (5, 5)) //5.5 and up
+            if (version >= (2022, 2)) //2022.2 and up
+            {
+                nodes.Add(new TypeTreeNode("UInt8", "m_Mode", indent + 1, false));
+                nodes.Add(new TypeTreeNode("SInt8", "m_ColorSpace", indent + 1, false));
+            }
+            else if (version >= (5, 5)) //5.5 and up
             {
                 nodes.Add(new TypeTreeNode("int", "m_Mode", indent + 1, false));
             }

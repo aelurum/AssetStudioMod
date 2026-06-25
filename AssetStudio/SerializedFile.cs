@@ -15,7 +15,7 @@ namespace AssetStudio
         public UnityVersion version = new UnityVersion();
         public readonly List<Object> Objects;
         public readonly Dictionary<long, Object> ObjectsDic;
-        public readonly Dictionary<string, SerializedType> ExtractedTypeTreeHashes = new Dictionary<string, SerializedType>();
+        public readonly Dictionary<string, List<SerializedType>> ExtractedTypeTreeHashes = new Dictionary<string, List<SerializedType>>();
 
         public SerializedFileHeader header;
         private byte m_FileEndianess;
@@ -322,7 +322,14 @@ namespace AssetStudio
                     else
                     {
                         type.m_Type = null;
-                        ExtractedTypeTreeHashes.Add(typeTreeHash, type);
+                        if (ExtractedTypeTreeHashes.TryGetValue(typeTreeHash, out var types))
+                        {
+                            types.Add(type);
+                        }
+                        else
+                        {
+                            ExtractedTypeTreeHashes[typeTreeHash] = new List<SerializedType> { type };
+                        }
                     }
                 }
                 else if (header.m_Version >= SerializedFileFormatVersion.Unknown_12 || header.m_Version == SerializedFileFormatVersion.Unknown_10)
@@ -462,26 +469,27 @@ namespace AssetStudio
             var hashes = ExtractedTypeTreeHashes.Keys.ToArray();
             foreach (var hashStr in hashes)
             {
-                var serializedType = ExtractedTypeTreeHashes[hashStr];
-                if (assetsManager.ResourceFileReaders.TryGetValue(hashStr, out var binaryReader))
-                {
-                    var fileReader = (FileReader)binaryReader;
-                    fileReader.Endian = EndianType.LittleEndian;
-                    fileReader.Position = 0;
+                if (!assetsManager.ResourceFileReaders.TryGetValue(hashStr, out var binaryReader)) 
+                    continue;
 
+                var fileReader = (FileReader)binaryReader;
+                fileReader.Endian = EndianType.LittleEndian;
+                var serializedTypeList = ExtractedTypeTreeHashes[hashStr];
+                foreach (var serializedType in serializedTypeList)
+                {
+                    fileReader.Position = 0;
                     serializedType.m_Type = new TypeTree();
                     serializedType.m_Type.m_Nodes = new List<TypeTreeNode>();
                     TypeTreeBlobRead(serializedType.m_Type, fileReader);
-
-                    ExtractedTypeTreeHashes[hashStr] = null;
                 }
+                ExtractedTypeTreeHashes[hashStr] = null;
             }
             var notFound = ExtractedTypeTreeHashes.Where(x=> x.Value != null).ToArray();
-            if (notFound.Length > 0 && notFound.Length != ExtractedTypeTreeHashes.Count)
+            if (notFound.Length > 0 && notFound.Length < ExtractedTypeTreeHashes.Count)
             {
                 foreach (var kv in notFound)
                 {
-                    Logger.Warning($"Failed to find extracted typetree with hash \"{kv.Key}\" for \"{(ClassIDType)kv.Value.classID}\" asset type");
+                    Logger.Warning($"Failed to find extracted typetree with hash \"{kv.Key}\" for \"{(ClassIDType)kv.Value[0].classID}\" asset type");
                 }
                 Logger.Warning("Not all typetree hashes were found in the loaded typetree file\n" +
                                "The typetree file is probably outdated or not designed for the loaded asset bundles");

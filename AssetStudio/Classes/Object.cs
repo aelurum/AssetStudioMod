@@ -132,4 +132,20 @@ namespace AssetStudio
             return reader.ReadBytes((int)byteSize);
         }
     }
+
+    public static class ObjectExtensions
+    {
+        public static void CopyObjectDataFromReader(this Object obj, ObjectReader reader)
+        {
+            obj.reader = reader;
+            obj.assetsFile = reader.assetsFile;
+            obj.type = reader.type;
+            obj.m_PathID = reader.m_PathID;
+            obj.version = reader.version;
+            obj.platform = reader.platform;
+            obj.serializedType = reader.serializedType;
+            obj.classID = reader.classID;
+            obj.byteSize = reader.byteSize;
+        }
+    }
 }

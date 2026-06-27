@@ -735,6 +735,9 @@ namespace AssetStudio
                             case ClassIDType.Shader when objectReader.version < 2021:
                                 obj = new Shader(objectReader);
                                 break;
+                            case ClassIDType.SkinnedMeshRenderer when parseByTypeTree:
+                                obj = new SkinnedMeshRenderer(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions);
+                                break;
                             case ClassIDType.SkinnedMeshRenderer:
                                 obj = objectReader.version < (2, 1)
                                     ? new SkinnedMeshFilter(objectReader).ToSkinnedMeshRenderer()

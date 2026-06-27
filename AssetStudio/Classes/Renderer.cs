@@ -7,6 +7,8 @@ namespace AssetStudio
         public ushort firstSubMesh;
         public ushort subMeshCount;
 
+        public StaticBatchInfo() { }
+
         public StaticBatchInfo(ObjectReader reader)
         {
             firstSubMesh = reader.ReadUInt16();

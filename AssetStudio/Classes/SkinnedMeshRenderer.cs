@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json;
 
 namespace AssetStudio
 {
@@ -10,6 +11,21 @@ namespace AssetStudio
         public float[] m_BlendShapeWeights;
 
         public SkinnedMeshRenderer() { }
+
+        public SkinnedMeshRenderer(ObjectReader reader, byte[] type, JsonSerializerOptions jsonOptions)
+        {
+            this.CopyObjectDataFromReader(reader);
+            var parsedAsset = version < (2, 1)
+                ? JsonSerializer.Deserialize<SkinnedMeshFilter>(type, jsonOptions).ToSkinnedMeshRenderer()
+                : JsonSerializer.Deserialize<SkinnedMeshRenderer>(type, jsonOptions);
+            m_GameObject = parsedAsset.m_GameObject;
+            m_Materials = parsedAsset.m_Materials;
+            m_StaticBatchInfo = parsedAsset.m_StaticBatchInfo;
+            m_SubsetIndices = parsedAsset.m_SubsetIndices;
+            m_Mesh = parsedAsset.m_Mesh;
+            m_Bones = parsedAsset.m_Bones;
+            m_BlendShapeWeights = parsedAsset.m_BlendShapeWeights;
+        }
 
         public SkinnedMeshRenderer(ObjectReader reader) : base(reader)
         {
@@ -42,11 +58,13 @@ namespace AssetStudio
     //unity 1.x - 2.1 down
     public sealed class SkinnedMeshFilter
     {
-        private PPtr<Mesh> m_Mesh;
-        private List<PPtr<Transform>> m_Bones;
-        private PPtr<GameObject> m_GameObject;
-        private List<PPtr<Material>> m_Materials;
+        public PPtr<Mesh> m_LodMesh;
+        public List<PPtr<Transform>> m_Bones;
+        public PPtr<GameObject> m_GameObject;
+        public List<PPtr<Material>> m_Materials;
         private readonly ObjectReader _reader;
+
+        public SkinnedMeshFilter(){ }
 
         public SkinnedMeshFilter(ObjectReader reader)
         {
@@ -78,27 +96,24 @@ namespace AssetStudio
             {
                 m_Bones.Add(new PPtr<Transform>(reader));
             }
-            m_Mesh = new PPtr<Mesh>(reader);
+            m_LodMesh = new PPtr<Mesh>(reader);
         }
 
         public SkinnedMeshRenderer ToSkinnedMeshRenderer()
         {
-            return new SkinnedMeshRenderer()
+            var skinnedMeshRenderer = new SkinnedMeshRenderer()
             {
-                reader = _reader,
-                assetsFile = _reader.assetsFile,
-                serializedType = _reader.serializedType,
-                version = _reader.version,
-                platform = _reader.platform,
-                type = _reader.type,
-                classID = _reader.classID,
-                m_PathID = _reader.m_PathID,
-                byteSize = _reader.byteSize,
                 m_GameObject = m_GameObject,
                 m_Materials = m_Materials,
-                m_Mesh = m_Mesh,
+                m_Mesh = m_LodMesh,
                 m_Bones = m_Bones,
             };
+            if (_reader != null)
+            {
+                skinnedMeshRenderer.CopyObjectDataFromReader(_reader);
+            }
+
+            return skinnedMeshRenderer;
         }
     }
 }

@@ -712,7 +712,9 @@ namespace AssetStudio
                                 obj = new MeshFilter(objectReader);
                                 break;
                             case ClassIDType.MeshRenderer:
-                                obj = new MeshRenderer(objectReader);
+                                obj = parseByTypeTree
+                                    ? new MeshRenderer(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
+                                    : new MeshRenderer(objectReader);
                                 break;
                             case ClassIDType.MonoBehaviour:
                                 obj = new MonoBehaviour(objectReader);

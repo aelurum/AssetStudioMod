@@ -86,7 +86,7 @@ namespace AssetStudioGUI
         public static AssemblyLoader assemblyLoader = new AssemblyLoader();
         public static List<AssetItem> exportableAssets = new List<AssetItem>();
         public static List<AssetItem> visibleAssets = new List<AssetItem>();
-        public static L2DAssetManager l2dAssetManager = new L2DAssetManager();
+        public static L2DAssetsManager l2dAssetsManager = new L2DAssetsManager();
         internal static Action<string> StatusStripUpdate = x => { };
         internal static Fbx.Settings FbxSettings;
 
@@ -241,7 +241,7 @@ namespace AssetStudioGUI
                             assetItem.Text = m_GameObject.m_Name;
                             if (m_GameObject.CubismModel != null)
                             {
-                                l2dAssetManager.BindCubismAssetsByGO(m_GameObject, assemblyLoader);
+                                l2dAssetsManager.BindCubismAssetsByGO(m_GameObject, assemblyLoader);
                             }
                             break;
                         case Texture2D m_Texture2D:
@@ -296,12 +296,27 @@ namespace AssetStudioGUI
                                 assetName = assetName == "" ? m_Script.m_ClassName : assetName;
                                 switch (m_Script.m_ClassName)
                                 {
-                                    case "CubismMoc":
+                                    case "CubismMoc" when !l2dAssetsManager.ModelDict.ContainsKey(m_MonoBehaviour):
+                                        l2dAssetsManager.ModelDict[m_MonoBehaviour] = new CubismModel(m_MonoBehaviour);
+                                        break;
                                     case "CubismRenderer":
                                     case "CubismDisplayInfoParameterName":
                                     case "CubismDisplayInfoPartName":
                                     case "CubismPosePart":
-                                        l2dAssetManager.BindCubismAssetsByMono(m_MonoBehaviour, m_Script.m_ClassName);
+                                        l2dAssetsManager.BindCubismAssetsByMono(m_MonoBehaviour, m_Script.m_ClassName);
+                                        break;
+                                }
+                            }
+                            else if (CubismHelpers.TryGetCubismMonoBehaviourType(m_MonoBehaviour, out var type))
+                            {
+                                switch (type)
+                                {
+                                    case CubismHelpers.CubismMonoBehaviourType.Moc when !l2dAssetsManager.ModelDict.ContainsKey(m_MonoBehaviour):
+                                        l2dAssetsManager.ModelDict[m_MonoBehaviour] = new CubismModel(m_MonoBehaviour);
+                                        break;
+                                    case CubismHelpers.CubismMonoBehaviourType.RenderTexture:
+                                    case CubismHelpers.CubismMonoBehaviourType.PosePart:
+                                        l2dAssetsManager.BindCubismAssetsByMono(m_MonoBehaviour, type);
                                         break;
                                 }
                             }
@@ -371,7 +386,7 @@ namespace AssetStudioGUI
                         case AnimationClip _:
                         case Texture2D _:
                         case MonoBehaviour _:
-                            l2dAssetManager.AssetContainers[obj] = container;
+                            l2dAssetsManager.AssetContainers[obj] = container;
                             break;
                     }
                 }
@@ -1024,9 +1039,9 @@ namespace AssetStudioGUI
         {
             var tempMocPathDict = new Dictionary<MonoBehaviour, (string, string)>();
             var mocPathDict = new Dictionary<MonoBehaviour, string>();
-            foreach (var mocMono in l2dAssetManager.ModelDict.Keys)
+            foreach (var mocMono in l2dAssetsManager.ModelDict.Keys)
             {
-                if (l2dAssetManager.AssetContainers.TryGetValue(mocMono, out var fullContainerPath))
+                if (l2dAssetsManager.AssetContainers.TryGetValue(mocMono, out var fullContainerPath))
                 {
                     var pathSepIndex = fullContainerPath.LastIndexOf('/');
                     var basePath = pathSepIndex > 0
@@ -1065,12 +1080,15 @@ namespace AssetStudioGUI
             return mocPathDict;
         }
 
-        private static Dictionary<MonoBehaviour, List<Object>> GenerateMocAssetDict(Dictionary<MonoBehaviour, CubismModel> mocDict)
+        private static Dictionary<MonoBehaviour, List<Object>> GenerateMocAssetDict(List<MonoBehaviour> filteredMocs)
         {
             var searchByFilename = Properties.Settings.Default.l2dAssetSearchByFilename;
             var l2dContainers = searchByFilename
                 ? new Dictionary<Object, string>()
-                : l2dAssetManager.AssetContainers;
+                : l2dAssetsManager.AssetContainers;
+            var mocDict = filteredMocs != null
+                ? filteredMocs.ToDictionary(moc => moc, moc => l2dAssetsManager.ModelDict[moc])
+                : l2dAssetsManager.ModelDict;
 
             var mode = searchByFilename ? "file names" : "containers";
             Logger.Info($"Searching for Live2D assets using {mode}...");
@@ -1131,7 +1149,7 @@ namespace AssetStudioGUI
             }
             if (searchByFilename)
                 l2dContainers.Clear();
-            
+
             return assetDict;
         }
 
@@ -1152,37 +1170,35 @@ namespace AssetStudioGUI
                 l2dOptions.MotionMode = Live2DMotionMode.AnimationClipV2;
             else if (selFadeMotions != null || selFadeLst != null)
                 l2dOptions.MotionMode = Live2DMotionMode.MonoBehaviour;
-            var mocDict = selMocs != null
-                ? selMocs.ToDictionary(moc => moc, moc => l2dAssetManager.ModelDict[moc])
-                : l2dAssetManager.ModelDict;
 
             ThreadPool.QueueUserWorkItem(state =>
             {
-                var assetDict = GenerateMocAssetDict(mocDict);
-                if (mocDict.Keys.First().serializedType?.m_Type == null && !assemblyLoader.Loaded)
+                var assetDict = GenerateMocAssetDict(selMocs);
+                if (assetDict.Count > 0 && assetDict.Keys.First().serializedType?.m_Type == null && !assemblyLoader.Loaded)
                 {
                     Logger.Warning("Specifying the assembly folder may be needed for proper extraction");
                     SelectAssemblyFolder();
                 }
                 var totalModelCount = assetDict.Count;
                 var modelCounter = 0;
-                Live2DExtractor.MocDict = mocDict;
                 Live2DExtractor.Assembly = assemblyLoader;
                 foreach (var assetGroupKvp in assetDict)
                 {
-                    var srcContainer = l2dAssetManager.AssetContainers.TryGetValue(assetGroupKvp.Key, out var result)
+                    var mocMono = assetGroupKvp.Key;
+                    var srcContainer = l2dAssetsManager.AssetContainers.TryGetValue(mocMono, out var result)
                         ? result
-                        : assetGroupKvp.Key.assetsFile.fullName;
+                        : mocMono.assetsFile.fullName;
+                    l2dAssetsManager.ModelDict.TryGetValue(mocMono, out var cubismModel);
 
                     Logger.Info($"[{modelCounter + 1}/{totalModelCount}] Exporting Live2D from: \"{srcContainer}\"...");
                     try
                     {
-                        var cubismExtractor = new Live2DExtractor(assetGroupKvp, l2dOptions);
-                        var fileName = string.IsNullOrEmpty(cubismExtractor.MocMono.assetsFile.originalPath)
-                            ? Path.GetFileNameWithoutExtension(cubismExtractor.MocMono.assetsFile.fileName)
-                            : Path.GetFileNameWithoutExtension(cubismExtractor.MocMono.assetsFile.originalPath);
-                        var modelName = !string.IsNullOrEmpty(cubismExtractor.Model?.Name)
-                            ? cubismExtractor.Model.Name
+                        var cubismExtractor = new Live2DExtractor(assetGroupKvp.Value, cubismModel, l2dOptions);
+                        var fileName = string.IsNullOrEmpty(mocMono.assetsFile.originalPath)
+                            ? Path.GetFileNameWithoutExtension(mocMono.assetsFile.fileName)
+                            : Path.GetFileNameWithoutExtension(mocMono.assetsFile.originalPath);
+                        var modelName = !string.IsNullOrEmpty(cubismModel?.Name)
+                            ? cubismModel.Name
                             : fileName;
                         Logger.Info($"Model name: \"{modelName}\"");
 
@@ -1196,10 +1212,10 @@ namespace AssetStudioGUI
                                 modelPath = modelName;
                                 break;
                             default: //ContainerPath
-                                var container = l2dOptions.SearchByFilename && cubismExtractor.Model != null
-                                    ? cubismExtractor.Model.Container
+                                var container = l2dOptions.SearchByFilename && cubismModel != null
+                                    ? cubismModel.Container
                                     : srcContainer;
-                                container = container == assetGroupKvp.Key.assetsFile.fullName
+                                container = container == mocMono.assetsFile.fullName
                                     ? fileName
                                     : container;
                                 modelPath = Path.HasExtension(container)
@@ -1208,7 +1224,7 @@ namespace AssetStudioGUI
                                 break;
                         }
                         var destPath = Exporter.SafePathCombine(baseDestPath, modelPath);
-                        cubismExtractor.ExtractCubismModel(destPath, GetParallelExportCount());
+                        cubismExtractor.ExtractCubismModel(mocMono, destPath, GetParallelExportCount());
                         modelCounter++;
                     }
                     catch (Exception ex)

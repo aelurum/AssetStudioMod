@@ -6,11 +6,11 @@ using static CubismLive2DExtractor.CubismParsers;
 
 namespace AssetStudioCLI
 {
-    public class L2DAssetManager
+    public class L2DAssetsManager
     {
         public Dictionary<MonoBehaviour, CubismModel> ModelDict = new Dictionary<MonoBehaviour, CubismModel>();
 
-        public L2DAssetManager () { }
+        public L2DAssetsManager () { }
 
         public void BindCubismAssetsByGO(GameObject m_GameObject, AssemblyLoader assemblyLoader)
         {
@@ -31,12 +31,6 @@ namespace AssetStudioCLI
 
             switch (m_ClassName)
             {
-                case "CubismMoc":
-                    if (!ModelDict.ContainsKey(m_MonoBehaviour))
-                    {
-                        ModelDict.Add(m_MonoBehaviour, null);
-                    }
-                    break;
                 case "CubismRenderer":
                     modelGameObject.CubismModel.RenderTextureList.Add(m_MonoBehaviour);
                     break;
@@ -52,10 +46,29 @@ namespace AssetStudioCLI
             }
         }
 
+        public void BindCubismAssetsByMono(MonoBehaviour m_MonoBehaviour, CubismHelpers.CubismMonoBehaviourType type)
+        {
+            if (!m_MonoBehaviour.m_GameObject.TryGet(out var m_GameObject))
+                return;
+
+            if (!TryGetModelGameObject(m_GameObject.m_Transform, out var modelGameObject))
+                return;
+
+            switch (type)
+            {
+                case CubismHelpers.CubismMonoBehaviourType.RenderTexture:
+                    modelGameObject.CubismModel.RenderTextureList.Add(m_MonoBehaviour);
+                    break;
+                case CubismHelpers.CubismMonoBehaviourType.PosePart:
+                    modelGameObject.CubismModel.PosePartList.Add(m_MonoBehaviour);
+                    break;
+            }
+        }
+
         private static bool TryGetCubismMoc(MonoBehaviour m_MonoBehaviour, AssemblyLoader assemblyLoader, out MonoBehaviour mocMono)
         {
             mocMono = null;
-            var pptrDict = (OrderedDictionary)ParseMonoBehaviour(m_MonoBehaviour, CubismMonoBehaviourType.Model, assemblyLoader)?["_moc"];
+            var pptrDict = (OrderedDictionary)ParseMonoBehaviour(m_MonoBehaviour, CubismHelpers.CubismMonoBehaviourType.ModelPPtr, assemblyLoader)?["_moc"];
             if (pptrDict == null)
                 return false;
 

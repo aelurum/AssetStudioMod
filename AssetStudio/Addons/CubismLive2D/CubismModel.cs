@@ -27,5 +27,16 @@ namespace AssetStudio.Addons.CubismLive2D
             PosePartList = new List<MonoBehaviour>();
             ClipMotionList = new List<AnimationClip>();
         }
+
+        public CubismModel(MonoBehaviour mocMono)
+        {
+            Name = mocMono.m_Name;
+            ModelGameObject = null;
+            RenderTextureList = new List<MonoBehaviour>();
+            ParamDisplayInfoList = new List<MonoBehaviour>();
+            PartDisplayInfoList = new List<MonoBehaviour>();
+            PosePartList = new List<MonoBehaviour>();
+            ClipMotionList = new List<AnimationClip>();
+        }
     }
 }

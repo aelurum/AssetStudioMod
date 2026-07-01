@@ -1,4 +1,5 @@
 ﻿using AssetStudio;
+using AssetStudio.Addons.CubismLive2D;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
@@ -331,7 +332,7 @@ namespace AssetStudioGUI
 
             var types = new SortedSet<string>();
             types.UnionWith(exportableAssets.Select(x => x.TypeString));
-            if (Studio.l2dAssetManager.ModelDict.Count > 0)
+            if (Studio.l2dAssetsManager.ModelDict.Count > 0)
             {
                 types.Add("MonoBehaviour (Live2D Model)");
             }
@@ -939,6 +940,11 @@ namespace AssetStudioGUI
                                 break;
                             }
                         }
+                        else if (l2dAssetsManager.ModelDict.ContainsKey(m_MonoBehaviour))
+                        {
+                            PreviewMoc(assetItem, m_MonoBehaviour);
+                            break;
+                        }
                         PreviewMonoBehaviour(m_MonoBehaviour);
                         break;
                     case ClassIDType.Font:
@@ -1207,7 +1213,7 @@ namespace AssetStudioGUI
             using (var cubismMoc = new AssetStudio.Addons.CubismLive2D.CubismMoc(m_MonoBehaviour))
             {
                 var sb = new StringBuilder();
-                if (Studio.l2dAssetManager.ModelDict.TryGetValue(m_MonoBehaviour, out var model) && model != null)
+                if (Studio.l2dAssetsManager.ModelDict.TryGetValue(m_MonoBehaviour, out var model) && model != null)
                 {
                     sb.AppendLine($"Model Name: {model.Name}");
                 }
@@ -1599,7 +1605,7 @@ namespace AssetStudioGUI
             Studio.assemblyLoader.Clear();
             Studio.exportableAssets.Clear();
             Studio.visibleAssets.Clear();
-            Studio.l2dAssetManager.Clear();
+            Studio.l2dAssetsManager.Clear();
             sceneTreeView.Nodes.Clear();
             assetListView.VirtualListSize = 0;
             assetListView.Items.Clear();
@@ -1684,19 +1690,37 @@ namespace AssetStudioGUI
                         switch (asset.Asset)
                         {
                             case MonoBehaviour m_MonoBehaviour:
-                                if (Studio.l2dAssetManager.ModelDict.Count > 0 && m_MonoBehaviour.m_Script.TryGet(out var m_Script))
+                                if (Studio.l2dAssetsManager.ModelDict.Count > 0)
                                 {
-                                    if (m_Script.m_ClassName == "CubismMoc")
+                                    if (m_MonoBehaviour.m_Script.TryGet(out var m_Script))
                                     {
-                                        selectedTypes |= SelectedAssetType.MonoBehaviourMoc;
+                                        switch (m_Script.m_ClassName)
+                                        {
+                                            case "CubismMoc":
+                                                selectedTypes |= SelectedAssetType.MonoBehaviourMoc;
+                                                break;
+                                            case "CubismFadeMotionData":
+                                                selectedTypes |= SelectedAssetType.MonoBehaviourFade;
+                                                break;
+                                            case "CubismFadeMotionList":
+                                                selectedTypes |= SelectedAssetType.MonoBehaviourFadeLst;
+                                                break;
+                                        }
                                     }
-                                    else if (m_Script.m_ClassName == "CubismFadeMotionData")
+                                    else if (CubismHelpers.TryGetCubismMonoBehaviourType(m_MonoBehaviour, out var type))
                                     {
-                                        selectedTypes |= SelectedAssetType.MonoBehaviourFade;
-                                    }
-                                    else if (m_Script.m_ClassName == "CubismFadeMotionList")
-                                    {
-                                        selectedTypes |= SelectedAssetType.MonoBehaviourFadeLst;
+                                        switch (type)
+                                        {
+                                            case CubismHelpers.CubismMonoBehaviourType.Moc:
+                                                selectedTypes |= SelectedAssetType.MonoBehaviourMoc;
+                                                break;
+                                            case CubismHelpers.CubismMonoBehaviourType.FadeMotion:
+                                                selectedTypes |= SelectedAssetType.MonoBehaviourFade;
+                                                break;
+                                            case CubismHelpers.CubismMonoBehaviourType.FadeMotionList:
+                                                selectedTypes |= SelectedAssetType.MonoBehaviourFadeLst;
+                                                break;
+                                        }
                                     }
                                 }
                                 break;
@@ -1990,7 +2014,7 @@ namespace AssetStudioGUI
                     }
                 }
                 visibleAssets = filterMoc
-                    ? exportableAssets.FindAll(x => (x.Asset is MonoBehaviour monoBehaviour && Studio.l2dAssetManager.ModelDict.ContainsKey(monoBehaviour)) || show.Contains(x.Type))
+                    ? exportableAssets.FindAll(x => (x.Asset is MonoBehaviour monoBehaviour && Studio.l2dAssetsManager.ModelDict.ContainsKey(monoBehaviour)) || show.Contains(x.Type))
                     : exportableAssets.FindAll(x => show.Contains(x.Type));
             }
             else
@@ -2325,7 +2349,7 @@ namespace AssetStudioGUI
         {
             if (exportableAssets.Count > 0)
             {
-                if (Studio.l2dAssetManager.ModelDict.Count == 0)
+                if (Studio.l2dAssetsManager.ModelDict.Count == 0)
                 {
                     Logger.Info("Live2D Cubism models were not found.");
                     return;
@@ -2365,7 +2389,7 @@ namespace AssetStudioGUI
                 Logger.Info("No exportable assets loaded");
                 return;
             }
-            if (Studio.l2dAssetManager.ModelDict.Count == 0)
+            if (Studio.l2dAssetsManager.ModelDict.Count == 0)
             {
                 Logger.Info("Live2D Cubism models were not found.");
                 return;
@@ -2392,6 +2416,20 @@ namespace AssetStudioGUI
                                 selectedFadeMotions.Add(m_MonoBehaviour);
                                 break;
                             case "CubismFadeMotionList":
+                                selectedFadeLst = m_MonoBehaviour;
+                                break;
+                        }
+                        break;
+                    case MonoBehaviour m_MonoBehaviour when CubismHelpers.TryGetCubismMonoBehaviourType(m_MonoBehaviour, out var type):
+                        switch (type)
+                        {
+                            case CubismHelpers.CubismMonoBehaviourType.Moc:
+                                selectedMocs.Add(m_MonoBehaviour);
+                                break;
+                            case CubismHelpers.CubismMonoBehaviourType.FadeMotion:
+                                selectedFadeMotions.Add(m_MonoBehaviour);
+                                break;
+                            case CubismHelpers.CubismMonoBehaviourType.FadeMotionList:
                                 selectedFadeLst = m_MonoBehaviour;
                                 break;
                         }

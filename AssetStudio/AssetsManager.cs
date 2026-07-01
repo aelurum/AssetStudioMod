@@ -862,6 +862,32 @@ namespace AssetStudio
                                                     break;
                                             }
                                         }
+                                        else if (CubismHelpers.TryGetCubismMonoBehaviourType(m_MonoBehaviour, out var type))
+                                        {
+                                            switch (type)
+                                            {
+                                                case CubismHelpers.CubismMonoBehaviourType.ModelPPtr:
+                                                    if (m_GameObject.m_Transform == null)
+                                                        break;
+                                                    m_GameObject.CubismModel = new CubismModel(m_GameObject)
+                                                    {
+                                                        CubismModelMono = m_MonoBehaviour
+                                                    };
+                                                    break;
+                                                case CubismHelpers.CubismMonoBehaviourType.Physics:
+                                                    if (m_GameObject.CubismModel != null)
+                                                        m_GameObject.CubismModel.PhysicsController = m_MonoBehaviour;
+                                                    break;
+                                                case CubismHelpers.CubismMonoBehaviourType.FadeController:
+                                                    if (m_GameObject.CubismModel != null)
+                                                        m_GameObject.CubismModel.FadeController = m_MonoBehaviour;
+                                                    break;
+                                                case CubismHelpers.CubismMonoBehaviourType.ExpressionController:
+                                                    if (m_GameObject.CubismModel != null)
+                                                        m_GameObject.CubismModel.ExpressionController = m_MonoBehaviour;
+                                                    break;
+                                            }
+                                        }
                                         break;
                                 }
                             }

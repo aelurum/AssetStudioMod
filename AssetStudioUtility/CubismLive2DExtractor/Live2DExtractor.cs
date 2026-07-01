@@ -16,6 +16,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using static AssetStudio.Addons.CubismLive2D.CubismHelpers;
 using static CubismLive2DExtractor.CubismParsers;
 using Object = AssetStudio.Object;
 
@@ -23,9 +24,8 @@ namespace CubismLive2DExtractor
 {
     public sealed class Live2DExtractor
     {
-        public static Dictionary<MonoBehaviour, CubismModel> MocDict { get; set; }
         public static AssemblyLoader Assembly { get; set; }
-        public CubismModel Model { get; set; }
+        private CubismModel Model { get; set; }
         private Live2DOptions Options { get; }
         private List<MonoBehaviour> FadeMotions { get; set; }
         private List<AnimationClip> AnimationClips { get; set; }
@@ -34,7 +34,6 @@ namespace CubismLive2DExtractor
         private List<MonoBehaviour> PartsCdi { get; set; }
         private List<MonoBehaviour> PoseParts { get; set; }
         private List<Texture2D> Texture2Ds { get; set; }
-        public MonoBehaviour MocMono { get; set; }
         private MonoBehaviour PhysicsMono { get; set; }
         private MonoBehaviour FadeMotionLst { get; set; }
         private MonoBehaviour ExpressionLst { get; set; }
@@ -43,7 +42,7 @@ namespace CubismLive2DExtractor
         private HashSet<string> EyeBlinkParameters { get; set; }
         private HashSet<string> LipSyncParameters { get; set; }
 
-        public Live2DExtractor(KeyValuePair<MonoBehaviour, List<Object>> assetGroupKvp, Live2DOptions l2dOptions)
+        public Live2DExtractor(List<Object> modelAssetsList, CubismModel model, Live2DOptions l2dOptions)
         {
             Options = l2dOptions;
             Expressions = new List<MonoBehaviour>();
@@ -71,8 +70,7 @@ namespace CubismLive2DExtractor
 
             Logger.Debug("Sorting model assets..");
 
-            MocMono = assetGroupKvp.Key;
-            if (MocDict.TryGetValue(MocMono, out var model) && model != null)
+            if (model != null)
             {
                 Model = model;
                 PhysicsMono = Model.PhysicsController;
@@ -116,7 +114,7 @@ namespace CubismLive2DExtractor
                     AnimationClips.AddRange(Model.ClipMotionList);
                 }
             }
-            foreach (var asset in assetGroupKvp.Value)
+            foreach (var asset in modelAssetsList)
             {
                 switch (asset)
                 {
@@ -197,6 +195,50 @@ namespace CubismLive2DExtractor
                                     break;
                             }
                         }
+                        else if (TryGetCubismMonoBehaviourType(m_MonoBehaviour, out var type))
+                        {
+                            switch (type)
+                            {
+                                case CubismMonoBehaviourType.Physics:
+                                    if (PhysicsMono == null)
+                                        PhysicsMono = m_MonoBehaviour;
+                                    break;
+                                case CubismMonoBehaviourType.Expression:
+                                    if (ExpressionLst == null)
+                                        Expressions.Add(m_MonoBehaviour);
+                                    break;
+                                case CubismMonoBehaviourType.ExpressionList:
+                                    if (ExpressionLst == null)
+                                        ExpressionLst = m_MonoBehaviour;
+                                    break;
+                                case CubismMonoBehaviourType.FadeMotion:
+                                    if (searchFadeMotions)
+                                    {
+                                        FadeMotions.Add(m_MonoBehaviour);
+                                    }
+                                    break;
+                                case CubismMonoBehaviourType.FadeMotionList:
+                                    if (searchFadeMotions)
+                                    {
+                                        FadeMotionLst = m_MonoBehaviour;
+                                    }
+                                    break;
+                                case CubismMonoBehaviourType.PosePart:
+                                    if (searchPoseParts && m_MonoBehaviour.m_GameObject.TryGet(out _))
+                                    {
+                                        PoseParts.Add(m_MonoBehaviour);
+                                    }
+                                    break;
+                                case CubismMonoBehaviourType.RenderTexture:
+                                    if (searchRenderTextures && isRenderReadable)
+                                    {
+                                        isRenderReadable = TryGetRenderTexture(m_MonoBehaviour, out var renderTex);
+                                        if (isRenderReadable)
+                                            renderTextureSet.Add(renderTex);
+                                    }
+                                    break;
+                            }
+                        }
                         break;
                     case AnimationClip m_AnimationClip:
                         if (Options.SelectedClipMotions == null)
@@ -225,14 +267,14 @@ namespace CubismLive2DExtractor
             }
         }
 
-        public void ExtractCubismModel(string destPath, int parallelTaskCount = 1)
+        public void ExtractCubismModel(MonoBehaviour mocMono, string destPath, int parallelTaskCount = 1)
         {
             var modelName = Model?.Name ?? destPath.Split('/', '\\').Last();
             destPath += Path.DirectorySeparatorChar;
             Directory.CreateDirectory(destPath);
 
             #region moc3
-            using (var cubismMoc = new CubismMoc(MocMono))
+            using (var cubismMoc = new CubismMoc(mocMono))
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("Model Stats:");

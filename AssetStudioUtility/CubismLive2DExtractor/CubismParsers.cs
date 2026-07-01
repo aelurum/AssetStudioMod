@@ -1,4 +1,5 @@
 ﻿using AssetStudio;
+using AssetStudio.Addons.CubismLive2D;
 using CubismLive2DExtractor.CubismJsonConverters;
 using CubismLive2DExtractor.CubismUnityClasses;
 using System;
@@ -12,21 +13,6 @@ namespace CubismLive2DExtractor
     public static class CubismParsers
     {
         public static readonly JsonSerializerOptions CubismJsonOptions;
-
-        public enum CubismMonoBehaviourType
-        {
-            FadeController,
-            FadeMotionList,
-            FadeMotion,
-            ExpressionController,
-            ExpressionList,
-            Expression,
-            Physics,
-            DisplayInfo,
-            PosePart,
-            Model,
-            RenderTexture,
-        }
 
         static CubismParsers()
         {
@@ -151,7 +137,7 @@ namespace CubismLive2DExtractor
             return JsonSerializer.Serialize(physicsJson, physicsOptions);
         }
 
-        public static OrderedDictionary ParseMonoBehaviour(MonoBehaviour m_MonoBehaviour, CubismMonoBehaviourType cubismMonoBehaviourType, AssemblyLoader assemblyLoader)
+        public static OrderedDictionary ParseMonoBehaviour(MonoBehaviour m_MonoBehaviour, CubismHelpers.CubismMonoBehaviourType cubismMonoBehaviourType, AssemblyLoader assemblyLoader)
         {
             var orderedDict = m_MonoBehaviour.ToType();
             if (orderedDict != null)
@@ -161,37 +147,37 @@ namespace CubismLive2DExtractor
             var m_Type = m_MonoBehaviour.ConvertToTypeTree(assemblyLoader);
             switch (cubismMonoBehaviourType)
             {
-                case CubismMonoBehaviourType.FadeController:
+                case CubismHelpers.CubismMonoBehaviourType.FadeController:
                     fieldName = "cubismfademotionlist";
                     break;
-                case CubismMonoBehaviourType.FadeMotionList:
+                case CubismHelpers.CubismMonoBehaviourType.FadeMotionList:
                     fieldName = "cubismfademotionobjects";
                     break;
-                case CubismMonoBehaviourType.FadeMotion:
+                case CubismHelpers.CubismMonoBehaviourType.FadeMotion:
                     fieldName = "parameterids";
                     break;
-                case CubismMonoBehaviourType.ExpressionController:
+                case CubismHelpers.CubismMonoBehaviourType.ExpressionController:
                     fieldName = "expressionslist";
                     break;
-                case CubismMonoBehaviourType.ExpressionList:
+                case CubismHelpers.CubismMonoBehaviourType.ExpressionList:
                     fieldName = "cubismexpressionobjects";
                     break;
-                case CubismMonoBehaviourType.Expression:
+                case CubismHelpers.CubismMonoBehaviourType.Expression:
                     fieldName = "parameters";
                     break;
-                case CubismMonoBehaviourType.Physics:
+                case CubismHelpers.CubismMonoBehaviourType.Physics:
                     fieldName = "_rig";
                     break;
-                case CubismMonoBehaviourType.DisplayInfo:
+                case CubismHelpers.CubismMonoBehaviourType.DisplayInfo:
                     fieldName = "name";
                     break;
-                case CubismMonoBehaviourType.PosePart:
+                case CubismHelpers.CubismMonoBehaviourType.PosePart:
                     fieldName = "groupindex";
                     break;
-                case CubismMonoBehaviourType.Model:
+                case CubismHelpers.CubismMonoBehaviourType.ModelPPtr:
                     fieldName = "_moc";
                     break;
-                case CubismMonoBehaviourType.RenderTexture:
+                case CubismHelpers.CubismMonoBehaviourType.RenderTexture:
                     fieldName = "_maintexture";
                     break;
             }

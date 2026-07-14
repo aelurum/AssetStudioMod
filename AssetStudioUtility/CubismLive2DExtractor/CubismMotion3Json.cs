@@ -155,7 +155,7 @@ namespace CubismLive2DExtractor
                         else
                         {
                             target = paramId.ToLower().Contains("part") ? "PartOpacity" : "Parameter";
-                            Logger.Warning($"[{fadeMotion.m_Name}] Binding error: Unable to find \"{paramId}\" among the model parts/parameters");
+                            Logger.Debug($"[{fadeMotion.m_Name}] Binding failed: Unable to find \"{paramId}\" among the model parts/parameters");
                         }
                         break;
                 }

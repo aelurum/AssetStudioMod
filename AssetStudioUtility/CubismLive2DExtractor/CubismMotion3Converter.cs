@@ -79,7 +79,7 @@ namespace CubismLive2DExtractor
 
                 if (iAnim.TrackList.Count == 0 || iAnim.Events.Count == 0)
                 {
-                    Logger.Warning($"[Motion Converter] \"{iAnim.Name}\" has {iAnim.TrackList.Count} tracks and {iAnim.Events.Count} event!.");
+                    Logger.Debug($"[Motion Converter] \"{iAnim.Name}\" has {iAnim.TrackList.Count} tracks and {iAnim.Events.Count} event!.");
                 }
             }
         }
@@ -90,7 +90,7 @@ namespace CubismLive2DExtractor
             GetLive2dPath(binding, out var target, out var boneName);
             if (string.IsNullOrEmpty(boneName))
             {
-                Logger.Warning($"[Motion Converter] \"{iAnim.Name}\" read fail on binding {m_ClipBindingConstant.genericBindings.FindIndex(x => x == binding)}");
+                Logger.Debug($"[Motion Converter] \"{iAnim.Name}\" read fail on binding {m_ClipBindingConstant.genericBindings.FindIndex(x => x == binding)}");
                 return;
             }
 
@@ -105,7 +105,7 @@ namespace CubismLive2DExtractor
             GetLive2dPath(binding, out var target, out var boneName);
             if (string.IsNullOrEmpty(boneName))
             {
-                Logger.Warning($"[Motion Converter] \"{iAnim.Name}\" read fail on binding {m_ClipBindingConstant.genericBindings.FindIndex(x => x == binding)}");
+                Logger.Debug($"[Motion Converter] \"{iAnim.Name}\" read fail on binding {m_ClipBindingConstant.genericBindings.FindIndex(x => x == binding)}");
                 return;
             }
 

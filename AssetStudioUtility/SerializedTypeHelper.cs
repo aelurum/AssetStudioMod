@@ -5,6 +5,17 @@ namespace AssetStudio
     public class SerializedTypeHelper
     {
         private readonly UnityVersion version;
+        private static readonly ulong[] supportedCubismPhysicsTemplates;
+
+        static SerializedTypeHelper()
+        {
+            supportedCubismPhysicsTemplates = new ulong[]
+            {
+                4546329767881508904, //v1; default
+                831634147207739970, 14438253902330556531, 6958134001336818095, //v2
+                8727007011848355119, 5987673968064922522, 9047731275260549053, //v2; custom
+            };
+        }
 
         public SerializedTypeHelper(UnityVersion version)
         {
@@ -325,10 +336,15 @@ namespace AssetStudio
             AddArray(nodes, indent + 2);
             AddPPtr(nodes, "CubismFadeMotionData", "data", indent + 2);
         }
-        
-        public void AddMonoCubismFadeData(List<TypeTreeNode> nodes, int indent)
+
+        public void AddMonoCubismFadeData(List<TypeTreeNode> nodes, SerializedType type, int indent)
         {
             AddString(nodes, "MotionName", indent);
+            if (type.Match(11957159347687761472))
+            {
+                nodes.Add(new TypeTreeNode("float", "ModelFadeInTime", indent, false));
+                nodes.Add(new TypeTreeNode("float", "ModelFadeOutTime", indent, false));
+            }
             nodes.Add(new TypeTreeNode("float", "FadeInTime", indent, false));
             nodes.Add(new TypeTreeNode("float", "FadeOutTime", indent, false));
             nodes.Add(new TypeTreeNode("vector", "ParameterIds", indent, align: false));
@@ -343,7 +359,7 @@ namespace AssetStudio
             nodes.Add(new TypeTreeNode("vector", "ParameterFadeOutTimes", indent, align: false));
             AddArray(nodes, indent + 2);
             nodes.Add(new TypeTreeNode("float", "data", indent + 2, align: false));
-            nodes.Add(new TypeTreeNode("float", "MotionLength", indent , align: false));
+            nodes.Add(new TypeTreeNode("float", "MotionLength", indent, align: false));
         }
 
         public void AddMonoCubismExpressionController(List<TypeTreeNode> nodes, int indent)
@@ -375,6 +391,96 @@ namespace AssetStudio
             nodes.Add(new TypeTreeNode("SerializableExpressionParameter", "Parameters", indent, align: false));
             AddArray(nodes, indent + 2);
             AddMonoCubismExpressionParameter(nodes, "data", indent + 2);
+        }
+
+        private void AddMonoCubismPhysicsInput(List<TypeTreeNode> nodes, string name, int indent)
+        {
+            nodes.Add(new TypeTreeNode("CubismPhysicsInput", name, indent, false));
+            AddString(nodes, "SourceId", indent + 1);
+            AddVector2f(nodes, "ScaleOfTranslation", indent + 1);
+            nodes.Add(new TypeTreeNode("float", "AngleScale", indent + 1, false));
+            nodes.Add(new TypeTreeNode("float", "Weight", indent + 1, false));
+            nodes.Add(new TypeTreeNode("int", "SourceComponent", indent + 1, false));
+            nodes.Add(new TypeTreeNode("UInt8", "IsInverted", indent + 1, true));
+        }
+
+        private void AddMonoCubismPhysicsOutput(List<TypeTreeNode> nodes, string name, int indent)
+        {
+            nodes.Add(new TypeTreeNode("CubismPhysicsOutput", name, indent, false));
+            AddString(nodes, "DestinationId", indent + 1);
+            nodes.Add(new TypeTreeNode("int", "ParticleIndex", indent + 1, false));
+            AddVector2f(nodes, "TranslationScale", indent + 1);
+            nodes.Add(new TypeTreeNode("float", "AngleScale", indent + 1, false));
+            nodes.Add(new TypeTreeNode("float", "Weight", indent + 1, false));
+            nodes.Add(new TypeTreeNode("int", "SourceComponent", indent + 1, false));
+            nodes.Add(new TypeTreeNode("UInt8", "IsInverted", indent + 1, true));
+        }
+
+        private void AddMonoCubismPhysicsParticle(List<TypeTreeNode> nodes, string name, int indent)
+        {
+            nodes.Add(new TypeTreeNode("CubismPhysicsParticle", name, indent, false));
+            AddVector2f(nodes, "InitialPosition", indent + 1);
+            nodes.Add(new TypeTreeNode("float", "Mobility", indent + 1, false));
+            nodes.Add(new TypeTreeNode("float", "Delay", indent + 1, false));
+            nodes.Add(new TypeTreeNode("float", "Acceleration", indent + 1, false));
+            nodes.Add(new TypeTreeNode("float", "Radius", indent + 1, false));
+        }
+
+        private void AddMonoCubismPhysicsNormalizationTuplet(List<TypeTreeNode> nodes, string name, int indent)
+        {
+            nodes.Add(new TypeTreeNode("CubismPhysicsNormalizationTuplet", name, indent, false));
+            nodes.Add(new TypeTreeNode("float", "Maximum", indent + 1, false));
+            nodes.Add(new TypeTreeNode("float", "Minimum", indent + 1, false));
+            nodes.Add(new TypeTreeNode("float", "Default", indent + 1, false));
+        }
+
+        private void AddMonoCubismPhysicsSubRig(List<TypeTreeNode> nodes, string name, SerializedType type, int indent)
+        {
+            nodes.Add(new TypeTreeNode("CubismPhysicsSubRig", name, indent, false));
+            if (!type.Match(4546329767881508904, 8727007011848355119, 5987673968064922522)) //v2+
+            {
+                AddString(nodes, "Name", indent + 1);
+            }
+            nodes.Add(new TypeTreeNode("CubismPhysicsInput", "Input", indent + 1, align: false));
+            AddArray(nodes, indent + 2);
+            AddMonoCubismPhysicsInput(nodes, "data", indent + 3);
+            nodes.Add(new TypeTreeNode("CubismPhysicsOutput", "Output", indent + 1, align: false));
+            AddArray(nodes, indent + 2);
+            AddMonoCubismPhysicsOutput(nodes, "data", indent + 3);
+            nodes.Add(new TypeTreeNode("CubismPhysicsParticle", "Particles", indent + 1, align: false));
+            AddArray(nodes, indent + 2);
+            AddMonoCubismPhysicsParticle(nodes, "data", indent + 3);
+            nodes.Add(new TypeTreeNode("CubismPhysicsNormalization", "Normalization", indent + 1, align: false));
+            AddMonoCubismPhysicsNormalizationTuplet(nodes, "Position", indent + 2);
+            AddMonoCubismPhysicsNormalizationTuplet(nodes, "Angle", indent + 2);
+        }
+
+        public void AddMonoCubismPhysics(List<TypeTreeNode> nodes, SerializedType type, int indent)
+        {
+            if (!type.Match(supportedCubismPhysicsTemplates))
+                return;
+
+            if (type.Match(9047731275260549053))
+            {
+                nodes.Add(new TypeTreeNode("UInt8", "EnablePhysics", indent, true));
+            }
+            nodes.Add(new TypeTreeNode("CubismPhysicsRig", "_rig", indent, false));
+            nodes.Add(new TypeTreeNode("CubismPhysicsSubRig", "SubRigs", indent + 1, false));
+            AddArray(nodes, indent + 2);
+            AddMonoCubismPhysicsSubRig(nodes, "data", type, indent + 3);
+            if (!type.Match(4546329767881508904)) //v2+
+            {
+                AddVector2f(nodes, "Gravity", indent + 1);
+                AddVector2f(nodes, "Wind", indent + 1);
+                if (!type.Match(5987673968064922522))
+                {
+                    nodes.Add(new TypeTreeNode("float", "Fps", indent + 1, false));
+                }
+            }
+            if (type.Match(5987673968064922522))
+            {
+                nodes.Add(new TypeTreeNode("UInt8", "IsUpdate", indent + 1, true));
+            }
         }
         #endregion
     }

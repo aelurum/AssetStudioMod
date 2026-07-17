@@ -15,6 +15,10 @@ namespace AssetStudio
         public string m_NameSpace;
         public string m_AsmName;
 
-        public bool Match(params ulong[] hashes) => hashes.Any(x => x == System.IO.Hashing.XxHash3.HashToUInt64(m_OldTypeHash));
+        public bool Match(params ulong[] hashes)
+        {
+            var typeHash = System.IO.Hashing.XxHash3.HashToUInt64(m_OldTypeHash);
+            return hashes.Any(x => x == typeHash);
+        }
     }
 }

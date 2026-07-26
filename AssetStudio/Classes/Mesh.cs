@@ -769,7 +769,7 @@ namespace AssetStudio
                 }
             }
 
-            if (version >= (2, 5)) //2.5 and up
+            if (version.IsInRange((2, 5), (6000, 6))) //2.5 - 6000.6 down
             {
                 int m_MeshUsageFlags = reader.ReadInt32();
             }
@@ -777,6 +777,13 @@ namespace AssetStudio
             if (version >= (2022, 1)) //2022.1 and up
             {
                 int m_CookingOptions = reader.ReadInt32();
+            }
+
+            if (version >= (6000, 6)) //6000.6 and up
+            {
+                var m_PreBakeConvexCollisionMesh = reader.ReadBoolean();
+                var m_PreBakeTriangleCollisionMesh = reader.ReadBoolean();
+                reader.AlignStream();
             }
 
             if (version >= 5) //5.0 and up

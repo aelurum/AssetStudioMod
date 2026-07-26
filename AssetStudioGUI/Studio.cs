@@ -326,6 +326,10 @@ namespace AssetStudioGUI
                         case PlayerSettings m_PlayerSettings:
                             productName = m_PlayerSettings.productName;
                             break;
+                        case BuildProfilePlayerSettings m_BuildProfilePlayerSettings:
+                            assetItem.Text = m_BuildProfilePlayerSettings.m_Name;
+                            productName = string.IsNullOrEmpty(m_BuildProfilePlayerSettings.productName) ? productName : m_BuildProfilePlayerSettings.productName;
+                            break;
                         case AssetBundle m_AssetBundle:
                             var isStreamedSceneAssetBundle = m_AssetBundle.m_IsStreamedSceneAssetBundle;
                             if (!isStreamedSceneAssetBundle)

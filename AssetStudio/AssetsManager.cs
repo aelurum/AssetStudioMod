@@ -728,6 +728,9 @@ namespace AssetStudio
                             case ClassIDType.PlayerSettings:
                                 obj = new PlayerSettings(objectReader);
                                 break;
+                            case ClassIDType.BuildProfilePlayerSettings: //from 6000.7
+                                obj = new BuildProfilePlayerSettings(objectReader);
+                                break;
                             case ClassIDType.PreloadData when objectReader.version >= (2, 5):
                                 obj = new PreloadData(objectReader);
                                 break;

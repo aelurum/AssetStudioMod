@@ -119,6 +119,7 @@ namespace AssetStudio
             {1188, "fixed_array"},
             {1200, "EntityId"},
             {1209, "LoadableObjectId"},
+            {1226, "LoadableSceneId"},
         };
     }
 }

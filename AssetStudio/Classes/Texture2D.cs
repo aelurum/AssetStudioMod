@@ -212,14 +212,14 @@ namespace AssetStudio
             return dataHash;
         }
 
-        // https://docs.unity3d.com/2023.3/Documentation/Manual/class-TextureImporterOverride.html
+        // https://docs.unity3d.com/6000.0/Documentation/Manual/texture-formats-reference.html
         private int GetImageDataSize(TextureFormat textureFormat)
         {
             var imgDataSize = m_Width * m_Height;
             switch (textureFormat)
             {
+                // https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/
                 case TextureFormat.ASTC_RGBA_5x5:
-                    // https://registry.khronos.org/webgl/extensions/WEBGL_compressed_texture_astc/
                     imgDataSize = (int)(MathF.Floor((m_Width + 4) / 5f) * MathF.Floor((m_Height + 4) / 5f) * 16);
                     break;
                 case TextureFormat.ASTC_RGBA_6x6:

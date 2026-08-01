@@ -313,8 +313,9 @@
             this.parseByTypetreeToolStripMenuItem.Name = "parseByTypetreeToolStripMenuItem";
             this.parseByTypetreeToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
             this.parseByTypetreeToolStripMenuItem.Text = "Parse assets using their typetree";
-            this.parseByTypetreeToolStripMenuItem.ToolTipText = "(Applies to assets with typetree included)\r\nSlower but can parse non-standard ass" +
-    "ets.\r\nOnly for Texture2D, AnimationClip and Material assets for now.";
+            this.parseByTypetreeToolStripMenuItem.ToolTipText = "(Will have an effect if an asset bundle contains typetree info)\r\nSlower but can p" +
+    "arse modified assets.\r\nOnly for Texture2D, AnimationClip, Material and SkinnedMe" +
+    "shRenderer assets for now.";
             this.parseByTypetreeToolStripMenuItem.CheckedChanged += new System.EventHandler(this.parseByTypetreeToolStripMenuItem_CheckedChanged);
             // 
             // decompressBundlesToDiskToolStripMenuItem

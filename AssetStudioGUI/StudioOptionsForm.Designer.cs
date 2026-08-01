@@ -202,7 +202,7 @@
             this.displayAllCheckBox.Location = new System.Drawing.Point(6, 22);
             this.displayAllCheckBox.Name = "displayAllCheckBox";
             this.displayAllCheckBox.Size = new System.Drawing.Size(348, 19);
-            this.displayAllCheckBox.TabIndex = 3;
+            this.displayAllCheckBox.TabIndex = 1;
             this.displayAllCheckBox.Text = "Display all assets";
             this.toolTip1.SetToolTip(this.displayAllCheckBox, "Check this option will display all types assets. Not extractable assets can expor" +
         "t the RAW file.");
@@ -217,10 +217,11 @@
             this.parseByTypetreeCheckBox.Location = new System.Drawing.Point(6, 72);
             this.parseByTypetreeCheckBox.Name = "parseByTypetreeCheckBox";
             this.parseByTypetreeCheckBox.Size = new System.Drawing.Size(348, 19);
-            this.parseByTypetreeCheckBox.TabIndex = 1;
+            this.parseByTypetreeCheckBox.TabIndex = 3;
             this.parseByTypetreeCheckBox.Text = "Parse assets using their typetree";
-            this.toolTip1.SetToolTip(this.parseByTypetreeCheckBox, "(Applies to assets with typetree included)\r\nSlower but can parse non-standard ass" +
-        "ets.\r\nOnly for Texture2D, AnimationClip and Material assets for now.");
+            this.toolTip1.SetToolTip(this.parseByTypetreeCheckBox, "(Will have an effect if an asset bundle contains typetree info)\r\nSlower but can p" +
+        "arse modified assets.\r\nOnly for Texture2D, AnimationClip, Material and SkinnedMe" +
+        "shRenderer assets for now.");
             this.parseByTypetreeCheckBox.UseVisualStyleBackColor = true;
             // 
             // meshPreProcessingCheckBox

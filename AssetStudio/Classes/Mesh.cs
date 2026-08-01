@@ -40,18 +40,18 @@ namespace AssetStudio
     {
         private readonly List<MeshData> m_MeshData;
         private readonly int m_VertexCount;
-        public readonly List<uint> IndexBufferList;
+        private readonly List<uint> indexBufferList;
 
         public LOD(ObjectReader reader)
         {
             m_MeshData = new List<MeshData>();
-            IndexBufferList = new List<uint>();
+            indexBufferList = new List<uint>();
             var meshDataCount = reader.ReadInt32();
             for (var i = 0; i < meshDataCount; i++)
             {
                 var meshData = new MeshData(reader);
                 m_MeshData.Add(meshData);
-                IndexBufferList.AddRange(meshData.IndexBufferList);
+                indexBufferList.AddRange(meshData.IndexBufferList);
             }
 
             if (reader.version < (1, 5))
@@ -64,7 +64,7 @@ namespace AssetStudio
             }
         }
 
-        public List<SubMesh> ConvertToSubMeshes()
+        public List<SubMesh> GetSubMeshes()
         {
             var subMeshList = new List<SubMesh>(m_MeshData.Count);
             foreach (var meshData in m_MeshData)
@@ -78,6 +78,11 @@ namespace AssetStudio
                 });
             }
             return subMeshList;
+        }
+
+        public uint[] GetIndexBuffer()
+        {
+            return indexBufferList.ToArray();
         }
     }
 
@@ -552,23 +557,19 @@ namespace AssetStudio
         {
             if (version < 2) //2.0 down
             {
-                LOD lod0 = null;
                 var m_LODDataCount = reader.ReadInt32();
-                for (var i = 0; i < m_LODDataCount; i++)
-                {
-                    if (i == 0)
-                        lod0 = new LOD(reader);
-                    else
-                        _ = new LOD(reader);
-                }
-                if (lod0 == null)
+                if (m_LODDataCount <= 0)
                 {
                     Logger.Warning("Can't find lod0 mesh data");
                     return;
                 }
-
-                m_IndexBuffer = lod0.IndexBufferList.ToArray();
-                m_SubMeshes = lod0.ConvertToSubMeshes();
+                var lod0 = new LOD(reader);
+                for (var i = 1; i < m_LODDataCount; i++)
+                {
+                    _ = new LOD(reader);
+                }
+                m_IndexBuffer = lod0.GetIndexBuffer();
+                m_SubMeshes = lod0.GetSubMeshes();
             }
             else //2.0 and up
             {

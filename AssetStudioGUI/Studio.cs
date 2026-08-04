@@ -140,7 +140,7 @@ namespace AssetStudioGUI
             var count = 0;
             var bundleStream = new OffsetStream(reader);
             var bundleReader = new FileReader(reader.FullPath, bundleStream);
-            var bundleFile = new BundleFile(bundleReader, assetsManager.Options);
+            var bundleFile = new BundleFile(bundleReader, assetsManager.Options, useSharedStream: false);
             var extractPath = Path.Combine(savePath, reader.FileName + "_unpacked");
             if (bundleFile.FileList.Count > 0)
             {

@@ -43,7 +43,9 @@ namespace AssetStudio
     public class BundleFile : FileArchive
     {
         public readonly bool IsDataAfterBundle;
+
         private static TempFileStream _sharedTempFileStream;
+        private readonly bool _useSharedStream;
         private readonly AssetsManagerOptions _studioOptions;
 
         public class Header
@@ -77,9 +79,10 @@ namespace AssetStudio
         private StorageBlock[] m_BlocksInfo;
         private Node[] m_DirectoryInfo;
 
-        public BundleFile(FileReader reader, AssetsManagerOptions studioOptions, bool isMultiBundle = false)
+        public BundleFile(FileReader reader, AssetsManagerOptions studioOptions, bool isMultiBundle = false, bool useSharedStream = true)
         {
             _studioOptions = studioOptions;
+            _useSharedStream = useSharedStream;
             m_Header = new Header();
             m_Header.signature = reader.ReadStringToNull();
             m_Header.version = reader.ReadUInt32();
@@ -180,21 +183,28 @@ namespace AssetStudio
         private Stream CreateBlocksStream()
         {
             var uncompressedSizeSum = m_BlocksInfo.Sum(x => x.uncompressedSize);
-            if (uncompressedSizeSum < int.MaxValue && !_studioOptions.DecompressToDisk)
+            if (!_studioOptions.DecompressToDisk && uncompressedSizeSum < int.MaxValue)
                 return new MemoryStream((int)uncompressedSizeSum);
 
-            if (_sharedTempFileStream == null || !_sharedTempFileStream.CanRead)
-            {
-                var cachePath = _studioOptions.CustomCachePath;
-                if (string.IsNullOrEmpty(cachePath) || !Directory.Exists(cachePath))
-                {
-                    throw new NotSupportedException("Cache directory wasn't found. Make sure that the specified path is correct.");
-                }
-                var filename = $"studio_{DateTimeOffset.UtcNow.ToUnixTimeSeconds():X}.temp";
-                _sharedTempFileStream = new TempFileStream(Path.Combine(cachePath, filename), FileMode.Create);
-            }
+            bool createNewSharedStream = _sharedTempFileStream == null || !_sharedTempFileStream.CanRead;
+            if (_useSharedStream && !createNewSharedStream)
+                return new OffsetStream(_sharedTempFileStream, _sharedTempFileStream.Length, uncompressedSizeSum);
 
-            return new OffsetStream(_sharedTempFileStream, _sharedTempFileStream.Length, uncompressedSizeSum);
+            var cachePath = _studioOptions.CustomCachePath;
+            if (string.IsNullOrEmpty(cachePath) || !Directory.Exists(cachePath))
+                throw new NotSupportedException("Cache directory wasn't found. Make sure that the specified path is correct.");
+            
+            var filename = $"studio_{DateTimeOffset.UtcNow.ToUnixTimeSeconds():X}.temp";
+            if (_useSharedStream)
+            {
+                _sharedTempFileStream = new TempFileStream(Path.Combine(cachePath, filename), FileMode.Create);
+                return new OffsetStream(_sharedTempFileStream, _sharedTempFileStream.Length, uncompressedSizeSum);
+            }
+            else
+            {
+                var tempFileStream = new TempFileStream(Path.Combine(cachePath, filename), FileMode.Create);
+                return new OffsetStream(tempFileStream, tempFileStream.Length, uncompressedSizeSum);
+            }
         }
 
         private Stream ReadBlocksAndDirectory(FileReader reader)

@@ -177,6 +177,7 @@
             this.exportL2DWithFadeLstToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportL2DWithFadeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportL2DWithClipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showParentTexture2DToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.goToSceneHierarchyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showOriginalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dumpTreeViewContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -1611,10 +1612,11 @@
             this.exportL2DWithFadeLstToolStripMenuItem,
             this.exportL2DWithFadeToolStripMenuItem,
             this.exportL2DWithClipsToolStripMenuItem,
+            this.showParentTexture2DToolStripMenuItem,
             this.goToSceneHierarchyToolStripMenuItem,
             this.showOriginalFileToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(332, 224);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(332, 246);
             // 
             // copyToolStripMenuItem
             // 
@@ -1676,6 +1678,14 @@
             this.exportL2DWithClipsToolStripMenuItem.Text = "Export Live2D model + selected AnimationClips";
             this.exportL2DWithClipsToolStripMenuItem.Visible = false;
             this.exportL2DWithClipsToolStripMenuItem.Click += new System.EventHandler(this.exportSelectedL2DWithClips_Click);
+            // 
+            // showParentTexture2DToolStripMenuItem
+            // 
+            this.showParentTexture2DToolStripMenuItem.Name = "showParentTexture2DToolStripMenuItem";
+            this.showParentTexture2DToolStripMenuItem.Size = new System.Drawing.Size(331, 22);
+            this.showParentTexture2DToolStripMenuItem.Text = "Show parent Texture2D asset";
+            this.showParentTexture2DToolStripMenuItem.Visible = false;
+            this.showParentTexture2DToolStripMenuItem.Click += new System.EventHandler(this.showParentTexture2DToolStripMenuItem_Click);
             // 
             // goToSceneHierarchyToolStripMenuItem
             // 
@@ -1953,6 +1963,7 @@
         private System.Windows.Forms.ToolStripMenuItem jsonDumpSelectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem jsonDumpFilterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showAssetDebugInfoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showParentTexture2DToolStripMenuItem;
     }
 }
 

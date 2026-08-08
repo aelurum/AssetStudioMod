@@ -1668,6 +1668,7 @@ namespace AssetStudioGUI
             if (e.Button == MouseButtons.Right && assetListView.SelectedIndices.Count > 0)
             {
                 goToSceneHierarchyToolStripMenuItem.Visible = false;
+                showParentTexture2DToolStripMenuItem.Visible = false;
                 showOriginalFileToolStripMenuItem.Visible = false;
                 exportAnimatorWithSelectedAnimationClipMenuItem.Visible = false;
                 exportAsLive2DModelToolStripMenuItem.Visible = false;
@@ -1689,6 +1690,9 @@ namespace AssetStudioGUI
                     {
                         switch (asset.Asset)
                         {
+                            case Sprite _ when assetListView.SelectedIndices.Count == 1:
+                                showParentTexture2DToolStripMenuItem.Visible = true;
+                                break;
                             case MonoBehaviour m_MonoBehaviour:
                                 if (Studio.l2dAssetsManager.ModelDict.Count > 0)
                                 {
@@ -1884,11 +1888,25 @@ namespace AssetStudioGUI
 
         private void goToSceneHierarchyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var selectAsset = (AssetItem)assetListView.Items[assetListView.SelectedIndices[0]];
-            if (selectAsset.TreeNode != null)
+            var selectedAsset = (AssetItem)assetListView.Items[assetListView.SelectedIndices[0]];
+            if (selectedAsset.TreeNode != null)
             {
-                sceneTreeView.SelectedNode = selectAsset.TreeNode;
+                sceneTreeView.SelectedNode = selectedAsset.TreeNode;
                 tabControl1.SelectedTab = tabPage1;
+            }
+        }
+
+        private void showParentTexture2DToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var selectedAsset = (AssetItem)assetListView.Items[assetListView.SelectedIndices[0]];
+            var spriteConverter = new SpriteConverter((Sprite)selectedAsset.Asset);
+            var textureAsset = visibleAssets.Find(x => x.Type == ClassIDType.Texture2D && x.m_PathID == spriteConverter.m_Texture2D.m_PathID);
+            if (textureAsset != null)
+            {
+                var listViewItem = assetListView.Items[assetListView.Items.IndexOf(textureAsset)];
+                assetListView.SelectedIndices.Clear();
+                listViewItem.Selected = true;
+                listViewItem.EnsureVisible();
             }
         }
 

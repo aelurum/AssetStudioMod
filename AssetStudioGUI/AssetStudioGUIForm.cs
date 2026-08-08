@@ -1667,6 +1667,7 @@ namespace AssetStudioGUI
         {
             if (e.Button == MouseButtons.Right && assetListView.SelectedIndices.Count > 0)
             {
+                copyToolStripMenuItem.Visible = false;
                 goToSceneHierarchyToolStripMenuItem.Visible = false;
                 showParentTexture2DToolStripMenuItem.Visible = false;
                 showOriginalFileToolStripMenuItem.Visible = false;
@@ -1678,6 +1679,12 @@ namespace AssetStudioGUI
 
                 if (assetListView.SelectedIndices.Count == 1)
                 {
+                    var selectedElement = assetListView.HitTest(new Point(e.X, e.Y));
+                    var subItemIndex = selectedElement.Item.SubItems.IndexOf(selectedElement.SubItem);
+                    tempClipboard = selectedElement.SubItem.Text;
+                    copyToolStripMenuItem.Text = $"Copy {assetListView.Columns[subItemIndex].Text}";
+                    copyToolStripMenuItem.Visible = true;
+
                     goToSceneHierarchyToolStripMenuItem.Visible = true;
                     showOriginalFileToolStripMenuItem.Visible = true;
                 }
@@ -1743,10 +1750,6 @@ namespace AssetStudioGUI
                     exportL2DWithClipsToolStripMenuItem.Visible = (selectedTypes & SelectedAssetType.MonoBehaviourMoc) != 0 && (selectedTypes & SelectedAssetType.AnimationClip) != 0;
                 }
 
-                var selectedElement = assetListView.HitTest(new Point(e.X, e.Y));
-                var subItemIndex = selectedElement.Item.SubItems.IndexOf(selectedElement.SubItem);
-                tempClipboard = selectedElement.SubItem.Text;
-                copyToolStripMenuItem.Text = $"Copy {assetListView.Columns[subItemIndex].Text}";
                 contextMenuStrip1.Show(assetListView, e.X, e.Y);
             }
         }

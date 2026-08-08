@@ -293,7 +293,7 @@ namespace AssetStudio
             }
         }
 
-        public ulong GetSpriteHash()
+        public ulong GetSpriteHash(SpriteMaskMode maskMode)
         {
             ulong spriteHash = 0;
             if (m_Texture2D == null)
@@ -301,7 +301,7 @@ namespace AssetStudio
 
             spriteHash = m_Texture2D.GetImageDataHash();
             
-            if (m_AlphaTexture2D != null)
+            if (maskMode != SpriteMaskMode.Off && m_AlphaTexture2D != null)
             {
                 spriteHash ^= m_AlphaTexture2D.GetImageDataHash();
             }

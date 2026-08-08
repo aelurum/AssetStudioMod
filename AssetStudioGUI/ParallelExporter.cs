@@ -82,13 +82,13 @@ namespace AssetStudioGUI
         {
             debugLog = "";
             var type = Properties.Settings.Default.convertType;
+            var spriteMaskMode = Properties.Settings.Default.exportSpriteWithMask ? SpriteMaskMode.On : SpriteMaskMode.Off;
             var converter = new SpriteConverter((Sprite)item.Asset, Properties.Settings.Default.keepSpriteSize);
             if (Properties.Settings.Default.filenameFormat == 3) //asset name@hash
-                item.Hash = converter.GetSpriteHash();
+                item.Hash = converter.GetSpriteHash(maskMode: spriteMaskMode);
             if (!TryExportFile(exportPath, item, $".{type}", out var exportFullPath))
                 return false;
             
-            var spriteMaskMode = Properties.Settings.Default.exportSpriteWithMask ? SpriteMaskMode.On : SpriteMaskMode.Off;
             if (converter.TryConvertToImage(out var image, maskMode: spriteMaskMode))
             {
                 using (image)

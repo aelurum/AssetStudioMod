@@ -1,4 +1,5 @@
 ﻿using AssetStudio.CustomOptions.Asmo;
+using AssetStudio.CustomOptions.GameSpecific;
 using SevenZip;
 using System;
 using System.IO;
@@ -8,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace AssetStudio.CustomOptions
 {
-    public partial class GameSpecificOptions
+    public class GameSpecificOptions
     {
         private static JsonSerializerOptions jsonOptions;
         private static string fileName = "GameOptions";
@@ -105,18 +106,6 @@ namespace AssetStudio.CustomOptions
             UnityVersionChanged.Invoke(this, EventArgs.Empty);
 
             Logger.Info($"- Specified Unity version: {_customUnityVer}");
-        }
-
-        private static T SetOption<T>(string option, T value, T curValue)
-        {
-            if (value.Equals(curValue))
-                return curValue;
-
-            var val = string.IsNullOrEmpty(value.ToString())
-                ? "None"
-                : value.ToString();
-            Logger.Info($"- {option}: {val}");
-            return value;
         }
     }
 }

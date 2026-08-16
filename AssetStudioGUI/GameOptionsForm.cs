@@ -1,5 +1,6 @@
 ﻿using AssetStudio;
 using AssetStudio.CustomOptions;
+using AssetStudio.CustomOptions.GameSpecific;
 using System;
 using System.Linq;
 using System.Windows.Forms;
@@ -55,7 +56,7 @@ namespace AssetStudioGUI
             _gameOptions.Bundles.CustomBlockInfoCompression = blockInfoCompression;
 
             var tMeshModeIndex = ((RadioButton)panel1.Controls.Cast<Control>().First(x => ((RadioButton)x).Checked)).TabIndex;
-            _gameOptions.Meshes.TuanjieMeshParsingMode = (GameSpecificOptions.CustomMeshOptions.MeshParsingMode)tMeshModeIndex;
+            _gameOptions.Meshes.TuanjieMeshParsingMode = (CustomMeshOptions.MeshParsingMode)tMeshModeIndex;
         }
 
         #region General

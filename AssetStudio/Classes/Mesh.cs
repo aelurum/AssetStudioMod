@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using static AssetStudio.CustomOptions.GameSpecificOptions.CustomMeshOptions;
+using static AssetStudio.CustomOptions.GameSpecific.CustomMeshOptions;
 
 namespace AssetStudio
 {

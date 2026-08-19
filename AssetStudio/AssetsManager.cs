@@ -222,6 +222,8 @@ namespace AssetStudio
                     if (fromZip)
                         return true;
 
+                    DirectoryInfo dirInfo = null;
+                    FileInfo[] fileInfoArray = null;
                     foreach (var sharedFile in assetsFile.m_Externals)
                     {
                         var sharedFileName = sharedFile.fileName;
@@ -231,15 +233,20 @@ namespace AssetStudio
                             var sharedFilePath = Path.Combine(dirName, sharedFileName);
                             if (!noexistFiles.Contains(sharedFilePath))
                             {
-                                if (!File.Exists(sharedFilePath))
+                                var isFileExist = File.Exists(sharedFilePath);
+                                if (!isFileExist)
                                 {
-                                    var findFiles = Directory.GetFiles(dirName, sharedFileName, SearchOption.AllDirectories);
-                                    if (findFiles.Length > 0)
+                                    dirInfo = dirInfo ?? new DirectoryInfo(dirName);
+                                    fileInfoArray = fileInfoArray ?? dirInfo.GetFiles("*.*", SearchOption.AllDirectories);
+
+                                    var fileInfo = fileInfoArray.FirstOrDefault(x => x.Name == sharedFileName);
+                                    if (fileInfo != null)
                                     {
-                                        sharedFilePath = findFiles[0];
+                                        sharedFilePath = fileInfo.FullName;
+                                        isFileExist = true;
                                     }
                                 }
-                                if (File.Exists(sharedFilePath))
+                                if (isFileExist)
                                 {
                                     importFiles.Add(sharedFilePath);
                                     importFilesHash.Add(sharedFileName);

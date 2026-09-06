@@ -1054,9 +1054,9 @@ namespace AssetStudio
 
         public AnimationClip() { }
 
-        public AnimationClip(ObjectReader reader, byte[] type, JsonSerializerOptions jsonOptions, ObjectInfo objInfo) : base(reader)
+        public AnimationClip(ObjectReader reader, JsonSerializerOptions jsonOptions, ObjectInfo objInfo) : base(reader)
         {
-            var parsedAnimClip = JsonSerializer.Deserialize<AnimationClip>(type, jsonOptions);
+            var parsedAnimClip = JsonSerializer.Deserialize<AnimationClip>(TypeTreeHelper.ReadTypeByteArray(reader), jsonOptions);
             m_AnimationType = parsedAnimClip.m_AnimationType;
             if (version >= 5)//5.0 and up
             {

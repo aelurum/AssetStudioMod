@@ -95,9 +95,9 @@ namespace AssetStudio
 
         public Material() { }
 
-        public Material(ObjectReader reader, byte[] type, JsonSerializerOptions jsonOptions) : base(reader)
+        public Material(ObjectReader reader, JsonSerializerOptions jsonOptions) : base(reader)
         {
-            var parsedMaterial = JsonSerializer.Deserialize<Material>(type, jsonOptions);
+            var parsedMaterial = JsonSerializer.Deserialize<Material>(TypeTreeHelper.ReadTypeByteArray(reader), jsonOptions);
             m_Shader = parsedMaterial.m_Shader;
             m_ValidKeywords = parsedMaterial.m_ValidKeywords;
             m_InvalidKeywords = parsedMaterial.m_InvalidKeywords;

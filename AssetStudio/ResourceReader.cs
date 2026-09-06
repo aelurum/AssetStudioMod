@@ -22,7 +22,7 @@ namespace AssetStudio
 
         public ResourceReader() { }
 
-        public ResourceReader(string path, SerializedFile assetsFile, long offset, long size)
+        public ResourceReader(string path, SerializedFile assetsFile, long offset, long size, ClassIDType type)
         {
             needSearch = true;
             this.path = path;
@@ -30,6 +30,20 @@ namespace AssetStudio
             this.Offset = offset;
             this.size = size;
             this.Endian = assetsFile.reader.Endian;
+
+            if (assetsFile.version >= (6000, 6) && path.StartsWith("cah:/") && !Path.HasExtension(path)) //6000.6 and up
+            {
+                switch (type)
+                {
+                    case ClassIDType.AudioClip:
+                    case ClassIDType.VideoClip:
+                        this.path += ".resource";
+                        break;
+                    default:
+                        this.path += ".resS";
+                        break;
+                }
+            }
         }
 
         public ResourceReader(EndianBinaryReader reader, long offset, long size)

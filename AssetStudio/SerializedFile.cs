@@ -256,7 +256,7 @@ namespace AssetStudio
                 var objReader = new ObjectReader(reader, this, buildSettingsAsset);
                 if (buildSettingsAsset.serializedType?.m_Type != null)
                 {
-                    var settings = new BuildSettings(objReader, TypeTreeHelper.ReadTypeByteArray(objReader.serializedType.m_Type, objReader), Object.JsonOptions);
+                    var settings = new BuildSettings(objReader, TypeTreeHelper.ReadTypeByteArray(objReader), Object.JsonOptions);
                     if (UnityVersion.TryParse(settings.m_Version, out var unityVer))
                     {
                         assetsManager.AutoLegacyVersion = unityVer.Major == 1 ? new UnityVersion(2, 1) : unityVer; //detected 1.x versions should mean unity-iphone
@@ -451,16 +451,19 @@ namespace AssetStudio
         private void ReadTypeTreeHeader(FileReader typeTreeReader)
         {
             var typeTreeSign = typeTreeReader.ReadInt32(); //0x7474686d ("tthm")
-            var serializedFileVersion = (SerializedFileFormatVersion)typeTreeReader.ReadInt32();
-
             if (typeTreeSign != 0x7474686d)
             {
                 Logger.Warning("Unknown TypeTree file format");
             }
 
-            if (serializedFileVersion != header.m_Version)
+            var typeTreeVersion = typeTreeReader.ReadInt32();
+            if (header.m_Version < SerializedFileFormatVersion.IndependentTypeTreeVersion) //6000.5.0a5 - 6000.7.0a6
             {
-                Logger.Warning("Serialized file versions do not match");
+                var serializedFileVersion = (SerializedFileFormatVersion)typeTreeVersion;
+                if (serializedFileVersion != header.m_Version)
+                {
+                    Logger.Warning("Serialized file versions do not match");
+                }
             }
         }
 

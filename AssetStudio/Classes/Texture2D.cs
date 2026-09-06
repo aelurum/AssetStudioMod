@@ -52,15 +52,15 @@ namespace AssetStudio
             var offset = layer * m_CompleteImageSize + m_Texture2DArray.image_data.Offset;
             
             image_data = !string.IsNullOrEmpty(m_StreamData?.path) 
-                ? new ResourceReader(m_StreamData.path, assetsFile, offset, m_CompleteImageSize) 
+                ? new ResourceReader(m_StreamData.path, assetsFile, offset, m_CompleteImageSize, type) 
                 : new ResourceReader(reader, offset, m_CompleteImageSize);
 
             byteSize = (uint)(m_Width * m_Height) * 4;
         }
 
-        public Texture2D(ObjectReader reader, byte[] type, JsonSerializerOptions jsonOptions) : base(reader)
+        public Texture2D(ObjectReader reader, JsonSerializerOptions jsonOptions) : base(reader)
         {
-            var parsedTex2d = JsonSerializer.Deserialize<Texture2D>(type, jsonOptions);
+            var parsedTex2d = JsonSerializer.Deserialize<Texture2D>(TypeTreeHelper.ReadTypeByteArray(reader), jsonOptions);
             m_Width = parsedTex2d.m_Width;
             m_Height = parsedTex2d.m_Height;
             m_CompleteImageSize = parsedTex2d.m_CompleteImageSize;
@@ -76,7 +76,7 @@ namespace AssetStudio
             m_PlatformBlob = parsedTex2d.m_PlatformBlob ?? Array.Empty<byte>();
 
             image_data = !string.IsNullOrEmpty(m_StreamData?.path)
-                ? new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size)
+                ? new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size, type)
                 : new ResourceReader(reader, parsedTex2d.image_data.Offset, parsedTex2d.image_data.Size);
         }
 
@@ -186,7 +186,7 @@ namespace AssetStudio
             }
 
             image_data = !string.IsNullOrEmpty(m_StreamData?.path)
-                ? new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size)
+                ? new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size, type)
                 : new ResourceReader(reader, reader.BaseStream.Position, image_data_size);
         }
 

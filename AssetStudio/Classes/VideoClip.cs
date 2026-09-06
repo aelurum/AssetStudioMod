@@ -60,7 +60,7 @@
             }
 
             m_VideoData = !string.IsNullOrEmpty(m_ExternalResources.m_Source)
-                ? new ResourceReader(m_ExternalResources.m_Source, assetsFile, m_ExternalResources.m_Offset, m_ExternalResources.m_Size)
+                ? new ResourceReader(m_ExternalResources.m_Source, assetsFile, m_ExternalResources.m_Offset, m_ExternalResources.m_Size, type)
                 : new ResourceReader(reader, reader.BaseStream.Position, m_ExternalResources.m_Size);
         }
     }

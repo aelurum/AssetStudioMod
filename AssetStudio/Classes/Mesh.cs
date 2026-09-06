@@ -859,8 +859,8 @@ namespace AssetStudio
                 {
                     if (m_VertexData.m_VertexCount > 0)
                     {
-                        m_VertexData.m_DataSize = BigArrayPool<byte>.Shared.Rent((int) m_StreamData.size);
-                        var resourceReader = new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size);
+                        m_VertexData.m_DataSize = BigArrayPool<byte>.Shared.Rent((int)m_StreamData.size);
+                        var resourceReader = new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size, type);
                         resourceReader.GetData(m_VertexData.m_DataSize);
                         isStreamedDataSize = true;
                     }

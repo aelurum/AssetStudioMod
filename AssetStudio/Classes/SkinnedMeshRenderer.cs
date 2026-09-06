@@ -12,12 +12,12 @@ namespace AssetStudio
 
         public SkinnedMeshRenderer() { }
 
-        public SkinnedMeshRenderer(ObjectReader reader, byte[] type, JsonSerializerOptions jsonOptions)
+        public SkinnedMeshRenderer(ObjectReader reader, JsonSerializerOptions jsonOptions)
         {
             this.CopyObjectDataFromReader(reader);
             var parsedAsset = version < (2, 1)
-                ? JsonSerializer.Deserialize<SkinnedMeshFilter>(type, jsonOptions).ToSkinnedMeshRenderer()
-                : JsonSerializer.Deserialize<SkinnedMeshRenderer>(type, jsonOptions);
+                ? JsonSerializer.Deserialize<SkinnedMeshFilter>(TypeTreeHelper.ReadTypeByteArray(reader), jsonOptions).ToSkinnedMeshRenderer()
+                : JsonSerializer.Deserialize<SkinnedMeshRenderer>(TypeTreeHelper.ReadTypeByteArray(reader), jsonOptions);
             m_GameObject = parsedAsset.m_GameObject;
             m_Materials = parsedAsset.m_Materials;
             m_StaticBatchInfo = parsedAsset.m_StaticBatchInfo;

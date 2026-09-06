@@ -677,7 +677,7 @@ namespace AssetStudio
                                 break;
                             case ClassIDType.AnimationClip when objectReader.version >= (1, 5):
                                 obj = parseByTypeTree
-                                    ? new AnimationClip(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions, objectInfo)
+                                    ? new AnimationClip(objectReader, jsonOptions, objectInfo)
                                     : new AnimationClip(objectReader);
                                 break;
                             case ClassIDType.Animator:
@@ -709,7 +709,7 @@ namespace AssetStudio
                                 break;
                             case ClassIDType.Material:
                                 obj = parseByTypeTree
-                                    ? new Material(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
+                                    ? new Material(objectReader, jsonOptions)
                                     : new Material(objectReader);
                                 break;
                             case ClassIDType.Mesh:
@@ -720,7 +720,7 @@ namespace AssetStudio
                                 break;
                             case ClassIDType.MeshRenderer:
                                 obj = parseByTypeTree
-                                    ? new MeshRenderer(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
+                                    ? new MeshRenderer(objectReader, jsonOptions)
                                     : new MeshRenderer(objectReader);
                                 break;
                             case ClassIDType.MonoBehaviour:
@@ -748,7 +748,7 @@ namespace AssetStudio
                                 obj = new Shader(objectReader);
                                 break;
                             case ClassIDType.SkinnedMeshRenderer when parseByTypeTree:
-                                obj = new SkinnedMeshRenderer(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions);
+                                obj = new SkinnedMeshRenderer(objectReader, jsonOptions);
                                 break;
                             case ClassIDType.SkinnedMeshRenderer:
                                 obj = objectReader.version < (2, 1)
@@ -766,12 +766,12 @@ namespace AssetStudio
                                 break;
                             case ClassIDType.Texture2D:
                                 obj = parseByTypeTree
-                                    ? new Texture2D(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
+                                    ? new Texture2D(objectReader, jsonOptions)
                                     : new Texture2D(objectReader);
                                 break;
                             case ClassIDType.Texture2DArray:
                                 obj = parseByTypeTree
-                                    ? new Texture2DArray(objectReader, TypeTreeHelper.ReadTypeByteArray(objectReader.serializedType.m_Type, objectReader), jsonOptions)
+                                    ? new Texture2DArray(objectReader, jsonOptions)
                                     : new Texture2DArray(objectReader);
                                 break;
                             case ClassIDType.Transform:

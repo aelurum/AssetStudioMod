@@ -68,15 +68,15 @@ namespace AssetStudio
             }
 
             image_data = !string.IsNullOrEmpty(m_StreamData?.path)
-                ? new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, (int)m_StreamData.size)
+                ? new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, (int)m_StreamData.size, type)
                 : new ResourceReader(reader, reader.BaseStream.Position, image_data_size);
 
             TextureList = new List<Texture2D>();
         }
 
-        public Texture2DArray(ObjectReader reader, byte[] type, JsonSerializerOptions jsonOptions) : base(reader)
+        public Texture2DArray(ObjectReader reader, JsonSerializerOptions jsonOptions) : base(reader)
         {
-            var parsedTex2dArray = JsonSerializer.Deserialize<Texture2DArray>(type, jsonOptions);
+            var parsedTex2dArray = JsonSerializer.Deserialize<Texture2DArray>(TypeTreeHelper.ReadTypeByteArray(reader), jsonOptions);
             m_Width = parsedTex2dArray.m_Width;
             m_Height = parsedTex2dArray.m_Height;
             m_Depth = parsedTex2dArray.m_Depth;
@@ -87,7 +87,7 @@ namespace AssetStudio
             m_StreamData = parsedTex2dArray.m_StreamData;
             
             image_data = !string.IsNullOrEmpty(m_StreamData?.path)
-                ? new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size)
+                ? new ResourceReader(m_StreamData.path, assetsFile, m_StreamData.offset, m_StreamData.size, type)
                 : new ResourceReader(reader, parsedTex2dArray.image_data.Offset, parsedTex2dArray.image_data.Size);
 
             TextureList = new List<Texture2D>();

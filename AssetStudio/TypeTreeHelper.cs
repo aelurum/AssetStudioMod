@@ -201,9 +201,9 @@ namespace AssetStudio
                 reader.AlignStream();
         }
 
-        public static byte[] ReadTypeByteArray(TypeTree m_Types, ObjectReader reader)
+        public static byte[] ReadTypeByteArray(ObjectReader reader)
         {
-            var type = ReadType(m_Types, reader);
+            var type = ReadType(reader.serializedType.m_Type, reader);
             var bytes = JsonSerializer.SerializeToUtf8Bytes(type, JsonOptions);
             type.Clear();
             return bytes;

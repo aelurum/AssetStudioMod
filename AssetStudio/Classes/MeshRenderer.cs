@@ -6,10 +6,10 @@ namespace AssetStudio
     {
         public MeshRenderer() { }
 
-        public MeshRenderer(ObjectReader reader, byte[] type, JsonSerializerOptions jsonOptions)
+        public MeshRenderer(ObjectReader reader, JsonSerializerOptions jsonOptions)
         {
             this.CopyObjectDataFromReader(reader);
-            var parsedAsset = JsonSerializer.Deserialize<MeshRenderer>(type, jsonOptions);
+            var parsedAsset = JsonSerializer.Deserialize<MeshRenderer>(TypeTreeHelper.ReadTypeByteArray(reader), jsonOptions);
             m_GameObject = parsedAsset.m_GameObject;
             m_Materials = parsedAsset.m_Materials;
             m_StaticBatchInfo = parsedAsset.m_StaticBatchInfo;

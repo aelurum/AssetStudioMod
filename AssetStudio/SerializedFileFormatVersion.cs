@@ -81,5 +81,13 @@
         /// 6000.5.0a5 to x
         /// </summary>
         ExtractedTypeTreeSupport = 23,
+        /// <summary>
+        /// 6000.7.0a6 to x
+        /// </summary>
+        IndependentTypeTreeVersion = 24,
+        /// <summary>
+        /// 6000.7.0a6 to x
+        /// </summary>
+        SerializeReferenceRegistryFirst = 25,
     }
 }

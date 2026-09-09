@@ -33,10 +33,12 @@ namespace AssetStudioGUI
             rawByteArrayFromMono.Checked = Properties.Settings.Default.rawByteArrayFromMono;
 
             l2dModelGroupComboBox.SelectedIndex = (int)Properties.Settings.Default.l2dModelGroupOption;
-            l2dAssetSearchByFilenameCheckBox.Checked = Properties.Settings.Default.l2dAssetSearchByFilename;
             var defaultMotionMode = Properties.Settings.Default.l2dMotionMode.ToString();
             ((RadioButton)l2dMotionExportMethodPanel.Controls.Cast<Control>().First(x => x.AccessibleName == defaultMotionMode)).Checked = true;
             l2dForceBezierCheckBox.Checked = Properties.Settings.Default.l2dForceBezier;
+            l2dAssetSearchByFilenameCheckBox.Checked = Properties.Settings.Default.l2dAssetSearchByFilename;
+            l2dFilterTexturesCheckBox.Checked = Properties.Settings.Default.l2dFilterTextures;
+            l2dFilterTexturesCheckBox.Enabled = l2dAssetSearchByFilenameCheckBox.Checked;
 
             SetFromFbxSettings(Exporter.FbxSettings);
         }
@@ -59,10 +61,11 @@ namespace AssetStudioGUI
             Properties.Settings.Default.rawByteArrayFromMono = rawByteArrayFromMono.Checked;
 
             Properties.Settings.Default.l2dModelGroupOption = (CubismLive2DExtractor.Live2DModelGroupOption)l2dModelGroupComboBox.SelectedIndex;
-            Properties.Settings.Default.l2dAssetSearchByFilename = l2dAssetSearchByFilenameCheckBox.Checked;
             var checkedMotionMode = (RadioButton)l2dMotionExportMethodPanel.Controls.Cast<Control>().First(x => ((RadioButton)x).Checked);
             Properties.Settings.Default.l2dMotionMode = (CubismLive2DExtractor.Live2DMotionMode)Enum.Parse(typeof(CubismLive2DExtractor.Live2DMotionMode), checkedMotionMode.AccessibleName);
             Properties.Settings.Default.l2dForceBezier = l2dForceBezierCheckBox.Checked;
+            Properties.Settings.Default.l2dAssetSearchByFilename = l2dAssetSearchByFilenameCheckBox.Checked;
+            Properties.Settings.Default.l2dFilterTextures = l2dFilterTexturesCheckBox.Checked;
 
             Exporter.FbxSettings.EulerFilter = eulerFilter.Checked;
             Exporter.FbxSettings.FilterPrecision = (float)filterPrecision.Value;
@@ -155,6 +158,11 @@ namespace AssetStudioGUI
         {
             SetFromFbxSettings(new Fbx.Settings());
             uvIndicesCheckedListBox_SelectedIndexChanged(sender, e);
+        }
+
+        private void l2dAssetSearchByFilenameCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            l2dFilterTexturesCheckBox.Enabled = l2dAssetSearchByFilenameCheckBox.Checked;
         }
 
         //highDpi workaround (net472/.net-win7)

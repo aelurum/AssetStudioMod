@@ -256,7 +256,7 @@ namespace CubismLive2DExtractor
             {
                 Texture2Ds = renderTextureSet.ToList();
             }
-            else if (Options.SearchByFilename)
+            else if (Options.SearchByFilename && Options.FilterTextures)
             {
                 Texture2Ds = Texture2Ds.Where(x => x.m_Name.ToLower().Contains("texture")).ToList();
             }

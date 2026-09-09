@@ -1193,6 +1193,7 @@ namespace AssetStudioCLI
                 MotionMode = CLIOptions.o_l2dMotionMode.Value,
                 ForceBezier = CLIOptions.f_l2dForceBezier.Value,
                 SearchByFilename = CLIOptions.f_l2dAssetSearchByFilename.Value,
+                FilterTextures = CLIOptions.f_l2dFilterTextures.Value,
             };
             if (l2dAssetsManager.ModelDict.Keys.First().serializedType?.m_Type == null && CLIOptions.o_assemblyPath.Value == "")
             {

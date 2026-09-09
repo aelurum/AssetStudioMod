@@ -1168,6 +1168,7 @@ namespace AssetStudioGUI
                 MotionMode = Properties.Settings.Default.l2dMotionMode,
                 ForceBezier = Properties.Settings.Default.l2dForceBezier,
                 SearchByFilename = Properties.Settings.Default.l2dAssetSearchByFilename,
+                FilterTextures = Properties.Settings.Default.l2dFilterTextures,
             };
             if (selClipMotions != null)
                 extractorOptions.MotionMode = Live2DMotionMode.AnimationClipV2;

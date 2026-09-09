@@ -80,6 +80,7 @@
             this.exportAllNodes = new System.Windows.Forms.CheckBox();
             this.eulerFilter = new System.Windows.Forms.CheckBox();
             this.optionTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.l2dFilterTexturesCheckBox = new System.Windows.Forms.CheckBox();
             this.optionsTabControl = new System.Windows.Forms.TabControl();
             this.generalTabPage = new System.Windows.Forms.TabPage();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -399,6 +400,7 @@
             this.optionTooltip.SetToolTip(this.l2dAssetSearchByFilenameCheckBox, "Preferred option if all l2d assets of a single model are stored in a single file " +
         "or containers are obfuscated");
             this.l2dAssetSearchByFilenameCheckBox.UseVisualStyleBackColor = true;
+            this.l2dAssetSearchByFilenameCheckBox.CheckedChanged += new System.EventHandler(this.l2dAssetSearchByFilenameCheckBox_CheckedChanged);
             // 
             // l2dModelGroupComboBox
             // 
@@ -765,6 +767,22 @@
             this.eulerFilter.Text = "EulerFilter";
             this.eulerFilter.UseVisualStyleBackColor = true;
             // 
+            // l2dFilterTexturesCheckBox
+            // 
+            this.l2dFilterTexturesCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.l2dFilterTexturesCheckBox.AutoSize = true;
+            this.l2dFilterTexturesCheckBox.Checked = true;
+            this.l2dFilterTexturesCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.l2dFilterTexturesCheckBox.Location = new System.Drawing.Point(7, 166);
+            this.l2dFilterTexturesCheckBox.Name = "l2dFilterTexturesCheckBox";
+            this.l2dFilterTexturesCheckBox.Size = new System.Drawing.Size(146, 19);
+            this.l2dFilterTexturesCheckBox.TabIndex = 6;
+            this.l2dFilterTexturesCheckBox.Text = "Filter textures by name";
+            this.optionTooltip.SetToolTip(this.l2dFilterTexturesCheckBox, "If specified, Studio will only export model textures with \"texture\" in their name" +
+        "s");
+            this.l2dFilterTexturesCheckBox.UseVisualStyleBackColor = true;
+            // 
             // optionsTabControl
             // 
             this.optionsTabControl.Controls.Add(this.generalTabPage);
@@ -881,6 +899,7 @@
             // live2DTabPage
             // 
             this.live2DTabPage.BackColor = System.Drawing.SystemColors.Menu;
+            this.live2DTabPage.Controls.Add(this.l2dFilterTexturesCheckBox);
             this.live2DTabPage.Controls.Add(this.l2dAssetSearchByFilenameCheckBox);
             this.live2DTabPage.Controls.Add(this.l2dModelGroupLabel);
             this.live2DTabPage.Controls.Add(this.l2dModelGroupComboBox);
@@ -1013,5 +1032,6 @@
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.CheckBox keepSpriteSizeCheckBox;
         private System.Windows.Forms.CheckBox dumpMaterialsCheckBox;
+        private System.Windows.Forms.CheckBox l2dFilterTexturesCheckBox;
     }
 }

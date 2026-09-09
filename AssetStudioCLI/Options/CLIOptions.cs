@@ -115,8 +115,9 @@ namespace AssetStudioCLI.Options
         //live2d
         public static Option<CubismLive2DExtractor.Live2DModelGroupOption> o_l2dGroupOption;
         public static Option<CubismLive2DExtractor.Live2DMotionMode> o_l2dMotionMode;
-        public static Option<bool> f_l2dAssetSearchByFilename;
         public static Option<bool> f_l2dForceBezier;
+        public static Option<bool> f_l2dAssetSearchByFilename;
+        public static Option<bool> f_l2dFilterTextures;
         //fbx
         public static Option<float> o_fbxScaleFactor;
         public static Option<int> o_fbxBoneSize;
@@ -365,24 +366,34 @@ namespace AssetStudioCLI.Options
                 optionExample: "Example: \"--l2d-motion-mode animationClip\"\n",
                 optionHelpGroup: HelpGroups.Live2D
             );
-            f_l2dAssetSearchByFilename = new GroupedOption<bool>
-            (
-                optionDefaultValue: false,
-                optionName: "--l2d-search-by-filename",
-                optionDescription: "(Flag) If specified, Studio will search for model-related Live2D assets by file name\n" + 
-                    "rather than by container\n" +
-                    "(Preferred option if all l2d assets of a single model are stored in a single file\n" + 
-                    "or containers are obfuscated)\n",
-                optionExample: "",
-                optionHelpGroup: HelpGroups.Live2D,
-                isFlag: true
-            );
             f_l2dForceBezier = new GroupedOption<bool>
             (
                 optionDefaultValue: false,
                 optionName: "--l2d-smooth-motions",
                 optionDescription: "(Flag) If specified, Linear motion segments will be calculated as Bezier segments\n" +
                     "(May help if the exported motions look jerky/not smooth enough)",
+                optionExample: "",
+                optionHelpGroup: HelpGroups.Live2D,
+                isFlag: true
+            );
+            f_l2dAssetSearchByFilename = new GroupedOption<bool>
+            (
+                optionDefaultValue: false,
+                optionName: "--l2d-search-by-filename",
+                optionDescription: "(Flag) If specified, Studio will search for model-related Live2D assets by file name\n" +
+                    "rather than by container\n" +
+                    "(Preferred option if all l2d assets of a single model are stored in a single file\n" +
+                    "or containers are obfuscated)\n",
+                optionExample: "",
+                optionHelpGroup: HelpGroups.Live2D,
+                isFlag: true
+            );
+            f_l2dFilterTextures = new GroupedOption<bool>
+            (
+                optionDefaultValue: false,
+                optionName: "--l2d-filter-textures",
+                optionDescription: "(Flag) If specified, Studio will only export model textures with \"texture\"\nin their names\n" +
+                    "(Only when \"--l2d-search-by-filename\" flag is used)",
                 optionExample: "",
                 optionHelpGroup: HelpGroups.Live2D,
                 isFlag: true
@@ -785,6 +796,16 @@ namespace AssetStudioCLI.Options
                         f_overwriteExisting.Value = true;
                         flagIndexes.Add(i);
                         break;
+                    case "--l2d-smooth-motions":
+                        if (o_workMode.Value != WorkMode.Live2D)
+                        {
+                            Console.WriteLine($"{"Error".Color(brightRed)} during parsing [{flag.Color(brightYellow)}] flag. This flag is not suitable for the current working mode [{o_workMode.Value}].\n");
+                            ShowOptionDescription(o_workMode);
+                            return;
+                        }
+                        f_l2dForceBezier.Value = true;
+                        flagIndexes.Add(i);
+                        break;
                     case "--l2d-search-by-filename":
                         if (o_workMode.Value != WorkMode.Live2D)
                         {
@@ -795,14 +816,14 @@ namespace AssetStudioCLI.Options
                         f_l2dAssetSearchByFilename.Value = true;
                         flagIndexes.Add(i);
                         break;
-                    case "--l2d-smooth-motions":
+                    case "--l2d-filter-textures":
                         if (o_workMode.Value != WorkMode.Live2D)
                         {
                             Console.WriteLine($"{"Error".Color(brightRed)} during parsing [{flag.Color(brightYellow)}] flag. This flag is not suitable for the current working mode [{o_workMode.Value}].\n");
                             ShowOptionDescription(o_workMode);
                             return;
                         }
-                        f_l2dForceBezier.Value = true;
+                        f_l2dFilterTextures.Value = true;
                         flagIndexes.Add(i);
                         break;
                     case "--fbx-dump-mats":
@@ -1621,6 +1642,7 @@ namespace AssetStudioCLI.Options
                     sb.AppendLine($"# Filter Exclusion Mode: {f_filterExcludeMode}");
                     sb.AppendLine($"# Model Group Option: {o_l2dGroupOption}");
                     sb.AppendFormat("# Search Model-related Assets by: {0}\n", f_l2dAssetSearchByFilename.Value ? "FileName" : "Container");
+                    sb.AppendLine($"# Filter Textures: {f_l2dFilterTextures}");
                     sb.AppendLine($"# Motion Export Method: {o_l2dMotionMode}");
                     sb.AppendLine($"# Smooth Motions: {f_l2dForceBezier}");
                     sb.AppendLine($"# Assembly Path: \"{o_assemblyPath}\"");

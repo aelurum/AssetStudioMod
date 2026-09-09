@@ -1,6 +1,6 @@
 ﻿namespace AssetStudioGUI
 {
-    partial class ExportOptions
+    partial class ExportOptionsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -907,7 +907,7 @@
             this.Cancel.UseVisualStyleBackColor = false;
             this.Cancel.Click += new System.EventHandler(this.Cancel_Click);
             // 
-            // ExportOptions
+            // ExportOptionsForm
             // 
             this.AcceptButton = this.OKbutton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -924,7 +924,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ExportOptions";
+            this.Name = "ExportOptionsForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Export options";

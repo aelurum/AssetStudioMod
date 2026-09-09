@@ -9,12 +9,24 @@ namespace AssetStudioGUI
 {
     internal static class Exporter
     {
+        internal static readonly Fbx.Settings FbxSettings;
         private static readonly HashSet<string> ExportPathHashSet = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
         private static readonly HashSet<char> InvalidChars = new HashSet<char>(Path.GetInvalidFileNameChars());
 
         static Exporter()
         {
             InvalidChars.UnionWith(new[] { '"', '<', '>', '|', ':', '*', '?', '\\', '/' });
+
+            if (string.IsNullOrEmpty(Properties.Settings.Default.fbxSettings))
+            {
+                FbxSettings = new Fbx.Settings();
+                Properties.Settings.Default.fbxSettings = FbxSettings.ToBase64();
+                Properties.Settings.Default.Save();
+            }
+            else
+            {
+                FbxSettings = Fbx.Settings.FromBase64(Properties.Settings.Default.fbxSettings);
+            }
         }
 
         private static bool TryExportFile(string dir, AssetItem item, string extension, out string fullPath, string mode = "Export")
@@ -245,7 +257,7 @@ namespace AssetStudioGUI
             {
                 exportFullPath = SafeFilePath(exportPath, item.Text + item.UniqueID, item.Text + ".fbx");
             }
-            if (!Studio.FbxSettings.ExportAnimations)
+            if (!FbxSettings.ExportAnimations)
                 animationList = new List<AssetItem>();
             var m_Animator = (Animator)item.Asset;
             var convert = animationList != null
@@ -257,8 +269,8 @@ namespace AssetStudioGUI
 
         private static void ExportFbx(ModelConverter convert, string exportPath)
         {
-            ModelExporter.ExportFbx(exportPath, convert, Studio.FbxSettings);
-            if (!Studio.FbxSettings.DumpMaterials || convert.MaterialAssetSet.Count == 0 || !File.Exists(exportPath))
+            ModelExporter.ExportFbx(exportPath, convert, FbxSettings);
+            if (!FbxSettings.DumpMaterials || convert.MaterialAssetSet.Count == 0 || !File.Exists(exportPath))
                 return;
 
             var exportDir = Path.Combine(Path.GetDirectoryName(exportPath), "Materials");
@@ -399,7 +411,7 @@ namespace AssetStudioGUI
 
         public static void ExportGameObject(GameObject gameObject, string exportPath, List<AssetItem> animationList = null)
         {
-            if (!Studio.FbxSettings.ExportAnimations)
+            if (!FbxSettings.ExportAnimations)
                 animationList = new List<AssetItem>();
             var convert = animationList != null
                 ? new ModelConverter(gameObject, Properties.Settings.Default.convertType, animationList.Select(x => (AnimationClip)x.Asset).ToList())
@@ -411,7 +423,7 @@ namespace AssetStudioGUI
         public static void ExportGameObjectMerge(List<GameObject> gameObject, string exportPath, List<AssetItem> animationList = null)
         {
             var rootName = Path.GetFileNameWithoutExtension(exportPath);
-            if (!Studio.FbxSettings.ExportAnimations)
+            if (!FbxSettings.ExportAnimations)
                 animationList = new List<AssetItem>();
             var convert = animationList != null
                 ? new ModelConverter(rootName, gameObject, Properties.Settings.Default.convertType, animationList.Select(x => (AnimationClip)x.Asset).ToList())

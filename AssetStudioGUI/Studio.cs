@@ -88,7 +88,6 @@ namespace AssetStudioGUI
         public static List<AssetItem> visibleAssets = new List<AssetItem>();
         public static L2DAssetsManager l2dAssetsManager = new L2DAssetsManager();
         internal static Action<string> StatusStripUpdate = x => { };
-        internal static Fbx.Settings FbxSettings;
 
         public static int ExtractFolder(string path, string savePath)
         {
@@ -1161,7 +1160,7 @@ namespace AssetStudioGUI
         {
             var baseDestPath = Path.Combine(exportPath, "Live2DOutput");
             var modelGroupOption = Properties.Settings.Default.l2dModelGroupOption;
-            var l2dOptions = new Live2DOptions()
+            var extractorOptions = new Live2DExtractorOptions
             {
                 SelectedClipMotions = selClipMotions,
                 SelectedFadeMotions = selFadeMotions,
@@ -1171,9 +1170,9 @@ namespace AssetStudioGUI
                 SearchByFilename = Properties.Settings.Default.l2dAssetSearchByFilename,
             };
             if (selClipMotions != null)
-                l2dOptions.MotionMode = Live2DMotionMode.AnimationClipV2;
+                extractorOptions.MotionMode = Live2DMotionMode.AnimationClipV2;
             else if (selFadeMotions != null || selFadeLst != null)
-                l2dOptions.MotionMode = Live2DMotionMode.MonoBehaviour;
+                extractorOptions.MotionMode = Live2DMotionMode.MonoBehaviour;
 
             ThreadPool.QueueUserWorkItem(state =>
             {
@@ -1197,7 +1196,7 @@ namespace AssetStudioGUI
                     Logger.Info($"[{modelCounter + 1}/{totalModelCount}] Exporting Live2D from: \"{srcContainer}\"...");
                     try
                     {
-                        var cubismExtractor = new Live2DExtractor(assetGroupKvp.Value, cubismModel, l2dOptions);
+                        var cubismExtractor = new Live2DExtractor(assetGroupKvp.Value, cubismModel, extractorOptions);
                         var fileName = string.IsNullOrEmpty(mocMono.assetsFile.originalPath)
                             ? Path.GetFileNameWithoutExtension(mocMono.assetsFile.fileName)
                             : Path.GetFileNameWithoutExtension(mocMono.assetsFile.originalPath);
@@ -1216,7 +1215,7 @@ namespace AssetStudioGUI
                                 modelPath = modelName;
                                 break;
                             default: //ContainerPath
-                                var container = l2dOptions.SearchByFilename && cubismModel != null
+                                var container = extractorOptions.SearchByFilename && cubismModel != null
                                     ? cubismModel.Container
                                     : srcContainer;
                                 container = container == mocMono.assetsFile.fullName

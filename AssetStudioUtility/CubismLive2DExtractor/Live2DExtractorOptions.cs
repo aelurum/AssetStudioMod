@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CubismLive2DExtractor
 {
-    public sealed class Live2DOptions
+    public sealed class Live2DExtractorOptions
     {
         public List<AnimationClip> SelectedClipMotions { get; set; }
         public List<MonoBehaviour> SelectedFadeMotions { get; set; }

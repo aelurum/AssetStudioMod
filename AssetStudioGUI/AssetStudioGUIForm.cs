@@ -158,7 +158,6 @@ namespace AssetStudioGUI
             assetsManager.Options.CustomCachePath = GetCachePath();
             assetsManager.Options.MeshPreProcessing = Properties.Settings.Default.meshPreProcessing;
             assetsManager.Options.GameSpecific.UnityVersionChanged += OnUnityVersionChanged;
-            FbxInitOrLoadOptions(Properties.Settings.Default.fbxSettings);
             
             FMODinit();
             listSearchFilterMode.SelectedIndex = 0;
@@ -584,7 +583,7 @@ namespace AssetStudioGUI
 
         private void showExpOpt_Click(object sender, EventArgs e)
         {
-            var exportOpt = new ExportOptions();
+            var exportOpt = new ExportOptionsForm();
             exportOpt.ShowDialog(this);
         }
 
@@ -2739,20 +2738,6 @@ namespace AssetStudioGUI
         {
             Properties.Settings.Default.autoplayAudio = autoPlayAudioAssetsToolStripMenuItem.Checked;
             Properties.Settings.Default.Save();
-        }
-
-        private static void FbxInitOrLoadOptions(string base64String)
-        {
-            if (string.IsNullOrEmpty(base64String))
-            {
-                Studio.FbxSettings = new Fbx.Settings();
-                Properties.Settings.Default.fbxSettings = Studio.FbxSettings.ToBase64();
-                Properties.Settings.Default.Save();
-            }
-            else
-            {
-                Studio.FbxSettings = Fbx.Settings.FromBase64(base64String);
-            }
         }
 
         private void moreGameOptionsToolStripMenuItem_Click(object sender, EventArgs e)

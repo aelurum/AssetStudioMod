@@ -1188,7 +1188,7 @@ namespace AssetStudioCLI
             }
             var baseDestPath = Path.Combine(CLIOptions.o_outputFolder.Value, "Live2DOutput");
             var modelGroupOption = CLIOptions.o_l2dGroupOption.Value;
-            var l2dOptions = new Live2DOptions()
+            var extractorOptions = new Live2DExtractorOptions()
             {
                 MotionMode = CLIOptions.o_l2dMotionMode.Value,
                 ForceBezier = CLIOptions.f_l2dForceBezier.Value,
@@ -1218,7 +1218,7 @@ namespace AssetStudioCLI
                 Logger.Info($"[{modelCounter + 1}/{totalModelCount}] Exporting Live2D from: \"{srcContainer.Color(Ansi.BrightCyan)}\"...");
                 try
                 {
-                    var cubismExtractor = new Live2DExtractor(assetGroupKvp.Value, cubismModel, l2dOptions);
+                    var cubismExtractor = new Live2DExtractor(assetGroupKvp.Value, cubismModel, extractorOptions);
                     var fileName = string.IsNullOrEmpty(mocMono.assetsFile.originalPath)
                         ? Path.GetFileNameWithoutExtension(mocMono.assetsFile.fileName)
                         : Path.GetFileNameWithoutExtension(mocMono.assetsFile.originalPath);
@@ -1237,7 +1237,7 @@ namespace AssetStudioCLI
                             modelPath = modelName;
                             break;
                         default: //ContainerPath
-                            var container = l2dOptions.SearchByFilename && cubismModel != null
+                            var container = extractorOptions.SearchByFilename && cubismModel != null
                                 ? cubismModel.Container
                                 : srcContainer;
                             container = container == mocMono.assetsFile.fullName

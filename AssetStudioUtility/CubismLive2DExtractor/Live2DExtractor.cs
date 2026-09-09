@@ -26,7 +26,7 @@ namespace CubismLive2DExtractor
     {
         public static AssemblyLoader Assembly { get; set; }
         private CubismModel Model { get; set; }
-        private Live2DOptions Options { get; }
+        private Live2DExtractorOptions Options { get; }
         private List<MonoBehaviour> FadeMotions { get; set; }
         private List<AnimationClip> AnimationClips { get; set; }
         private List<MonoBehaviour> Expressions { get; set; }
@@ -42,7 +42,7 @@ namespace CubismLive2DExtractor
         private HashSet<string> EyeBlinkParameters { get; set; }
         private HashSet<string> LipSyncParameters { get; set; }
 
-        public Live2DExtractor(List<Object> modelAssetsList, CubismModel model, Live2DOptions l2dOptions)
+        public Live2DExtractor(List<Object> modelAssetsList, CubismModel model, Live2DExtractorOptions l2dOptions)
         {
             Options = l2dOptions;
             Expressions = new List<MonoBehaviour>();

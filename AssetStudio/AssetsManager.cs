@@ -692,6 +692,9 @@ namespace AssetStudio
                             case ClassIDType.AssetBundle:
                                 obj = new AssetBundle(objectReader);
                                 break;
+                            case ClassIDType.AssetBundleManifest:
+                                obj = new AssetBundleManifest(objectReader);
+                                break;
                             case ClassIDType.AudioClip:
                                 obj = new AudioClip(objectReader);
                                 break;

@@ -162,12 +162,23 @@ namespace AssetStudio
                 m_CanTransitionToSelf = reader.ReadBoolean();
             }
 
-            if (version.IsTuanjie && version >= (2022, 3, 62, 8)) //2022.3.62t8(1.9.0) and up
+            if (version.IsTuanjie && version.IsInRange((2022, 3, 62, 8), (2022, 3, 62, 12))) //2022.3.62t8-t11(1.9.x)))
             {
                 var m_UseInertialization = reader.ReadBoolean();
             }
 
             reader.AlignStream();
+
+            if (version.IsTuanjie && version >= (2022, 3, 62, 12)) //2022.3.62t12(1.10.0) and up
+            {
+                var m_TransitionBlendMode = reader.ReadInt32();
+                var m_PoseBlendCurveMode = reader.ReadInt32();
+                var m_RootMotionBlendCurveMode = reader.ReadInt32();
+                var m_PoseBlendCurveKeyframeArraySize = reader.ReadInt32();
+                reader.Position += m_PoseBlendCurveKeyframeArraySize * 28; //skip m_PoseBlendCurveKeyframeArray[]
+                var m_RootMotionBlendCurveKeyframeArraySize = reader.ReadInt32();
+                reader.Position += m_RootMotionBlendCurveKeyframeArraySize * 28; //skip m_RootMotionBlendCurveKeyframeArray[]
+            }
         }
     }
 

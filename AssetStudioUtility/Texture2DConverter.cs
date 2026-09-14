@@ -323,10 +323,13 @@ namespace AssetStudio
                     case TextureFormat.RGBA64: //test pass
                         flag = DecodeRGBA64(buff, destSpan);
                         break;
+                    //Tuanjie
                     case TextureFormat.PNG_8_RGBA:
                     case TextureFormat.PNG_24_RGB: //test pass
                     case TextureFormat.PNG_32_RGBA: //test pass
-                        flag = DecodePng(buff, destSpan);
+                    case TextureFormat.WebP_24:
+                    case TextureFormat.WebP_32:
+                        flag = DecodeImage(buff, destSpan);
                         break;
                 }
             }
@@ -825,7 +828,7 @@ namespace AssetStudio
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool DecodePng(ReadOnlySpan<byte> buff, Span<byte> destSpan)
+        private bool DecodeImage(ReadOnlySpan<byte> buff, Span<byte> destSpan)
         {
             try
             {

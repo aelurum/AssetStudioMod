@@ -46,7 +46,8 @@ namespace AssetStudioGUI
                     debugLog += sb.ToString();
                 }
 
-                if (type == ImageFormat.Png && m_Texture2D.m_TextureFormat.IsPng())
+                if ((type == ImageFormat.Png && m_Texture2D.m_TextureFormat.IsPng())
+                    || (type == ImageFormat.Webp && m_Texture2D.m_TextureFormat.IsWebP()))
                 {
                     File.WriteAllBytes(exportFullPath, m_Texture2D.image_data.GetData());
                     debugLog += $"{item.TypeString} \"{item.Text}\" exported to \"{exportFullPath}\"";

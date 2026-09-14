@@ -83,6 +83,10 @@ namespace AssetStudio
                             {
                                 var m_ForceDisableGRD = reader.ReadByte();
                             }
+                            if (version >= (2022, 3, 62, 12)) //2022.3.62t12(1.10.0) and up
+                            {
+                                var m_ForceDisableSmallMeshCull = reader.ReadByte();
+                            }
                         }
                     }
                     if (version >= (2023, 2)) //2023.2 and up

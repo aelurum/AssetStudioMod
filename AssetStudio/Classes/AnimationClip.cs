@@ -881,6 +881,11 @@ namespace AssetStudio
             m_KeepOriginalPositionY = reader.ReadBoolean();
             m_KeepOriginalPositionXZ = reader.ReadBoolean();
             m_HeightFromFeet = reader.ReadBoolean();
+            if (version.IsTuanjie && version >= (2022, 3, 62, 13)) //2022.3.62t13(1.10.1) and up
+            {
+                var m_AdditiveType = reader.ReadInt32();
+                var m_BasePoseType = reader.ReadInt32();
+            }
             reader.AlignStream();
         }
     }

@@ -330,6 +330,14 @@
         /// PNG (8 bits) compressed RGBA texture format.
         /// </summary>
         PNG_8_RGBA = TUANJIE_OFFSET + 77,
+        /// <summary>
+        /// WebP (32 bits) compressed RGBA texture format.
+        /// </summary>
+        WebP_32 = TUANJIE_OFFSET + 78,
+        /// <summary>
+        /// WebP (24 bits) compressed RGB texture format.
+        /// </summary>
+        WebP_24 = TUANJIE_OFFSET + 79,
     }
 
     public static class TextureFormatExtensions
@@ -342,5 +350,7 @@
         }
 
         public static bool IsPng(this TextureFormat format) => format >= TextureFormat.PNG_32_RGBA && format <= TextureFormat.PNG_8_RGBA;
+
+        public static bool IsWebP(this TextureFormat format) => format == TextureFormat.WebP_24 || format == TextureFormat.WebP_32;
     }
 }

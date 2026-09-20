@@ -99,9 +99,9 @@
             this.legacyUnityVersionLabel.AutoSize = true;
             this.legacyUnityVersionLabel.Location = new System.Drawing.Point(6, 52);
             this.legacyUnityVersionLabel.Name = "legacyUnityVersionLabel";
-            this.legacyUnityVersionLabel.Size = new System.Drawing.Size(193, 15);
+            this.legacyUnityVersionLabel.Size = new System.Drawing.Size(161, 15);
             this.legacyUnityVersionLabel.TabIndex = 2;
-            this.legacyUnityVersionLabel.Text = "Custom legacy Unity version (WIP):";
+            this.legacyUnityVersionLabel.Text = "Custom legacy Unity version:";
             // 
             // customUnityVersionTextBox
             // 
@@ -256,7 +256,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 24);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(363, 291);
+            this.tabPage2.Size = new System.Drawing.Size(363, 281);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Asset Bundles";
             // 
@@ -267,7 +267,7 @@
             this.tabPage3.Controls.Add(this.tuanjieGroupBox);
             this.tabPage3.Location = new System.Drawing.Point(4, 24);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(363, 291);
+            this.tabPage3.Size = new System.Drawing.Size(363, 281);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Meshes";
             // 

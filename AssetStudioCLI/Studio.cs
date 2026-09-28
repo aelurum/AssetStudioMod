@@ -1151,6 +1151,7 @@ namespace AssetStudioCLI
         private static Dictionary<MonoBehaviour, CubismModel> FilterMocDict()
         {
             var regexMode = CLIOptions.f_filterWithRegex.Value;
+            var excludeMode = CLIOptions.f_filterExcludeMode.Value;
             var filterList = CLIOptions.o_filterByText.Value;
             var filteredDict = new Dictionary<MonoBehaviour, CubismModel>();
             var regex = regexMode ? new Regex(filterList[0]) : null;
@@ -1160,20 +1161,29 @@ namespace AssetStudioCLI
                 var mocContainer = containers.TryGetValue(kvp.Key, out var container)
                     ? container
                     : "";
-                if (regexMode)
-                {
-                    if (regex.IsMatch(mocContainer) || regex.IsMatch(mocName))
-                        filteredDict[kvp.Key] = kvp.Value;
-                    continue;
-                }
-                if (filterList.Any(str => mocContainer.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0 || mocName.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0))
+                var isMatch = regexMode
+                    ? regex.IsMatch(mocContainer) || regex.IsMatch(mocName)
+                    : filterList.Any(str => mocContainer.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0 || mocName.IndexOf(str, StringComparison.OrdinalIgnoreCase) >= 0);
+
+                if ((!excludeMode && isMatch) || (excludeMode && !isMatch))
                 {
                     filteredDict[kvp.Key] = kvp.Value;
                 }
             }
-            var log = regexMode
-                ? $"Found {filteredDict.Count} Live2D model(s) which names or containers match {regex.ToString().Color(Ansi.BrightYellow)} regexp"
-                : $"Found {filteredDict.Count} Live2D model(s) that contain {$"\"{string.Join("\", \"", filterList)}\"".Color(Ansi.BrightYellow)} in their names or containers";
+
+            string log;
+            if (excludeMode)
+            {
+                var excludeCount = l2dAssetsManager.ModelDict.Count - filteredDict.Count;
+                var filterType = regexMode ? $"{regex.ToString().Color(Ansi.BrightYellow)} regexp" : "filter";
+                log = $"Excluded {excludeCount} model(s) that match the {filterType}.";
+            }
+            else
+            {
+                log = regexMode
+                    ? $"Found {filteredDict.Count} Live2D model(s) which names or containers match {regex.ToString().Color(Ansi.BrightYellow)} regexp"
+                    : $"Found {filteredDict.Count} Live2D model(s) that contain {$"\"{string.Join("\", \"", filterList)}\"".Color(Ansi.BrightYellow)} in their names or containers";
+            }
             Logger.Info(log);
 
             return filteredDict;

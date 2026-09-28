@@ -307,7 +307,10 @@ namespace CubismLive2DExtractor
 
             if (Texture2Ds.Count == 0)
             {
-                Logger.Warning($"No textures found for \"{modelName}\" model");
+                var filterWarn = Options.SearchByFilename && Options.FilterTextures
+                    ? "\nTry to export without filtering the Live2D textures"
+                    : "";
+                Logger.Warning($"No textures found for \"{modelName}\" model {filterWarn}");
             }
             else
             {

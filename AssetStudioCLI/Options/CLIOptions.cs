@@ -371,7 +371,7 @@ namespace AssetStudioCLI.Options
                 optionDefaultValue: false,
                 optionName: "--l2d-smooth-motions",
                 optionDescription: "(Flag) If specified, Linear motion segments will be calculated as Bezier segments\n" +
-                    "(May help if the exported motions look jerky/not smooth enough)",
+                    "(May help if the exported motions look jerky/not smooth enough)\n",
                 optionExample: "",
                 optionHelpGroup: HelpGroups.Live2D,
                 isFlag: true

@@ -609,6 +609,7 @@ namespace AssetStudio
                 if (version >= 2019) //2019 and up
                 {
                     var m_BonesAABBCount = reader.ReadInt32();
+                    reader.ThrowIfTooLarge(m_BonesAABBCount * 24);
                     reader.Position += m_BonesAABBCount * 24; //skip MinMaxAABB[] m_BonesAABB
 
                     var m_VariableBoneCountWeightsCount = reader.ReadInt32();

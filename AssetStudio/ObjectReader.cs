@@ -39,7 +39,7 @@ namespace AssetStudio
             platform = assetsFile.m_TargetPlatform;
             m_Version = assetsFile.header.m_Version;
 
-            if (assetsFile.ExtractedTypeTreeHashes.Count > 0)
+            if (assetsFile.IsTypeTreeExtracted)
             {
                 assetsFile.ReadExtractedTypeTree();
             }

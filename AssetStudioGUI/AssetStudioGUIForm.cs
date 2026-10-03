@@ -1600,6 +1600,7 @@ namespace AssetStudioGUI
 
             Text = guiTitle;
             AssetItem.Reset();
+            SerializedFile.Clear();
             Studio.assetsManager.Clear();
             Studio.assemblyLoader.Clear();
             Studio.exportableAssets.Clear();

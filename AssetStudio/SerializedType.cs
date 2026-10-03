@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace AssetStudio
 {
@@ -14,6 +15,7 @@ namespace AssetStudio
         public string m_KlassName;
         public string m_NameSpace;
         public string m_AsmName;
+        public List<string> subTreeHashList;
 
         public bool Match(params ulong[] hashes)
         {

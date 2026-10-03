@@ -394,6 +394,10 @@ namespace AssetStudio
                         compressedSize = blocksInfoReader.ReadUInt32(),
                         flags = (StorageBlockFlags)blocksInfoReader.ReadUInt16()
                     };
+                    if (m_Header.version >= 9)
+                    {
+                        var offset = blocksInfoReader.ReadUInt64();
+                    }
                 }
 
                 var nodesCount = blocksInfoReader.ReadInt32();
@@ -483,6 +487,11 @@ namespace AssetStudio
 
                             var read = reader.Read(sharedCompressedBuff, 0, compressedSize);
                             debugMsg += $"(read: {read.ToString().ColorIf(read != compressedSize, ColorConsole.BrightRed)})";
+                            // https://unity.com/releases/editor/beta/6000.7.0b2#notes
+                            if (m_Header.version >= 9)
+                            {
+                                reader.AlignStream(16);
+                            }
                             var compressedSpan = new ReadOnlySpan<byte>(sharedCompressedBuff, 0, compressedSize);
                             var uncompressedSpan = new Span<byte>(sharedUncompressedBuff, 0, uncompressedSize);
 

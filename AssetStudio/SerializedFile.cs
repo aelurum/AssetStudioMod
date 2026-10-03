@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,8 @@ namespace AssetStudio
 {
     public class SerializedFile
     {
+        private static readonly ConcurrentDictionary<string, SubTreeInfo> SharedSubTreeInfoDict = new ConcurrentDictionary<string, SubTreeInfo>();
+
         public AssetsManager assetsManager;
         public FileReader reader;
         public string fullName;
@@ -15,7 +18,8 @@ namespace AssetStudio
         public UnityVersion version = new UnityVersion();
         public readonly List<Object> Objects;
         public readonly Dictionary<long, Object> ObjectsDic;
-        public readonly Dictionary<string, List<SerializedType>> ExtractedTypeTreeHashes = new Dictionary<string, List<SerializedType>>();
+        private readonly Dictionary<string, List<SerializedType>> extractedTypeTreeDict = new Dictionary<string, List<SerializedType>>();
+        public bool IsTypeTreeExtracted => extractedTypeTreeDict.Count > 0;
 
         public SerializedFileHeader header;
         private byte m_FileEndianess;
@@ -68,6 +72,10 @@ namespace AssetStudio
             if (m_FileEndianess == 0)
             {
                 reader.Endian = EndianType.LittleEndian;
+            }
+            if (header.m_Version >= SerializedFileFormatVersion.NotTested)
+            {
+                Logger.Warning($"Unknown SerializedFile version detected [{(int)header.m_Version}]");
             }
             switch (header.m_Version) //default unity versions
             {
@@ -241,6 +249,31 @@ namespace AssetStudio
                 }
             }
 
+            if (header.m_Version >= SerializedFileFormatVersion.SharedSubTreeSupport)
+            {
+                var sharedSubtreeCount = reader.ReadUInt32();
+                for (var i = 0; i < sharedSubtreeCount; i++)
+                {
+                    var subTreeHash = reader.ReadBytesAsHexString(16);
+                    var subTreeBlobSize = reader.ReadInt32();
+                    var subTreeInfo = subTreeBlobSize > 0
+                        ? ReadSubTreeInfo(reader)
+                        : null; //extracted subTree
+                    SharedSubTreeInfoDict.TryAdd(subTreeHash, subTreeInfo);
+                }
+
+                foreach (var serializedType in m_Types)
+                {
+                    if (serializedType.subTreeHashList == null || serializedType.subTreeHashList.Count <= 0)
+                        continue;
+
+                    if (!ResolveSubTrees(serializedType.m_Type.m_Nodes, serializedType.subTreeHashList))
+                    {
+                        serializedType.m_Type = null;
+                    }
+                }
+            }
+
             if (header.m_Version >= SerializedFileFormatVersion.Unknown_5)
             {
                 userInformation = reader.ReadStringToNull();
@@ -274,8 +307,48 @@ namespace AssetStudio
                     }
                 }
             }
+        }
 
-            //reader.AlignStream(16);
+        private bool ResolveSubTrees(List<TypeTreeNode> m_Nodes, List<string> subTreeHashes)
+        {
+            try
+            {
+                for (var i = 0; i < m_Nodes.Count; i++)
+                {
+                    var m_Node = m_Nodes[i];
+                    var isSharedSubTreeNode = (m_Node.m_TypeFlags & 0x20) != 0;
+                    if (!isSharedSubTreeNode)
+                        continue;
+
+                    var hashIndex = (int)m_Node.m_RefTypeHash;
+                    if (SharedSubTreeInfoDict.TryGetValue(subTreeHashes[hashIndex], out var subTreeInfo))
+                    {
+                        if (subTreeInfo.SubTreeDependencies.Count > 0)
+                        {
+                            ResolveSubTrees(subTreeInfo.SubTreeNodes, subTreeInfo.SubTreeDependencies);
+                        }
+                        m_Node.m_TypeFlags = subTreeInfo.SubTreeNodes[0].m_TypeFlags;
+                        for (var k = 1; k < subTreeInfo.SubTreeNodes.Count; k++) //skip Base node
+                        {
+                            var subTreeNode = new TypeTreeNode(subTreeInfo.SubTreeNodes[k]); //deep copy
+                            subTreeNode.m_Level += m_Node.m_Level;
+                            subTreeNode.m_Index = m_Node.m_Index + k;
+                            m_Nodes.Insert(i + k, subTreeNode);
+                        }
+                        i += subTreeInfo.SubTreeNodes.Count - 1;
+                    }
+                    else
+                    {
+                        throw new IOException($"Can't find a shared subtree for the \"{m_Node.m_Type}\" type");
+                    }
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Warning($"[SubTree] {e.Message}\n{e.StackTrace}");
+                return false;
+            }
         }
 
         private SerializedType ReadSerializedType(bool isRefType)
@@ -322,13 +395,13 @@ namespace AssetStudio
                     else
                     {
                         type.m_Type = null;
-                        if (ExtractedTypeTreeHashes.TryGetValue(typeTreeHash, out var types))
+                        if (extractedTypeTreeDict.TryGetValue(typeTreeHash, out var types))
                         {
                             types.Add(type);
                         }
                         else
                         {
-                            ExtractedTypeTreeHashes[typeTreeHash] = new List<SerializedType> { type };
+                            extractedTypeTreeDict[typeTreeHash] = new List<SerializedType> { type };
                         }
                     }
                 }
@@ -339,6 +412,15 @@ namespace AssetStudio
                 else
                 {
                     ReadTypeTree(type.m_Type);
+                }
+                if (header.m_Version >= SerializedFileFormatVersion.SharedSubTreeSupport && !IsTypeTreeExtracted)
+                {
+                    type.subTreeHashList = new List<string>();
+                    var sharedSubTreeCount = reader.ReadInt32();
+                    for (var i = 0; i < sharedSubTreeCount; i++)
+                    {
+                        type.subTreeHashList.Add(reader.ReadBytesAsHexString(16));
+                    }
                 }
                 if (header.m_Version >= SerializedFileFormatVersion.StoresTypeDependencies)
                 {
@@ -354,7 +436,6 @@ namespace AssetStudio
                     }
                 }
             }
-
             return type;
         }
 
@@ -469,26 +550,36 @@ namespace AssetStudio
 
         public void ReadExtractedTypeTree()
         {
-            var hashes = ExtractedTypeTreeHashes.Keys.ToArray();
+            var hashes = extractedTypeTreeDict.Keys.ToArray();
             foreach (var hashStr in hashes)
             {
-                if (!assetsManager.ResourceFileReaders.TryGetValue(hashStr, out var binaryReader)) 
+                if (!assetsManager.ResourceFileReaders.TryGetValue(hashStr, out var binaryReader))
                     continue;
 
                 var fileReader = (FileReader)binaryReader;
                 fileReader.Endian = EndianType.LittleEndian;
-                var serializedTypeList = ExtractedTypeTreeHashes[hashStr];
+                var serializedTypeList = extractedTypeTreeDict[hashStr];
                 foreach (var serializedType in serializedTypeList)
                 {
                     fileReader.Position = 0;
                     serializedType.m_Type = new TypeTree();
                     serializedType.m_Type.m_Nodes = new List<TypeTreeNode>();
                     TypeTreeBlobRead(serializedType.m_Type, fileReader);
+                    if (header.m_Version >= SerializedFileFormatVersion.SharedSubTreeSupport)
+                    {
+                        serializedType.subTreeHashList = new List<string>();
+                        var sharedSubTreeCount = fileReader.ReadInt32();
+                        for (var i = 0; i < sharedSubTreeCount; i++)
+                        {
+                            serializedType.subTreeHashList.Add(fileReader.ReadBytesAsHexString(16));
+                        }
+                    }
                 }
-                ExtractedTypeTreeHashes[hashStr] = null;
+                extractedTypeTreeDict[hashStr] = null;
             }
-            var notFound = ExtractedTypeTreeHashes.Where(x=> x.Value != null).ToArray();
-            if (notFound.Length > 0 && notFound.Length < ExtractedTypeTreeHashes.Count)
+
+            var notFound = extractedTypeTreeDict.Where(x => x.Value != null).ToArray();
+            if (notFound.Length > 0 && notFound.Length < extractedTypeTreeDict.Count)
             {
                 foreach (var kv in notFound)
                 {
@@ -497,13 +588,67 @@ namespace AssetStudio
                 Logger.Warning("Not all typetree hashes were found in the loaded typetree file\n" +
                                "The typetree file is probably outdated or not designed for the loaded asset bundles");
             }
-            ExtractedTypeTreeHashes.Clear();
+            if (header.m_Version >= SerializedFileFormatVersion.SharedSubTreeSupport && notFound.Length < extractedTypeTreeDict.Count)
+            {
+                ReadExtractedSubTree();
+            }
+
+            extractedTypeTreeDict.Clear();
+        }
+
+        private void ReadExtractedSubTree()
+        {
+            var hashes = SharedSubTreeInfoDict.Keys.ToArray();
+            foreach (var subTreeHash in hashes)
+            {
+                if (!assetsManager.ResourceFileReaders.TryGetValue(subTreeHash, out var binaryReader))
+                    continue;
+
+                var fileReader = (FileReader)binaryReader;
+                fileReader.Endian = EndianType.LittleEndian;
+                fileReader.Position = 0;
+                SharedSubTreeInfoDict[subTreeHash] = ReadSubTreeInfo(fileReader);
+            }
+            foreach (var serializedType in m_Types)
+            {
+                if (serializedType.subTreeHashList == null || serializedType.subTreeHashList.Count <= 0)
+                    continue;
+
+                if (!ResolveSubTrees(serializedType.m_Type.m_Nodes, serializedType.subTreeHashList))
+                {
+                    serializedType.m_Type = null;
+                }
+            }
+        }
+
+        private SubTreeInfo ReadSubTreeInfo(FileReader subTreeReader)
+        {
+            var m_Type = new TypeTree();
+            m_Type.m_Nodes = new List<TypeTreeNode>();
+            TypeTreeBlobRead(m_Type, subTreeReader);
+            var subTreeDependencies = new List<string>();
+            var subTreeDependenciesCount = subTreeReader.ReadUInt32();
+            for (var i = 0; i < subTreeDependenciesCount; i++)
+            {
+                subTreeDependencies.Add(subTreeReader.ReadBytesAsHexString(16));
+            }
+
+            return new SubTreeInfo
+            {
+                SubTreeNodes = m_Type.m_Nodes,
+                SubTreeDependencies = subTreeDependencies,
+            };
         }
 
         public void AddObject(Object obj)
         {
             Objects.Add(obj);
             ObjectsDic.Add(obj.m_PathID, obj);
+        }
+
+        public static void Clear()
+        {
+            SharedSubTreeInfoDict.Clear();
         }
     }
 }

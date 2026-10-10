@@ -1472,6 +1472,8 @@ namespace AssetStudioGUI
                 var statusStrip = "Unsupported sprite for preview. ";
                 if (converter.Width == 0 || converter.Height == 0)
                     statusStrip += "The width or height of the sprite is 0.";
+                if (converter.m_Texture2D == null)
+                    statusStrip += "Unable to find related Texture2D asset.";
                 StatusStripUpdate(statusStrip);
             }
         }
@@ -1903,7 +1905,7 @@ namespace AssetStudioGUI
         {
             var selectedAsset = (AssetItem)assetListView.Items[assetListView.SelectedIndices[0]];
             var spriteConverter = new SpriteConverter((Sprite)selectedAsset.Asset);
-            var textureAsset = visibleAssets.Find(x => x.Type == ClassIDType.Texture2D && x.m_PathID == spriteConverter.m_Texture2D.m_PathID);
+            var textureAsset = visibleAssets.Find(x => x.Type == ClassIDType.Texture2D && x.m_PathID == spriteConverter.m_Texture2D?.m_PathID);
             if (textureAsset != null)
             {
                 var listViewItem = assetListView.Items[assetListView.Items.IndexOf(textureAsset)];

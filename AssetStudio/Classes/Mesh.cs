@@ -895,6 +895,7 @@ namespace AssetStudio
             {
                 Logger.Warning($"Cannot process mesh | PathID: {m_PathID} | Name: \"{m_Name}\"" +
                                $"\n{ex.Message}");
+                Logger.Debug(ex.StackTrace);
             }
             finally
             {
@@ -1247,9 +1248,9 @@ namespace AssetStudio
             //IndexBuffer
             if (m_CompressedMesh.m_Triangles.m_NumItems > 0)
             {
-                m_IndexBuffer = m_Use16BitIndices
-                    ? Array.ConvertAll(m_CompressedMesh.m_Triangles.UnpackInts(), x => (uint)x)
-                    : MemoryMarshal.Cast<byte, uint>(m_CompressedMesh.m_Triangles.m_Data).ToArray(); //sus
+                m_IndexBuffer = !m_Use16BitIndices && m_CompressedMesh.m_Triangles.m_NumItems / 2 == m_SubMeshes.Sum(x=> x.indexCount)
+                    ? MemoryMarshal.Cast<byte, uint>(m_CompressedMesh.m_Triangles.m_Data).ToArray() // https://github.com/aelurum/AssetStudioMod/issues/147
+                    : Array.ConvertAll(m_CompressedMesh.m_Triangles.UnpackInts(), x => (uint)x);
             }
             //Color
             if (m_CompressedMesh.m_Colors?.m_NumItems > 0)

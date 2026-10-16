@@ -373,6 +373,47 @@ namespace AssetStudio
         }
     }
 
+    public class DiscreteKeyframe
+    {
+        public float time;
+        public int value;
+
+        public DiscreteKeyframe() { }
+
+        public DiscreteKeyframe(ObjectReader reader)
+        {
+            time = reader.ReadSingle();
+            value = reader.ReadInt32();
+        }
+    }
+
+    public class DiscreteCurve
+    {
+        public List<DiscreteKeyframe> curve;
+        public string attribute;
+        public string path;
+        public int classID;
+        public PPtr<MonoScript> script;
+        public int flags;
+
+        public DiscreteCurve() { }
+
+        public DiscreteCurve(ObjectReader reader)
+        {
+            int numCurves = reader.ReadInt32();
+            curve = new List<DiscreteKeyframe>();
+            for (var i = 0; i < numCurves; i++)
+            {
+                curve.Add(new DiscreteKeyframe(reader));
+            }
+            attribute = reader.ReadAlignedString();
+            path = reader.ReadAlignedString();
+            classID = reader.ReadInt32();
+            script = new PPtr<MonoScript>(reader);
+            flags = reader.ReadInt32();
+        }
+    }
+
     public class AABB
     {
         public Vector3 m_Center;
@@ -1047,6 +1088,7 @@ namespace AssetStudio
         public List<Vector3Curve> m_ScaleCurves;
         public List<FloatCurve> m_FloatCurves;
         public List<PPtrCurve> m_PPtrCurves;
+        public List<DiscreteCurve> m_DiscreteCurves;
         public float m_SampleRate;
         public int m_WrapMode;
         public AABB m_Bounds;
@@ -1084,6 +1126,7 @@ namespace AssetStudio
             m_ScaleCurves = parsedAnimClip.m_ScaleCurves;
             m_FloatCurves = parsedAnimClip.m_FloatCurves;
             m_PPtrCurves = parsedAnimClip.m_PPtrCurves;
+            m_DiscreteCurves = parsedAnimClip.m_DiscreteCurves;
             m_SampleRate = parsedAnimClip.m_SampleRate;
             m_WrapMode = parsedAnimClip.m_WrapMode;
             m_Bounds = parsedAnimClip.m_Bounds;
@@ -1149,7 +1192,6 @@ namespace AssetStudio
             {
                 m_Legacy = true;
             }
-
             if (version >= (2, 6)) //2.6 and up
             {
                 m_Compressed = reader.ReadBoolean();
@@ -1159,14 +1201,12 @@ namespace AssetStudio
                 }
                 reader.AlignStream();
             }
-
             int numRCurves = reader.ReadInt32();
             m_RotationCurves = new List<QuaternionCurve>();
             for (var i = 0; i < numRCurves; i++)
             {
                 m_RotationCurves.Add(new QuaternionCurve(reader));
             }
-
             if (version >= (2, 6)) //2.6 and up
             {
                 int numCRCurves = reader.ReadInt32();
@@ -1176,7 +1216,6 @@ namespace AssetStudio
                     m_CompressedRotationCurves.Add(new CompressedAnimationCurve(reader));
                 }
             }
-
             if (!version.IsTuanjie)
             {
                 if (version >= (5, 3)) //5.3 and up
@@ -1186,14 +1225,12 @@ namespace AssetStudio
                 m_PositionCurves = Vector3CurveList(reader);
                 m_ScaleCurves = Vector3CurveList(reader);
             }
-
             int numFCurves = reader.ReadInt32();
             m_FloatCurves = new List<FloatCurve>();
             for (var i = 0; i < numFCurves; i++)
             {
                 m_FloatCurves.Add(new FloatCurve(reader));
             }
-
             if (version >= (4, 3)) //4.3 and up
             {
                 int numPtrCurves = reader.ReadInt32();
@@ -1203,7 +1240,15 @@ namespace AssetStudio
                     m_PPtrCurves.Add(new PPtrCurve(reader));
                 }
             }
-
+            if (version >= 7000) //7000.0.0a10 and up
+            {
+                int numDiscreteCurves = reader.ReadInt32();
+                m_DiscreteCurves = new List<DiscreteCurve>();
+                for (var i = 0; i < numDiscreteCurves; i++)
+                {
+                    m_DiscreteCurves.Add(new DiscreteCurve(reader));
+                }
+            }
             m_SampleRate = reader.ReadSingle();
             if (version >= (2, 6)) //2.6 and up
             {

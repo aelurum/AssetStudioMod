@@ -1123,8 +1123,8 @@ namespace AssetStudioGUI
             result = sound.getLoopPoints(out FMODloopstartms, FMOD.TIMEUNIT.MS, out FMODloopendms, FMOD.TIMEUNIT.MS);
             if (result == FMOD.RESULT.OK)
             {
-                assetItem.InfoText += $"\nLoop Start: {(FMODloopstartms / 1000 / 60):00}:{(FMODloopstartms / 1000 % 60):00}.{(FMODloopstartms / 10 % 100):00}";
-                assetItem.InfoText += $"\nLoop End: {(FMODloopendms / 1000 / 60):00}:{(FMODloopendms / 1000 % 60):00}.{(FMODloopendms / 10 % 100):00}";
+                assetItem.InfoText += $"\nLoop Start: {(FMODloopstartms / 1000 / 60):00}:{(FMODloopstartms / 1000 % 60):00}.{(FMODloopstartms % 1000):000}";
+                assetItem.InfoText += $"\nLoop End: {(FMODloopendms / 1000 / 60):00}:{(FMODloopendms / 1000 % 60):00}.{(FMODloopendms % 1000):000}";
             }
 
             var paused = !autoPlayAudioAssetsToolStripMenuItem.Checked;
@@ -1142,7 +1142,7 @@ namespace AssetStudioGUI
             if (ERRCHECK(result)) return;
 
             FMODinfoLabel.Text = frequency + " Hz";
-            FMODtimerLabel.Text = $"00:00.00 / {(FMODlenms / 1000 / 60):00}:{(FMODlenms / 1000 % 60):00}.{(FMODlenms / 10 % 100):00}";
+            FMODtimerLabel.Text = $"00:00.00 / {(FMODlenms / 1000 / 60):00}:{(FMODlenms / 1000 % 60):00}.{(FMODlenms % 1000 / 10):00}";
 
             sound.getFormat(out var soundType, out var soundFormat, out var audioChannels, out _);
             switch (audioChannels)
@@ -2995,7 +2995,7 @@ namespace AssetStudioGUI
             if (channel.hasHandle())
             {
                 uint newms = FMODlenms / 1000 * (uint)FMODprogressBar.Value;
-                FMODtimerLabel.Text = $"{newms / 1000 / 60:00}:{newms / 1000 % 60:00}.{newms / 10 % 100:00} / {FMODlenms / 1000 / 60:00}:{FMODlenms / 1000 % 60:00}.{FMODlenms / 10 % 100:00}";
+                FMODtimerLabel.Text = $"{newms / 1000 / 60:00}:{newms / 1000 % 60:00}.{newms % 1000 / 10:00} / {FMODlenms / 1000 / 60:00}:{FMODlenms / 1000 % 60:00}.{FMODlenms % 1000 / 10:00}";
             }
         }
 
@@ -3062,7 +3062,7 @@ namespace AssetStudioGUI
                 }
             }
 
-            FMODtimerLabel.Text = $"{ms / 1000 / 60:00}:{ms / 1000 % 60:00}.{ms / 10 % 100:00} / {FMODlenms / 1000 / 60:00}:{FMODlenms / 1000 % 60:00}.{FMODlenms / 10 % 100:00}";
+            FMODtimerLabel.Text = $"{ms / 1000 / 60:00}:{ms / 1000 % 60:00}.{ms % 1000 / 10:00} / {FMODlenms / 1000 / 60:00}:{FMODlenms / 1000 % 60:00}.{FMODlenms % 1000 / 10:00}";
             FMODprogressBar.Value = (int)AssetStudio.MathHelper.Clamp(ms * 1000f / FMODlenms, 0, 1000);
             FMODstatusLabel.Text = paused ? "Paused " : playing ? "Playing" : "Stopped";
 

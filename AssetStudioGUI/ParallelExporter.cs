@@ -155,13 +155,15 @@ namespace AssetStudioGUI
                     {
                         if (m_AudioClip.IsLegacyRawWav())
                         {
-                            var buffer = converter.WrapWavData(ref debugLog);
-                            file.Write(buffer, 0, buffer.Length);
+                            if (m_AudioClip.m_AudioData.Endian == EndianType.BigEndian)
+                            {
+                                AudioClipConverter.LegacyRawWavSwapEndian(audioBuff, m_AudioClip.m_AudioData.Size, (LegacyAudioType)m_AudioClip.m_Format);
+                            }
+                            var wavHeaderBuff = AudioClipConverter.LegacyRawWavGenerateHeader(m_AudioClip, ref debugLog);
+                            file.Write(wavHeaderBuff, 0, wavHeaderBuff.Length);
                         }
-                        else
-                        {
-                            file.Write(audioBuff, 0, m_AudioClip.m_AudioData.Size);
-                        }
+
+                        file.Write(audioBuff, 0, m_AudioClip.m_AudioData.Size);
                     }
                 }
                 debugLog += $"{item.TypeString} \"{item.Text}\" exported to \"{exportFullPath}\"";

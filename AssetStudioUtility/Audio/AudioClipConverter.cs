@@ -71,9 +71,9 @@ namespace AssetStudio
             if (isLegacyRawWav)
             {
                 mode |= MODE.OPENRAW;
-                if (m_AudioClip.m_AudioData.Endian == EndianType.BigEndian && exinfo.format == SOUND_FORMAT.PCM16)
+                if (m_AudioClip.m_AudioData.Endian == EndianType.BigEndian)
                 {
-                    SwapPcm16Endian(audioBuff.AsSpan(0, (int)m_AudioClip.m_Size));
+                    LegacyRawWavSwapEndian(audioBuff, m_AudioClip.m_AudioData.Size, (LegacyAudioType)m_AudioClip.m_Format);
                 }
             }
             var result = system.createSound(audioBuff, mode, ref exinfo, out var sound);
@@ -185,40 +185,37 @@ namespace AssetStudio
             debugLog += "Finished FMOD_PCMFLOAT -> PCM16 converting\n";
         }
 
+        #region LegacyRawWav
         //For raw wav data in unity 1.x - 2.5
         //we can handle it with fmod as well, but this way should be better, I guess
-        public byte[] WrapWavData(ref string debugLog)
+        public static byte[] LegacyRawWavGenerateHeader(AudioClip m_AudioClip, ref string debugLog)
         {
-            if (!isLegacyRawWav)
-                return null;
-
-            var legacyType = (LegacyAudioType)m_AudioClip.m_Format;
-            var audioSize = (int)m_AudioClip.m_Size;
+            var audioSize = (uint)m_AudioClip.m_AudioData.Size;
             var channels = m_AudioClip.m_Channels;
-            var sampleRate = m_AudioClip.m_Frequency;
+            var sampleRate = (uint)m_AudioClip.m_Frequency;
             var audioFormat = WavAudioFormat.PCM;
-            var bits = legacyType == LegacyAudioType.RawWavU8Mono ? 8 : 16;
+            var bits = (LegacyAudioType)m_AudioClip.m_Format == LegacyAudioType.RawWavU8Mono ? 8 : 16;
 
             debugLog += "[Legacy AudioClip] Generating wav header..\n";
-            if (m_AudioClip.m_AudioData.Endian == EndianType.BigEndian && bits == 16)
-            {
-                SwapPcm16Endian(audioBuff.AsSpan(0, audioSize));
-            }
-            var wavBuffer = new byte[audioSize + 44];
-            var wavHeader = new WavHeader((uint)audioSize, audioFormat, channels, (uint)sampleRate, bits);
-            wavHeader.WriteToArray(wavBuffer);
-            audioBuff.AsSpan(0, audioSize).CopyTo(wavBuffer.AsSpan(44));
+            var headerBuff = new byte[44];
+            var wavHeader = new WavHeader(audioSize, audioFormat, channels, sampleRate, bits);
+            wavHeader.WriteToArray(headerBuff);
 
-            return wavBuffer;
+            return headerBuff;
         }
 
-        public static void SwapPcm16Endian(Span<byte> buffer)
+        public static void LegacyRawWavSwapEndian(byte[] audioData, int audioSize, LegacyAudioType legacyType)
         {
-            for (var i = 0; i < buffer.Length; i += 2)
+            if (legacyType == LegacyAudioType.RawWavS16Mono || legacyType == LegacyAudioType.RawWavS16Stereo)
             {
-                buffer.Slice(i, 2).Reverse();
+                var dataSpan = audioData.AsSpan(0, audioSize);
+                for (var i = 0; i < audioSize; i += 2)
+                {
+                    dataSpan.Slice(i, 2).Reverse();
+                }
             }
         }
+        #endregion
 
         private static bool ErrorCheck(RESULT result, ref string log)
         {

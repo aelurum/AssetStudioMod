@@ -1081,9 +1081,9 @@ namespace AssetStudioGUI
                 exinfo.numchannels = m_AudioClip.m_Channels;
                 exinfo.defaultfrequency = m_AudioClip.m_Frequency;
                 mode |= FMOD.MODE.OPENRAW;
-                if (m_AudioClip.m_AudioData.Endian == EndianType.BigEndian && exinfo.format == FMOD.SOUND_FORMAT.PCM16)
+                if (m_AudioClip.m_AudioData.Endian == EndianType.BigEndian)
                 {
-                    AudioClipConverter.SwapPcm16Endian(soundBuff.AsSpan(0, m_AudioClip.m_AudioData.Size));
+                    AudioClipConverter.LegacyRawWavSwapEndian(soundBuff, m_AudioClip.m_AudioData.Size, (LegacyAudioType)m_AudioClip.m_Format);
                 }
             }
 

@@ -55,7 +55,9 @@
 
         public static bool IsLegacyRawWav(this AudioClip m_AudioClip)
         {
-            return m_AudioClip.version < (2, 6) && m_AudioClip.m_Format > 0 && (LegacyAudioType)m_AudioClip.m_Format < LegacyAudioType.CompressedAudio;
+            return m_AudioClip.version < (2, 6)
+                   && m_AudioClip.m_Format > 0
+                   && (LegacyAudioType)m_AudioClip.m_Format < LegacyAudioType.CompressedAudio;
         }
     }
 }

@@ -48,8 +48,6 @@
         <Copy SourceFiles="$(ProjectDir)Libraries\linux-arm64\libooz.so" DestinationFolder="$(TargetDir)runtimes\linux-arm64\native" ContinueOnError="false" />
         <Copy SourceFiles="$(ProjectDir)Libraries\osx-x64\libooz.dylib" DestinationFolder="$(TargetDir)runtimes\osx-x64\native" ContinueOnError="false" />
         <Copy SourceFiles="$(ProjectDir)Libraries\osx-arm64\libooz.dylib" DestinationFolder="$(TargetDir)runtimes\osx-arm64\native" ContinueOnError="false" />
-
-        <Copy SourceFiles="$(ProjectDir)Libraries\linux-arm64\libTexture2DDecoderNative.so" DestinationFolder="$(TargetDir)runtimes\linux-arm64\native" ContinueOnError="false" />
     </Target>
 
     <!-- Publishing an app as framework-dependent produces a cross-platform binary as a dll file, and a platform-specific executable that targets your current platform.
@@ -84,8 +82,6 @@
         <Copy SourceFiles="$(TargetDir)runtimes\linux-arm64\native\libooz.so" DestinationFolder="$(PublishDir)runtimes\linux-arm64\native" ContinueOnError="false" />
         <Copy SourceFiles="$(TargetDir)runtimes\osx-x64\native\libooz.dylib" DestinationFolder="$(PublishDir)runtimes\osx-x64\native" ContinueOnError="false" />
         <Copy SourceFiles="$(TargetDir)runtimes\osx-arm64\native\libooz.dylib" DestinationFolder="$(PublishDir)runtimes\osx-arm64\native" ContinueOnError="false" />
-
-        <Copy SourceFiles="$(TargetDir)runtimes\linux-arm64\native\libTexture2DDecoderNative.so" DestinationFolder="$(PublishDir)runtimes\linux-arm64\native" ContinueOnError="false" />
     </Target>
 
     <Target Name="CopyExtraFilesWin86" AfterTargets="AfterBuild" Condition=" '$(RuntimeIdentifier)' == 'win-x86' ">
@@ -138,14 +134,12 @@
 
     <Target Name="CopyExtraFilesLinuxArm64" AfterTargets="AfterBuild" Condition=" '$(RuntimeIdentifier)' == 'linux-arm64' ">
         <Message Text="Copying extra files for $(RuntimeIdentifier)($(TargetFramework))... " Importance="high" />
-        <Copy SourceFiles="$(ProjectDir)Libraries\linux-arm64\libTexture2DDecoderNative.so" DestinationFolder="$(TargetDir)" ContinueOnError="false" />
         <Copy SourceFiles="$(ProjectDir)Libraries\linux-arm64\libfmod.so" DestinationFolder="$(TargetDir)" ContinueOnError="false" />
         <Copy SourceFiles="$(ProjectDir)Libraries\linux-arm64\libooz.so" DestinationFolder="$(TargetDir)" ContinueOnError="false" />
     </Target>
 
     <Target Name="PublishExtraFilesLinuxArm64" AfterTargets="Publish" Condition=" '$(RuntimeIdentifier)' == 'linux-arm64' ">
         <Message Text="Publishing extra files for $(RuntimeIdentifier)($(TargetFramework))... " Importance="high" />
-        <Copy SourceFiles="$(TargetDir)\libTexture2DDecoderNative.so" DestinationFolder="$(PublishDir)" ContinueOnError="false" />
         <Copy SourceFiles="$(TargetDir)\libfmod.so" DestinationFolder="$(PublishDir)" ContinueOnError="false" />
         <Copy SourceFiles="$(TargetDir)\libooz.so" DestinationFolder="$(PublishDir)" ContinueOnError="false" />
     </Target>

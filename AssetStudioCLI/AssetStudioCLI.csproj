@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFrameworks>net472;net8.0;net9.0</TargetFrameworks>
+        <TargetFrameworks>net472;net9.0;net10.0</TargetFrameworks>
         <AssemblyTitle>AssetStudioMod by aelurum</AssemblyTitle>
         <AssemblyName>AssetStudioModCLI</AssemblyName>
         <Version>0.19.0.0</Version>
@@ -15,7 +15,7 @@
         <ProjectReference Include="..\AssetStudioUtility\AssetStudioUtility.csproj" />
         <ProjectReference Include="..\AssetStudio\AssetStudio.csproj" />
     </ItemGroup>
-    
+
     <!-- Use local compiled win-x86 and win-x64 Texture2DDecoder libs, because libs from Kyaru.Texture2DDecoder.Windows were compiled with /MD flag -->
 
     <Target Name="CopyExtraFilesPortable" AfterTargets="AfterBuild" Condition=" '$(RuntimeIdentifier)' == '' ">

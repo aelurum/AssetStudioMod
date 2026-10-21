@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFrameworks>net472;net8.0-windows;net9.0-windows</TargetFrameworks>
+        <TargetFrameworks>net472;net9.0-windows;net10.0-windows</TargetFrameworks>
         <UseWindowsForms>true</UseWindowsForms>
         <ApplicationIcon>Resources\as.ico</ApplicationIcon>
         <AssemblyTitle>AssetStudioMod by aelurum</AssemblyTitle>
@@ -25,7 +25,7 @@
         <ProjectReference Include="..\AssetStudioUtility\AssetStudioUtility.csproj" />
         <ProjectReference Include="..\AssetStudio\AssetStudio.csproj" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <None Update="Properties\Settings.settings">
             <Generator>SettingsSingleFileGenerator</Generator>
@@ -58,8 +58,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft-WindowsAPICodePack-Core-6.0" Version="1.1.7" />
-        <PackageReference Include="Microsoft-WindowsAPICodePack-Shell-6.0" Version="1.1.7" />
+        <PackageReference Include="Microsoft-WindowsAPICodePack-Core-6.0" Version="1.1.8" />
+        <PackageReference Include="Microsoft-WindowsAPICodePack-Shell-6.0" Version="1.1.8" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' != 'net472' ">
@@ -76,7 +76,7 @@
     </ItemGroup>
 
     <!-- Use local compiled win-x86 and win-x64 Texture2DDecoder libs, because libs from Kyaru.Texture2DDecoder.Windows were compiled with /MD flag -->
-    
+
     <Target Name="CopyExtraFilesPortable" AfterTargets="AfterBuild" Condition=" '$(RuntimeIdentifier)' == '' OR '$(TargetFramework)' == 'net472' ">
         <Message Text="Copying extra files for $(TargetFramework)... " Importance="high" />
         <Copy SourceFiles="$(SolutionDir)Texture2DDecoderNative\bin\Win32\$(Configuration)\Texture2DDecoderNative.dll" DestinationFolder="$(TargetDir)runtimes\win-x86\native" ContinueOnError="false" />
@@ -124,7 +124,7 @@
         <Copy SourceFiles="$(ProjectDir)Libraries\x64\fmod.dll" DestinationFolder="$(TargetDir)" ContinueOnError="false" />
         <Copy SourceFiles="$(ProjectDir)Libraries\x64\ooz.dll" DestinationFolder="$(TargetDir)" ContinueOnError="false" />
     </Target>
-    
+
     <Target Name="PublishExtraFilesWin" AfterTargets="Publish" Condition=" $(RuntimeIdentifier.Contains('win')) AND '$(TargetFramework)' != 'net472' ">
         <Message Text="Publishing extra files for $(RuntimeIdentifier)($(TargetFramework))... " Importance="high" />
         <Copy SourceFiles="$(TargetDir)\AssetStudioFBXNative.dll" DestinationFolder="$(PublishDir)" ContinueOnError="false" />

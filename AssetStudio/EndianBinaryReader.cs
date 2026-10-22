@@ -16,6 +16,20 @@ namespace AssetStudio
             buffer = new byte[8];
         }
 
+        private void ReadBufferFully(int byteCount)
+        {
+            var bytesRead = 0;
+            while (bytesRead < byteCount)
+            {
+                var read = Read(buffer, bytesRead, byteCount - bytesRead);
+                if (read == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+                bytesRead += read;
+            }
+        }
+
         public long Position
         {
             get => BaseStream.Position;
@@ -26,7 +40,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 2);
+                ReadBufferFully(2);
                 return BinaryPrimitives.ReadInt16BigEndian(buffer);
             }
             return base.ReadInt16();
@@ -36,7 +50,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 4);
+                ReadBufferFully(4);
                 return BinaryPrimitives.ReadInt32BigEndian(buffer);
             }
             return base.ReadInt32();
@@ -46,7 +60,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 8);
+                ReadBufferFully(8);
                 return BinaryPrimitives.ReadInt64BigEndian(buffer);
             }
             return base.ReadInt64();
@@ -56,7 +70,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 2);
+                ReadBufferFully(2);
                 return BinaryPrimitives.ReadUInt16BigEndian(buffer);
             }
             return base.ReadUInt16();
@@ -66,7 +80,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 4);
+                ReadBufferFully(4);
                 return BinaryPrimitives.ReadUInt32BigEndian(buffer);
             }
             return base.ReadUInt32();
@@ -76,7 +90,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 8);
+                ReadBufferFully(8);
                 return BinaryPrimitives.ReadUInt64BigEndian(buffer);
             }
             return base.ReadUInt64();
@@ -87,7 +101,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 4);
+                ReadBufferFully(4);
                 buffer.AsSpan(0, 4).Reverse();
                 return BitConverter.ToSingle(buffer, 0);
             }
@@ -98,7 +112,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 8);
+                ReadBufferFully(8);
                 buffer.AsSpan().Reverse();
                 return BitConverter.ToDouble(buffer, 0);
             }
@@ -109,7 +123,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 4);
+                ReadBufferFully(4);
                 return BinaryPrimitives.ReadSingleBigEndian(buffer);
             }
             return base.ReadSingle();
@@ -119,7 +133,7 @@ namespace AssetStudio
         {
             if (Endian == EndianType.BigEndian)
             {
-                Read(buffer, 0, 8);
+                ReadBufferFully(8);
                 return BinaryPrimitives.ReadDoubleBigEndian(buffer);
             }
             return base.ReadDouble();

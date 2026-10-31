@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>net472;net9.0;net9.0-windows;net10.0;net10.0-windows</TargetFrameworks>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Version>0.19.0.0</Version>
+        <Version>0.20.0.0</Version>
         <Copyright>Copyright © Perfare 2020-2022; Copyright © hozuki 2020</Copyright>
         <DebugType>embedded</DebugType>
     </PropertyGroup>

@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFrameworks>net472;net9.0;net9.0-windows;net10.0;net10.0-windows</TargetFrameworks>
-        <Version>0.19.0.0</Version>
-        <Copyright>Copyright © Perfare 2018-2022; Copyright © aelurum 2021-2025</Copyright>
+        <Version>0.20.0.0</Version>
+        <Copyright>Copyright © Perfare 2018-2022; Copyright © aelurum 2021-2026</Copyright>
         <DebugType>embedded</DebugType>
     </PropertyGroup>
 

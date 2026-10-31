@@ -232,7 +232,7 @@
             this.label19.Name = "label19";
             this.label19.Size = new System.Drawing.Size(124, 15);
             this.label19.TabIndex = 4;
-            this.label19.Text = "aelurum (c) 2021-2025";
+            this.label19.Text = "aelurum (c) 2021-2026";
             // 
             // gitAelurumLinkLabel
             // 

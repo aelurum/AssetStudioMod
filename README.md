@@ -1,4 +1,4 @@
-# AssetStudioMod
+﻿# AssetStudioMod
 
 [![Release](https://img.shields.io/github/v/release/aelurum/AssetStudio?color=blue)](https://github.com/aelurum/AssetStudio/releases/latest) [![Downloads](https://img.shields.io/github/downloads/aelurum/AssetStudio/total?color=blue)](https://github.com/aelurum/AssetStudio/releases/latest) [![Download latest release](https://img.shields.io/badge/Download_latest_release-blue)](https://github.com/aelurum/AssetStudio/releases/latest)
 
@@ -15,7 +15,9 @@
 ## AssetStudio Features
 
 - Support Unity version:
-  - 1.7 - 6000.2
+  - 1.2 - 7000.0
+- Support Tuanjie version (partial):
+  - 1.0 - 1.10
 - Support asset types:
   - **Texture2D**, **Texture2DArray** : convert to png, tga, jpeg, bmp, webp
   - **Sprite** : crop Texture2D to png, tga, jpeg, bmp, webp
@@ -36,7 +38,6 @@
 - Support of image export in WebP format
 - Support of Live2D Cubism model export
    - Ported from my fork of Perfare's [UnityLive2DExtractor](https://github.com/aelurum/UnityLive2DExtractor)
-   - Using the Live2D export in AssetStudio allows you to specify a Unity version and assembly folder if needed
 - Support of swizzled Switch textures
     - Ported from nesrak1's [AssetStudio fork](https://github.com/nesrak1/AssetStudio/tree/switch-tex-deswizzle)
 - Detecting bundles with UnityCN encryption
@@ -47,12 +48,48 @@
 
 - AssetStudioMod.net472
    - GUI/CLI - [.NET Framework 4.7.2](https://dotnet.microsoft.com/download/dotnet-framework/net472)
-- AssetStudioMod.net8
-   - GUI/CLI (Windows) - [.NET Desktop Runtime 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
-   - CLI (Linux/Mac) - [.NET Runtime 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 - AssetStudioMod.net9
    - GUI/CLI (Windows) - [.NET Desktop Runtime 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
    - CLI (Linux/Mac) - [.NET Runtime 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
+- AssetStudioMod.net10
+   - GUI/CLI (Windows) - [.NET Desktop Runtime 10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+   - CLI (Linux/Mac) - [.NET Runtime 10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+
+## GUI Usage
+
+### Load Assets/AssetBundles
+
+Use **File->Load file** or **File->Load folder**.
+
+When AssetStudio loads AssetBundles, it decompresses and reads it directly in memory, which may cause a large amount of memory to be used. You can use **File->Extract file** or **File->Extract folder** to extract AssetBundles to another folder, and then read.
+
+### Extract/Decompress AssetBundles
+
+Use **File->Extract file** or **File->Extract folder**.
+
+### Export Assets, Live2D Models
+
+Use **Export** menu.
+
+### Export 3D Models (FBX)
+
+Export model from "Scene Hierarchy" using the **Model** menu.
+
+Export Animator from "Asset List" using the **Export** menu.
+
+#### With AnimationClip
+
+Select model from "Scene Hierarchy" then select the AnimationClip from "Asset List", using **Model->Export selected objects with AnimationClip** to export.
+
+Export Animator will export bound AnimationClip or use **Ctrl** to select Animator and AnimationClip from "Asset List", using **Export->Export Animator with selected AnimationClip** to export.
+
+### Export MonoBehaviour
+
+When you select an asset of the MonoBehaviour type for the first time, AssetStudio will ask you the directory where the assembly is located, please select the directory where the assembly is located, such as the `Managed` folder.
+
+#### For Il2Cpp
+
+First, use [Il2CppDumper](https://github.com/Perfare/Il2CppDumper) (or [Il2CppInspectorRedux](https://github.com/LukeFZ/Il2CppInspectorRedux) / [AtiDev17/Il2CppDumper](https://github.com/AtiDev17/Il2CppDumper)) to generate dummy dll, then when using AssetStudio to select the assembly directory, select the dummy dll folder.
 
 ## CLI Usage
 
@@ -145,7 +182,7 @@ AssetStudioModCLI <asset folder path> -t monobehaviour --assembly-folder <assemb
 ```
 - Export assets that require to specify a Unity version
 ```
-AssetStudioModCLI <asset folder path> --unity-version 2017.4.39f1
+AssetStudioModCLI <asset folder path> --unity-version 2022.3.2f1
 ```
 - Load assets of all types and show them (similar to "Display all assets" option in the GUI)
 ```
@@ -156,45 +193,9 @@ AssetStudioModCLI <asset folder path> -m info --load-all
 AssetStudioModCLI <asset folder path> -m dump -t material --load-all
 ```
 
-## GUI Usage
-
-### Load Assets/AssetBundles
-
-Use **File->Load file** or **File->Load folder**.
-
-When AssetStudio loads AssetBundles, it decompresses and reads it directly in memory, which may cause a large amount of memory to be used. You can use **File->Extract file** or **File->Extract folder** to extract AssetBundles to another folder, and then read.
-
-### Extract/Decompress AssetBundles
-
-Use **File->Extract file** or **File->Extract folder**.
-
-### Export Assets, Live2D models
-
-Use **Export** menu.
-
-### Export Model
-
-Export model from "Scene Hierarchy" using the **Model** menu.
-
-Export Animator from "Asset List" using the **Export** menu.
-
-#### With AnimationClip
-
-Select model from "Scene Hierarchy" then select the AnimationClip from "Asset List", using **Model->Export selected objects with AnimationClip** to export.
-
-Export Animator will export bound AnimationClip or use **Ctrl** to select Animator and AnimationClip from "Asset List", using **Export->Export Animator with selected AnimationClip** to export.
-
-### Export MonoBehaviour
-
-When you select an asset of the MonoBehaviour type for the first time, AssetStudio will ask you the directory where the assembly is located, please select the directory where the assembly is located, such as the `Managed` folder.
-
-#### For Il2Cpp
-
-First, use [Il2CppDumper](https://github.com/Perfare/Il2CppDumper) to generate dummy dll, then when using AssetStudio to select the assembly directory, select the dummy dll folder.
-
 ## Build
 
-* Visual Studio 2022 or newer
+* Visual Studio 2026 or newer
 * **AssetStudioFBXNative** uses [FBX SDK 2020.2.1](https://www.autodesk.com/developer-network/platform-technologies/fbx-sdk-2020-2-1), before building, you need to install the FBX SDK and modify the project file, change include directory and library directory to point to the FBX SDK directory
 
 ## Open source libraries used

@@ -11,26 +11,31 @@ AssetStudioModCLI <input path to asset file(s)/folder> [-m, --mode <value>]
                       [--log-level <value>] [--log-output <value>]
                       [--image-format <value>] [--audio-format <value>]
                       [--l2d-group-option <value>] [--l2d-motion-mode <value>]
-                      [--l2d-search-by-filename] [--l2d-force-bezier]
-                      [--fbx-scale-factor <value>] [--fbx-bone-size <value>]
-                      [--fbx-animation] [--fbx-uvs-as-diffuse]
-                      [--filter-by-name <text>] [--filter-by-container <text>]
-                      [--filter-by-pathid <text>] [--filter-by-text <text>]
-                      [--filter-with-regex] [--blockinfo-comp <value>]
-                      [--block-comp <value>] [--max-export-tasks <value>]
-                      [--export-asset-list <value>] [--assembly-folder <path>]
-                      [--unity-version <text>] [--decompress-to-disk]
-                      [--not-restore-extension] [--ignore-typetree]
+                      [--l2d-smooth-motions] [--l2d-search-by-filename]
+                      [--l2d-filter-textures] [--fbx-scale-factor <value>]
+                      [--fbx-bone-size <value>] [--fbx-animation]
+                      [--fbx-dump-materials] [--fbx-uvs-as-diffuse]
+                      [--fbx-ascii-format] [--filter-by-name <text>]
+                      [--filter-by-container <text>] [--filter-by-pathid <text>]
+                      [--filter-by-text <text>] [--filter-with-regex]
+                      [--filter-exclude-mode] [--unity-version <text>]
+                      [--cache-dir <path>] [--blockinfo-comp <value>]
+                      [--block-comp <value>] [--decompress-to-disk]
+                      [--max-export-tasks <value>] [--export-asset-list <value>]
+                      [--assembly-folder <path>] [--strip-path-prefix <path>]
+                      [--sprite-cropping] [--not-restore-extension]
+                      [--ignore-typetree] [--raw-array]
                       [--load-all]
 
 General Options:
   -m, --mode <value>            Specify working mode
-                                <Value: extract | export(default) | exportRaw | dump | info | live2d |
-                                splitObjects | animator>
+                                <Value: extract | export(default) | exportRaw | dump | jsonDump | info |
+                                live2d | splitObjects | animator>
                                 Extract - Extract(Decompress) asset bundles
                                 Export - Convert and export assets
                                 ExportRaw - Export raw assets
-                                Dump - Generate json dumps of loaded asset
+                                Dump - Generate txt dumps of loaded asset
+                                JsonDump - Generate json dumps of loaded asset
                                 Info - Load file(s) and show the number of available for export assets
                                 Live2D - Export Live2D Cubism models
                                 SplitObjects - Export all model objects (split) (fbx)
@@ -50,15 +55,16 @@ General Options:
                                 Type - Group exported assets by type name
                                 Container - Group exported assets by container path
                                 ContainerFull - Group exported assets by full container path (e.g. with prefab name)
-                                SceneHierarchy - Group exported assets by their node path in scene hierarchy
                                 FileName - Group exported assets by source file name
+                                SceneHierarchy - Group exported assets by their node path in scene hierarchy
                                 Example: "-g containerFull"
 
   -f, --filename-format <value> Specify the file name format for exported assets
-                                <Value: assetName(default) | assetName_pathID | pathID>
+                                <Value: assetName(default) | assetName_pathID | pathID | assetName_hash>
                                 AssetName - Asset file names will look like "assetName.extension"
                                 AssetName_pathID - Asset file names will look like "assetName @pathID.extension"
                                 PathID - Asset file names will look like "pathID.extension"
+                                AssetName_hash - (images only) image names will look like "assetName @hash.extension"
                                 Example: "-f assetName_pathID"
 
   -o, --output <path>           Specify path to the output folder
@@ -103,13 +109,17 @@ Live2D Options:
                                 AnimationClip - Try to export motions using AnimationClip assets
                                 Example: "--l2d-motion-mode animationClip"
 
+  --l2d-smooth-motions          (Flag) If specified, Linear motion segments will be calculated as Bezier segments
+                                (May help if the exported motions look jerky/not smooth enough)
+
   --l2d-search-by-filename      (Flag) If specified, Studio will search for model-related Live2D assets by file name
                                 rather than by container
                                 (Preferred option if all l2d assets of a single model are stored in a single file
                                 or containers are obfuscated)
 
-  --l2d-force-bezier            (Flag) If specified, Linear motion segments will be calculated as Bezier segments
-                                (May help if the exported motions look jerky/not smooth enough)
+  --l2d-filter-textures         (Flag) If specified, Studio will only export model textures with "texture"
+                                in their names
+                                (Only when "--l2d-search-by-filename" flag is used)
 
 FBX Options:
   --fbx-scale-factor <value>    Specify the FBX Scale Factor
@@ -127,9 +137,14 @@ FBX Options:
                                 All - Try to bind all loaded animations to each loaded model
                                 Example: "--fbx-animation skip"
 
+  --fbx-dump-materials          (Flag) If specified, Studio will dump model-related Material assets along with a model
+
   --fbx-uvs-as-diffuse          (Flag) If specified, Studio will export all UVs as Diffuse maps.
-                                Can be useful if you cannot find some UVs after exporting (e.g. in Blender)
+                                Сan be useful if you cannot find some UVs after exporting (e.g. in Blender)
                                 (But can also cause some bugs with UVs)
+
+  --fbx-ascii-format            (Flag) If specified, Studio will export FBX in ASCII format.
+                                If not specified, Binary format will be used
 
 Filter Options:
   --filter-by-name <text>       Specify the name or regexp by which assets should be filtered
@@ -152,10 +167,15 @@ Filter Options:
   --filter-with-regex           (Flag) If specified, the filter options will handle the specified text
                                 as a regular expression (doesn't apply to --filter-by-pathid)
 
-  --filter-exclude-mode       (Flag) If specified, the filter options will work as an exclusion
+  --filter-exclude-mode         (Flag) If specified, the filter options will work as an exclusion
                                 (i.e. assets that match the filter conditions will be excluded)
 
-Advanced Options:
+Import Options:
+  --unity-version <text>        Specify Unity version
+                                Example: "--unity-version 2022.3.2f1"
+
+  --cache-dir <path>            Specify a directory for storing temporary files (default: program folder)
+
   --blockinfo-comp <value>      Specify the compression type of bundle's blockInfo data
                                 <Value: auto(default) | zstd | oodle | lz4 | lzma>
                                 Auto - Use compression type specified in an asset bundle
@@ -174,6 +194,10 @@ Advanced Options:
                                 Lzma - Try to decompress as lzma archive
                                 Example: "--block-comp zstd"
 
+  --decompress-to-disk          (Flag) If not specified, only bundles larger than 2GB will be decompressed
+                                to disk(cache dir) instead of RAM
+
+Advanced Options:
   --max-export-tasks <value>    Specify the number of parallel tasks for asset export
                                 <Value: integer number from 1 to max number of cores (default=max)>
                                 Max - Number of cores in your CPU
@@ -189,11 +213,11 @@ Advanced Options:
   --strip-path-prefix <path>    Specify a path prefix to be stripped from exported asset paths
                                 Example: "--strip-path-prefix assets/models/char/"
 
-  --unity-version <text>        Specify Unity version
-                                Example: "--unity-version 2017.4.39f1"
-
-  --decompress-to-disk          (Flag) If not specified, only bundles larger than 2GB will be decompressed to disk
-                                instead of RAM
+  --sprite-cropping             Specify the sprite cropping mode
+                                <Value: spriteRect(default) | textureRect>
+                                SpriteRect - Crop sprites keeping their own size and alignment
+                                TextureRect - Crop sprites to their actual image size (aka trim)
+                                Example: "--sprite-cropping textureRect"
 
   --not-restore-extension       (Flag) If specified, Studio will not try to use/restore original TextAsset extension,
                                 and will just export all TextAssets with the ".txt" extension
@@ -201,6 +225,9 @@ Advanced Options:
   --ignore-typetree             (Flag) If specified, Studio will not try to parse assets at load time
                                 using their type tree
 
+  --raw-array                   (Flag) If specified, Studio will try to extract raw byte array from MonoBehaviour assets
+                                (Only for ExportRaw mode)
+
   --load-all                    (Flag) If specified, Studio will load assets of all types
-                                (Only for Dump, Info and ExportRaw modes)
+                                (Only for Dump, JsonDump, Info and ExportRaw modes)
 ```

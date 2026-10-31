@@ -5,8 +5,8 @@
         <TargetFrameworks>net472;net9.0;net10.0</TargetFrameworks>
         <AssemblyTitle>AssetStudioMod by aelurum</AssemblyTitle>
         <AssemblyName>AssetStudioModCLI</AssemblyName>
-        <Version>0.19.0.0</Version>
-        <Copyright>Copyright © Perfare; Copyright © aelurum 2023-2025</Copyright>
+        <Version>0.20.0.0</Version>
+        <Copyright>Copyright © Perfare; Copyright © aelurum 2023-2026</Copyright>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <DebugType>embedded</DebugType>
     </PropertyGroup>

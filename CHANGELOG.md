@@ -1,4 +1,77 @@
-# Changelog
+﻿# Changelog
+
+## v0.20.0.0 [01-11-2026]
+#### New features
+- Improved Unity 6+ support (up to v7000.0)
+- Improved Tuanjie support (up to v1.10) (still partial)
+    - Improved auto-detection of Tuanjie meshes
+    - [GUI] Added option to specify parsing mode of Tuanjie meshes
+- Added support for legacy Unity versions (https://github.com/aelurum/AssetStudioMod/issues/103)
+- Added JsonDump option
+- Added support for parsing `MeshRenderer` and `SkinnedMeshRenderer` via typetree
+- Added option to export images in "assetName@hash" name format
+- Added option to dump material assets during model export (CLI flag: `--fbx-dump-materials`)
+- Added option to keep original sprite sizes (https://github.com/aelurum/AssetStudioMod/issues/107; https://github.com/aelurum/AssetStudioMod/pull/115)
+    - Enabled by default
+    - [CLI] Added `--sprite-cropping` option to the Advanced options section
+    - [GUI] Added "Keep original sprite sizes" option to the Export options
+    - [GUI] Added `Ctrl + R` hotkey to change sprite rendering mode
+    - [GUI] Added `Ctrl + B` hotkey to display sprite border
+- Added option to extract raw byte array from MonoBehaviour assets (CLI flag: `--raw-array`)
+- [GUI] Added "Studio options" window:
+    - Added option to specify a custom cache directory
+    - Renamed "Use lazy loading for Mesh assets" to "Pre-process Mesh assets" and moved to Studio options
+- [GUI] Replaced "Import options" with "Game-specific options" window
+- [GUI] Reworked "Export options" window
+- [GUI] Added Unity version label to status strip
+- [CLI] Added flag to allow removing container path prefix (`--strip-path-prefix`) (https://github.com/aelurum/AssetStudioMod/pull/113)
+- [CLI] Added flag to allow filtering assets in blacklist mode (`--filter-exclude-mode`) (https://github.com/aelurum/AssetStudioMod/pull/113)
+- [CLI] Added flag to allow exporting models in FBX ASCII format (`--fbx-ascii-format`) (https://github.com/aelurum/AssetStudioMod/pull/124)
+- [CLI] Added support for `--fbx-uvs-as-diffuse` option in `--mode animator` (https://github.com/aelurum/AssetStudioMod/pull/124)
+
+#### Fixes
+- Improved normal maps support (https://github.com/aelurum/AssetStudioMod/issues/57)
+- Fixed rendering of some packed sprites (https://github.com/aelurum/AssetStudioMod/issues/104)
+- Fixed an error in case of unsupported sprites (https://github.com/aelurum/AssetStudioMod/issues/109)
+- Fixed a bug in the bundle block reader (https://github.com/aelurum/AssetStudioMod/issues/119)
+- Fixed null reference exception when bone frame is not found (https://github.com/aelurum/AssetStudioMod/pull/129)
+- Fixed export interruption due to an error during mesh processing (https://github.com/aelurum/AssetStudioMod/issues/134)
+- Fixed an error during parsing typetree data of Font assets (https://github.com/aelurum/AssetStudioMod/issues/137)
+- Fixed m_IndexBuffer decompression when m_IndexFormat != 0 (https://github.com/aelurum/AssetStudioMod/issues/147)
+- Fixed fbx export of some old models (regression v0.19.0)
+- Fixed parallel export from a single stream
+- Fixed some bugs with invalid names during export
+- Changed cache logic:
+    - Single cache file instead of separate cache files for each bundle
+    - Program folder as a default cache directory
+- Disabled ANSI codes support for console in Wine
+- [GUI] Improved multi-monitor & highDpi support:
+    - Improved multi-monitor support (.net builds)
+    - Disabled dpi awareness for net472 build, via app.manifest, for better compatibility (with Wine as well)
+- [CLI] Fixed `--mode animator` not exporting AnimationClips with `--fbx-animation all` (https://github.com/aelurum/AssetStudioMod/pull/124)
+
+#### Live2D Changes
+- Added support for Cubism 5.3 models
+- Added option to filter Live2D textures when the "Search assets by filename" option is used
+    - [CLI] Added `--l2d-filter-textures` flag to the Live2D options section
+- Improved detection of Live2D models (https://github.com/aelurum/AssetStudioMod/issues/122)
+    - Added an alternative way of model detection when a MonoScript asset is not loaded
+- Fixed Live2D motion converting (https://github.com/aelurum/AssetStudioMod/issues/150)
+- Fixed BlendType enum
+- [exp3.json] Fixed format of Blend values (there should be strings according to the official specification)
+- Improved support for Live2D physics and fade motion assets
+- Disabled warnings from Live2D motion converter in non-debugging mode
+- [CLI] Renamed "--l2d-force-bezier" to "--l2d-smooth-motions"
+
+#### Other Changes
+- Added support for swizzled rgba64 textures
+- Changed display format of large byte arrays to base64 string
+- Improved Dark mode support for .net10
+- Improved AudioClip support
+- [GUI] Improved right-click menu options for dump tree view
+- [GUI] Improved lzma progress report
+- Made some other minor fixes and improvements
+
 
 ## v0.19.0.0 [04-09-2025]
 #### Breaking Changes
@@ -86,16 +159,16 @@
 #### New features
 - Added option to export assets with PathID in filename (https://github.com/aelurum/AssetStudio/issues/25)
 - Added support for swizzled Switch textures:
-	- Ported from nesrak1's fork (https://github.com/nesrak1/AssetStudio/tree/switch-tex-deswizzle)
+    - Ported from nesrak1's fork (https://github.com/nesrak1/AssetStudio/tree/switch-tex-deswizzle)
 - Added support for `Texture2DArray` assets:
-	- [GUI] Assets of fake asset type `Texture2DArrayImage` will be generated, to make it easier to work with images from array in the GUI
+    - [GUI] Assets of fake asset type `Texture2DArrayImage` will be generated, to make it easier to work with images from array in the GUI
 - Added support for assets with Zstd block compression:
-	- Implemented as one of the option for custom compression type (5). Selected by default.
-	- [GUI] "Options" -> "Custom compression type"
-	- [CLI] "--custom-compression"
+    - Implemented as one of the option for custom compression type (5). Selected by default.
+    - [GUI] "Options" -> "Custom compression type"
+    - [CLI] "--custom-compression"
 - Added support of Texture2D assets from Unity 2023.2+
 - Added support of parallel asset export
-	- It's also possible to specify the number of parallel tasks for export in both the GUI and CLI (the higher the number of parallel tasks, the more RAM may be needed for exporting)
+    - It's also possible to specify the number of parallel tasks for export in both the GUI and CLI (the higher the number of parallel tasks, the more RAM may be needed for exporting)
 - Added support for parsing assets using their type tree for some asset types (`Texture2D`, `Texture2DArray`, `AnimationClip`) (beta):
   > only suitable for asset bundles which contain typetree info
 
@@ -108,17 +181,17 @@
 #### Other changes
 - [GUI] Preserve selection order of `AnimationClip` assets (https://github.com/aelurum/AssetStudio/issues/24)
 - Improved integration with Live2D assets:
-	- Improved export method of AnimationClip motions
-	- Added support for generation of cdi3.json (beta)
-	- [GUI] Added display of model info on the preview tab
-	- [GUI] Added support for partial export:
-		- selected models
-		- model + selected AnimationClip motions
-		- model + selected Fade motions
-		- model + selected Fade Motion List
+    - Improved export method of AnimationClip motions
+    - Added support for generation of cdi3.json (beta)
+    - [GUI] Added display of model info on the preview tab
+    - [GUI] Added support for partial export:
+        - selected models
+        - model + selected AnimationClip motions
+        - model + selected Fade motions
+        - model + selected Fade Motion List
 - Add more options to work with Scene Hierarchy: (https://github.com/aelurum/AssetStudio/issues/23)
-	- Added option to group exported assets by node path in scene hierarchy
-	- Added field with node path to exported xml asset list
+    - Added option to group exported assets by node path in scene hierarchy
+    - Added field with node path to exported xml asset list
 - [CLI] Added colors to help message
 - Changed Dump function to show/export object dump if type tree dump is not available
 - Added more displayed information for non-fmod audio clips
@@ -126,13 +199,13 @@
 
 ## v0.17.4.0 [16-12-2023]
 - Added support for Live2D Fade motions
-	- [GUI] Added related settings to the Export Options window
-	- [CLI] Added options section with related settings
+    - [GUI] Added related settings to the Export Options window
+    - [CLI] Added options section with related settings
 - Added support for separate PreloadData (https://github.com/Perfare/AssetStudio/issues/690)
 - [GUI] Added support for .lnk files via Drag&Drop (https://github.com/aelurum/AssetStudio/issues/13)
 - [GUI] Added support for Drag&Drop files from a browser
 - [GUI] Added console logger
-	- Added option to save log to a file
+    - Added option to save log to a file
 - [GUI] Added option to not build a tree structure
 - Made some other minor fixes and improvements
 

@@ -8,15 +8,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.IO.Hashing" Version="10.0.13" />
+        <PackageReference Include="System.IO.Hashing" Version="10.0.14" />
         <PackageReference Include="ZstdSharp.Port" Version="0.8.8" />
         <PackageReference Include="K4os.Compression.LZ4" Version="1.3.8" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
         <PackageReference Include="System.IO.Compression" Version="4.3.0" />
-        <PackageReference Include="System.Text.Json" Version="10.0.13" />
-        <PackageReference Include="Microsoft.Bcl.Numerics" Version="10.0.13" />
+        <PackageReference Include="System.Text.Json" Version="10.0.14" />
+        <PackageReference Include="Microsoft.Bcl.Numerics" Version="10.0.14" />
 
         <ProjectReference Include="..\AssetStudio.PInvoke\AssetStudio.PInvoke.csproj" />
     </ItemGroup>

@@ -16,6 +16,9 @@ namespace AssetStudio
         public int weightedMode;
         public T inWeight;
         public T outWeight;
+        // True when this keyframe is a densely-sampled value (no authored tangents),
+        // so segments to its neighbors are linear by definition.
+        public bool sampled;
 
         public Keyframe() { }
 

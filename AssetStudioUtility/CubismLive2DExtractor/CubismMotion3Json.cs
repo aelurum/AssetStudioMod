@@ -79,7 +79,10 @@ namespace CubismLive2DExtractor
                 cubismCurve.Segments.Add(curve.value);
                 totalPointCount += 1;
             }
-            else if (preCurve.outSlope == 0f && Math.Abs(curve.inSlope) < 0.0001f && !forceBezier) // LinearSegment
+            // A zero-slope Hermite span is an ease-in-out S-curve (smoothstep), not a straight
+            // line. Linear is only correct for constant spans (v0 == v1) and for densely
+            // sampled keys, which Unity interpolates linearly between samples.
+            else if (preCurve.outSlope == 0f && Math.Abs(curve.inSlope) < 0.0001f && (preCurve.sampled || preCurve.value == curve.value) && !forceBezier) // LinearSegment
             {
                 cubismCurve.Segments.Add(0f); // Segment ID
                 cubismCurve.Segments.Add(curve.time);
@@ -290,6 +293,7 @@ namespace CubismLive2DExtractor
                 weightedMode = 0,
                 inWeight = 0,
                 outWeight = 0,
+                sampled = iKeyframe.sampled,
             };
         }
     }

@@ -112,7 +112,7 @@ namespace CubismLive2DExtractor
             var track = iAnim.FindTrack(boneName);
             track.Target = target;
             var value = data[curveIndex];
-            track.Curve.Add(new ImportedKeyframe<float>(time, value, 0, 0, null));
+            track.Curve.Add(new ImportedKeyframe<float>(time, value, 0, 0, null, sampled: true));
         }
 
         private void GetLive2dPath(GenericBinding binding, out string target, out string id)

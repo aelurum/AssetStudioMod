@@ -30,14 +30,18 @@ namespace CubismLive2DExtractor
         public T inSlope { get; set; }
         public T outSlope { get; set; }
         public float[] coeff { get; set; }
+        // True for densely-sampled keys (dense/constant clip data): zero slopes there
+        // really mean linear interpolation between samples, not authored easing.
+        public bool sampled { get; set; }
 
-        public ImportedKeyframe(float time, T value, T inSlope, T outSlope, float[] coeff)
+        public ImportedKeyframe(float time, T value, T inSlope, T outSlope, float[] coeff, bool sampled = false)
         {
             this.time = time;
             this.value = value;
             this.inSlope = inSlope;
             this.outSlope = outSlope;
             this.coeff = coeff;
+            this.sampled = sampled;
         }
 
         public float Evaluate(float sampleTime)

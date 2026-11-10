@@ -149,7 +149,11 @@
             this.FMODpauseButton = new System.Windows.Forms.Button();
             this.FMODplayButton = new System.Windows.Forms.Button();
             this.fontPreviewBox = new System.Windows.Forms.RichTextBox();
+            #if NETFRAMEWORK
             this.glControl1 = new OpenTK.GLControl();
+            #else
+            this.glControl1 = new OpenTK.GLControl.GLControl();
+            #endif
             this.textPreviewBox = new System.Windows.Forms.TextBox();
             this.classTextBox = new System.Windows.Forms.TextBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
@@ -1412,7 +1416,9 @@
             this.glControl1.Size = new System.Drawing.Size(766, 603);
             this.glControl1.TabIndex = 4;
             this.glControl1.Visible = false;
+            #if NETFRAMEWORK
             this.glControl1.VSync = false;
+            #endif
             this.glControl1.Load += new System.EventHandler(this.glControl1_Load);
             this.glControl1.Paint += new System.Windows.Forms.PaintEventHandler(this.glControl1_Paint);
             this.glControl1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.glControl1_MouseDown);
@@ -1862,7 +1868,11 @@
         private System.Windows.Forms.TextBox classTextBox;
         private System.Windows.Forms.ToolStripMenuItem exportClassStructuresMenuItem;
         private System.Windows.Forms.Label FMODcopyrightLabel;
+        #if NETFRAMEWORK
         private OpenTK.GLControl glControl1;
+        #else
+        private OpenTK.GLControl.GLControl glControl1;
+        #endif
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem showOriginalFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportAnimatorWithSelectedAnimationClipMenuItem;

@@ -65,9 +65,7 @@
     <ItemGroup Condition=" '$(TargetFramework)' != 'net472' ">
         <PackageReference Include="OpenTK.Graphics" Version="4.9.4" />
         <PackageReference Include="OpenTK.Windowing.Desktop" Version="4.9.4" />
-        <Reference Include="OpenTK.WinForms">
-            <HintPath>Libraries\OpenTK.WinForms.dll</HintPath>
-        </Reference>
+        <PackageReference Include="OpenTK.GLControl" Version="4.0.2" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
